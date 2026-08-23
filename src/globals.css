@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Minimal readable defaults. Scaffolding, not a design system — the shared
+   auth components bring their own Tailwind classes, and VerifiedMargins'
+   visual identity is still outstanding. Everything here is expected to be
+   replaced. Deliberately no Dragon palette. */
+:root {
+  color-scheme: light dark;
+  --background: #ffffff;
+  --foreground: #16181d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root { --background: #101216; --foreground: #e9ecf1; }
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}

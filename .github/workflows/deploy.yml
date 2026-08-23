@@ -1,0 +1,80 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  packages: read   # for @ballisticbrands/frontend-shared on GitHub Packages
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@ballisticbrands"
+
+      - name: Install dependencies
+        # `npm install` (not `npm ci`) so the lock file gets the
+        # @ballisticbrands/frontend-shared entry when it's missing —
+        # local dev needs a PAT with read:packages to update the lock
+        # (public GH Packages still require auth), and running the
+        # bootstrap install here saves that friction.
+        run: npm install --no-audit --no-fund
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        run: npm run build
+        env:
+          # Public site key for the shared Cloudflare Turnstile widget —
+          # NOT a secret. Turnstile site keys are served to browsers in
+          # plaintext (this one is already readable in every brand app's
+          # shipped bundle); only the paired TURNSTILE_SECRET_KEY, which
+          # lives on the backend, is sensitive. Kept inline so a fresh
+          # fork deploys correctly with no repo secrets to configure.
+          # Any hostname using it must be in the widget's allowlist in
+          # the Cloudflare dashboard.
+          #
+          # Deliberately not the default in src/lib/config.ts: an empty
+          # key there is what makes local dev and preview builds skip
+          # the widget, and localhost is not allowlisted.
+          VITE_TURNSTILE_SITE_KEY: "0x4AAAAAAD0Om6EwWjyl-CF4"
+          # "Sign in with Google" OAuth Web client ID — public by design
+          # (baked into every brand app's shipped bundle), same inline-
+          # not-secret rationale as the Turnstile site key above. The
+          # app origin must be on the client's Authorized JavaScript
+          # origins list in the Google Cloud console.
+          VITE_GOOGLE_CLIENT_ID: "776606808148-8p8l20pg1vt4jcbde2rr1orvlku87b55.apps.googleusercontent.com"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

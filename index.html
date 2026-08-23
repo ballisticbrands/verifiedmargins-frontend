@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- ⚠️ No favicon or logo is linked on purpose. VerifiedMargins is
+         deliberately NOT Dragon-branded and has no visual identity yet. -->
+    <!-- Fallback title + description for anything rendering before the SPA
+         mounts. main.tsx sets the final values from the brand config. -->
+    <meta name="description" content="VerifiedMargins — a public profile for your Amazon margins." />
+    <title>VerifiedMargins</title>
+    <!-- GA4, Microsoft Clarity and the Meta Pixel are injected at runtime from
+         src/main.tsx, brand-resolved, matching the sibling brand app repos. -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

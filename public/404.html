@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>VerifiedMargins</title>
+    <!-- GitHub Pages serves this for any path it has no file for. The app is a
+         client-routed SPA, so stash the requested path and bounce to the root;
+         src/main.tsx reads it back off sessionStorage and restores the URL
+         BEFORE captureAttribution() runs, so the query string survives. -->
+    <script>
+      sessionStorage.setItem(
+        "spa-redirect",
+        window.location.pathname + window.location.search + window.location.hash
+      );
+      window.location.replace("/" + window.location.search + window.location.hash);
+    </script>
+  </head>
+  <body></body>
+</html>
