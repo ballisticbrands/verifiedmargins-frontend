@@ -9,6 +9,7 @@ import {
 import App from "./App";
 import { activeBrand, META_PIXEL_ID } from "./brands";
 import { config } from "./lib/config";
+import { fixMetaStandardEvents } from "./lib/meta-events";
 import "./globals.css";
 
 const brand = activeBrand();
@@ -92,46 +93,6 @@ function injectMetaPixel(pixelId: string): void {
   /* eslint-enable @typescript-eslint/no-explicit-any, prefer-rest-params */
   w.fbq("init", pixelId);
   w.fbq("track", "PageView");
-}
-
-/**
- * Rewrite `fbq('trackCustom', <standard event>)` into `fbq('track', …)`.
- *
- * 🚨 Why this shim exists: @ballisticbrands/frontend-shared (0.7.0) fires
- * `fbq("trackCustom", "CompleteRegistration", …)` inside
- * identifyUserAcrossPlatforms(). CompleteRegistration is a Meta STANDARD event,
- * and sending it via trackCustom makes Meta treat it as a custom event — which
- * forfeits Meta's cross-advertiser optimization priors AND its Aggregated Event
- * Measurement slot, i.e. iOS delivery. It looks fine in Events Manager, just
- * filed under the wrong kind.
- *
- * The correct fix is in the shared package, and it has been outstanding since
- * 2026-08-02 — every new product inherits the bug. This wrapper is the local
- * workaround (the same one dragonrestock-frontend applies). DELETE IT once
- * frontend-shared ships the fix, or the two will fight over the same call.
- *
- * Must be installed AFTER injectMetaPixel(), so it wraps the real fbq.
- */
-const META_STANDARD_EVENTS = new Set([
-  "CompleteRegistration", "Lead", "ViewContent", "InitiateCheckout", "Purchase",
-  "AddToCart", "Search", "Contact", "SubmitApplication", "StartTrial", "Subscribe",
-]);
-function fixMetaStandardEvents(): void {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const w = window as any;
-  if (typeof w.fbq !== "function") return;
-  const original = w.fbq;
-  const wrapped = function (this: unknown, ...args: unknown[]) {
-    if (args[0] === "trackCustom" && typeof args[1] === "string" && META_STANDARD_EVENTS.has(args[1])) {
-      args[0] = "track";
-    }
-    return original.apply(this, args);
-  };
-  // fbq carries state (queue, callMethod, loaded, version) that fbevents.js
-  // reads when it finishes loading. Copy it across or the pixel breaks on load.
-  Object.assign(wrapped, original);
-  w.fbq = wrapped;
-  w._fbq = wrapped;
 }
 
 injectGa4(brand.ga4MeasurementId);

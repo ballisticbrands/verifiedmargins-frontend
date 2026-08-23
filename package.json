@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:events": "node scripts/verify-events.mjs",
+    "test": "node scripts/test-meta-events.mjs"
   },
   "dependencies": {
-    "@ballisticbrands/frontend-shared": "^0.7.0",
+    "@ballisticbrands/frontend-shared": "^0.8.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0"
@@ -22,6 +24,7 @@
     "vite": "^6.3.6",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "puppeteer-core": "^25.7.0"
   }
 }

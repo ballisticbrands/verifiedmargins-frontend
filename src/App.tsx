@@ -8,6 +8,7 @@ import {
 } from "@ballisticbrands/frontend-shared";
 import { Dashboard } from "@/pages/Dashboard";
 import { SignIn } from "@/pages/SignIn";
+import { Settings } from "@/pages/Settings";
 import { SignUp } from "@/pages/SignUp";
 
 export default function App() {
@@ -60,6 +61,9 @@ export default function App() {
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+      {/* The profile settings form — username, bio, links, per-field
+          visibility toggles and the connected-account opt-in. */}
+      <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/sign-up" replace />} />
     </Routes>
   );

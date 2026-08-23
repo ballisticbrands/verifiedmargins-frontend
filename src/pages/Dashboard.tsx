@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   VerifyEmailBanner,
   reconcileConnectionActivations,
@@ -10,10 +11,11 @@ import { AuthShell } from "./AuthShell";
 /**
  * Placeholder dashboard.
  *
- * ⚠️ The seller-profile product does not exist yet — the backend models,
- * brand.ts row and CORS entry are being built separately. This screen's only
- * job today is to be the real post-signup destination so the funnel events fire
- * against something genuine, and to host the connection reconcile below.
+ * ⚠️ Still deliberately plain, but no longer empty: the backend profile models,
+ * brand.ts row and CORS entry have landed, so /settings is a real screen that
+ * edits a real profile. This screen's remaining jobs are to be the post-signup
+ * destination so the funnel events fire against something genuine, and to host
+ * the connection reconcile below.
  */
 export function Dashboard() {
   const { user } = useSession();
@@ -42,8 +44,11 @@ export function Dashboard() {
         {user?.name ? `Hi, ${user.name}` : "Dashboard"}
       </h1>
       <p className="mt-3 text-sm opacity-70">
-        Your account exists and your profile handle is reserved. Amazon connection
-        and profile publishing are not built yet — this is a placeholder screen.
+        Your account exists and your profile handle is reserved. Nothing is public
+        until you publish it.
+      </p>
+      <p className="mt-3 text-sm">
+        <Link to="/settings">Edit your profile →</Link>
       </p>
     </AuthShell>
   );

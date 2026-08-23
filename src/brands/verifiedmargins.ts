@@ -31,8 +31,8 @@ export const VERIFIEDMARGINS: BrandConfig = {
  * Dragon one. Two products in one dataset are inseparable, because they run
  * the same shared code firing identical event names.
  *
- * 🚨 PENDING: creating the dataset needs Business Manager UI access; the
- * system-user token is refused with MANAGE_PIXELS_AUDIT_NEEDED.
+ * Dataset 4044834252476491 ("VerifiedMargins website"), owned by the Dragon
+ * Suite portfolio (1843062053072002).
  *
  * Deliberately NOT a BrandConfig field: that type is owned by
  * @ballisticbrands/frontend-shared and has no `metaPixelId`, so adding one
@@ -43,4 +43,4 @@ export const VERIFIEDMARGINS: BrandConfig = {
  * event here silently no-ops — no error, just nothing. Creating the dataset in
  * Business Manager is NOT enough on its own.
  */
-export const META_PIXEL_ID = "";
+export const META_PIXEL_ID = "4044834252476491";

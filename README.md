@@ -20,20 +20,16 @@ GitHub Pages (Actions → Pages, `.github/workflows/deploy.yml`).
 | ✅ Attribution | `captureAttribution()` at boot, before React mounts |
 | ✅ Activation events | `reconcileConnectionActivations()` on dashboard mount (server state, not the OAuth popup) |
 | ✅ Clarity | project `y6xgjjs7z9`, injected from `src/main.tsx` |
-| ⏳ Meta pixel | **dataset ID pending** — `META_PIXEL_ID = ""` in the same file |
-| ⏳ Backend | `brand.ts` row, CORS origin and Prisma models are owned elsewhere; auth calls will 4xx until they land |
+| ✅ Meta pixel | dataset `4044834252476491`, injected from `src/main.tsx` |
+| ✅ Profile settings | `/settings` — username (availability + the 2-change cap), bio, avatar, links, per-field visibility toggles, connected-account opt-in and the blended-COGS basis. The form is `ProfileSettingsPage` from the shared package; `src/pages/Settings.tsx` only picks which profile to edit |
+| ✅ Backend | `brand.ts` row, CORS origins, Prisma models, `/v1/profiles/*` and `/v1/public/profiles/*` all landed — see `sellerconnect/docs/VERIFIEDMARGINS_API.md` |
+| ⏳ Public profile pages | `verifiedmargins.com/<username>` has no home yet. The renderer exists (`PublicProfilePage` in the shared package, reads `/v1/public/profiles/:username`); somebody has to mount it on the apex |
 
-## One ID left to fill in
-
-`injectMetaPixel()` no-ops on an empty string, so the app ships and works
-without it — you just get no Meta events. It lives in
-[`src/brands/verifiedmargins.ts`](src/brands/verifiedmargins.ts):
-
-```ts
-export const META_PIXEL_ID = "";   // ← Meta dataset ID
-```
-
-The same ID must also be filled into `VerifiedMargins-LP/index.html`.
+The settings screen needs `@ballisticbrands/frontend-shared` **≥ 0.8.0**.
+`node_modules/@ballisticbrands/frontend-shared` is currently a symlink to the
+local checkout, so it already resolves — but **0.8.0 has not been published to
+GitHub Packages**, and CI installs from the registry. Publish it before relying
+on a CI build.
 
 ## Gotchas that are already handled here — don't undo them
 
@@ -43,11 +39,13 @@ The same ID must also be filled into `VerifiedMargins-LP/index.html`.
 - **`sign_up` fires exactly once**, from the shared `identifyUserAcrossPlatforms()`
   after the post-signup `/me` lookup. Do **not** add a `track("sign_up")` in
   `SignUp.tsx`.
-- **`fixMetaStandardEvents()` in `main.tsx`** rewrites the shared package's
+- **`src/lib/meta-events.ts`** rewrites the shared package's
   `fbq("trackCustom", "CompleteRegistration")` into `fbq("track", …)`.
   `CompleteRegistration` is a Meta *standard* event; sending it as custom forfeits
-  Meta's optimization priors and its AEM slot. **Delete this shim** once
-  `@ballisticbrands/frontend-shared` fixes it upstream.
+  Meta's optimization priors and its AEM slot. **Still present in frontend-shared
+  0.8.0.** Unit-tested by `npm test` — that test is the only thing standing between
+  this shim and being silently deleted, because `track` and `trackCustom` are
+  byte-identical on the wire. **Delete both** once the shared package is fixed.
 - **The tab title is set in two places** — `main.tsx` at boot and an effect in
   `App.tsx` on every route change. Changing only one is silently overridden.
 - **One text node for the wordmark** (`AuthShell.tsx`). A split lockup
@@ -60,6 +58,8 @@ The same ID must also be filled into `VerifiedMargins-LP/index.html`.
 ```bash
 npm install          # needs a GitHub PAT with read:packages for @ballisticbrands
 npm run dev
+npm test             # unit-tests the Meta standard-event rewrite
+npm run build && npm run verify:events   # drives a real browser, asserts all 3 loaders fire
 ```
 
 CI authenticates to GitHub Packages with the built-in `GITHUB_TOKEN`; only local
