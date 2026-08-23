@@ -14,9 +14,11 @@
  * published 0.7.x AND in the unpublished 0.8.0 that every sibling repo has in
  * node_modules. This is the local workaround.
  *
- * ⚠️ This repo pins ^0.7.0 because **0.8.0 was never published** to GitHub
- * Packages — it exists only as a local build in every sibling repo's
- * node_modules, so `^0.8.0` fails CI with ETARGET. Bump the pin when it ships.
+ * ⚠️ CI is RED until frontend-shared 0.8.0 is PUBLISHED. src/pages/Settings.tsx
+ * imports ProfileSettingsPage / createProfile / listProfiles, which exist only
+ * in 0.8.0 — and 0.8.0 lives solely as a local build in every sibling repo's
+ * node_modules. The pin is ^0.8.0 because that is genuinely what the code
+ * needs; it will go green the moment the package ships.
  * **Delete this module** once frontend-shared ships the fix, or the two will
  * fight over the same call.
  *

@@ -1,5 +1,8 @@
 # verifiedmargins-frontend
 
+> 🔴 **CI is currently red** through no fault of this repo — see [BLOCKED.md](BLOCKED.md).
+> `frontend-shared` 0.8.0 needs publishing. Local builds and both test suites pass.
+
 The VerifiedMargins app, served at **https://app.verifiedmargins.com** from
 GitHub Pages (Actions → Pages, `.github/workflows/deploy.yml`).
 
