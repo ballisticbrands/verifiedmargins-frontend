@@ -19,10 +19,8 @@ export const VERIFIEDMARGINS: BrandConfig = {
   // GA4 property 551201641 "VerifiedMargins" — its own property, spanning both
   // verifiedmargins.com and app.verifiedmargins.com.
   ga4MeasurementId: "G-B9Y3JRFNT8",
-  // 🚨 PENDING. Clarity has no project-creation API, so this has to be made by
-  // hand at clarity.microsoft.com. injectClarity() no-ops on an empty string,
-  // so shipping with "" is safe — it just means no session recordings yet.
-  clarityId: "",
+  // Clarity project y6xgjjs7z9 — its own project, not a Dragon one.
+  clarityId: "y6xgjjs7z9",
   // Same postMessage namespace as every other brand — the backend sends this
   // type regardless of tenant.
   oauthMessageType: "dragonbot-oauth-result",

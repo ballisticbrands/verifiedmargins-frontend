@@ -19,22 +19,21 @@ GitHub Pages (Actions → Pages, `.github/workflows/deploy.yml`).
 | ✅ Auth | shared `useSignUpForm` / `useSignInForm`, Turnstile, Google sign-in, on `/sign-up` + `/sign-in` |
 | ✅ Attribution | `captureAttribution()` at boot, before React mounts |
 | ✅ Activation events | `reconcileConnectionActivations()` on dashboard mount (server state, not the OAuth popup) |
-| ⏳ Clarity | **project ID pending** — `clarityId: ""` in `src/brands/verifiedmargins.ts` |
+| ✅ Clarity | project `y6xgjjs7z9`, injected from `src/main.tsx` |
 | ⏳ Meta pixel | **dataset ID pending** — `META_PIXEL_ID = ""` in the same file |
 | ⏳ Backend | `brand.ts` row, CORS origin and Prisma models are owned elsewhere; auth calls will 4xx until they land |
 
-## Two IDs to fill in
+## One ID left to fill in
 
-Both loaders no-op on an empty string, so the app ships and works without them —
-you just get no session recordings and no Meta events. Both live in
+`injectMetaPixel()` no-ops on an empty string, so the app ships and works
+without it — you just get no Meta events. It lives in
 [`src/brands/verifiedmargins.ts`](src/brands/verifiedmargins.ts):
 
 ```ts
-clarityId: "",          // ← clarity.microsoft.com project ID
 export const META_PIXEL_ID = "";   // ← Meta dataset ID
 ```
 
-The same two IDs must also be filled into `VerifiedMargins-LP/index.html`.
+The same ID must also be filled into `VerifiedMargins-LP/index.html`.
 
 ## Gotchas that are already handled here — don't undo them
 
