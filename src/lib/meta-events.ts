@@ -1,7 +1,7 @@
 /**
  * Meta standard-event correction.
  *
- * 🚨 The bug this exists for: @ballisticbrands/frontend-shared (0.8.0) fires
+ * 🚨 The bug this exists for: @ballisticbrands/frontend-shared fires
  * `fbq("trackCustom", "CompleteRegistration", …)` inside
  * identifyUserAcrossPlatforms(). CompleteRegistration is a Meta **standard**
  * event; sending it via trackCustom makes Meta file it as a custom event, which
@@ -10,7 +10,13 @@
  * Manager, just filed under the wrong kind.
  *
  * The correct fix belongs in the shared package and has been outstanding since
- * 2026-08-02, so every new product inherits it. This is the local workaround.
+ * 2026-08-02, so every new product inherits it. Confirmed still present in the
+ * published 0.7.x AND in the unpublished 0.8.0 that every sibling repo has in
+ * node_modules. This is the local workaround.
+ *
+ * ⚠️ This repo pins ^0.7.0 because **0.8.0 was never published** to GitHub
+ * Packages — it exists only as a local build in every sibling repo's
+ * node_modules, so `^0.8.0` fails CI with ETARGET. Bump the pin when it ships.
  * **Delete this module** once frontend-shared ships the fix, or the two will
  * fight over the same call.
  *
