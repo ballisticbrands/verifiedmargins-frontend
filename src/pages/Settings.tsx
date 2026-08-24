@@ -66,7 +66,14 @@ export function Settings() {
             Could not open your profile: {error}
           </p>
         ) : profileId ? (
-          <ProfileSettingsPage profileId={profileId} publicBaseUrl="https://verifiedmargins.com" />
+          <ProfileSettingsPage
+            profileId={profileId}
+            publicBaseUrl="https://verifiedmargins.com"
+            // Publishing exists to produce a public page, so go and show it.
+            // The profile lives on the apex, not this app host, so this is a
+            // real navigation rather than a router push.
+            onPublished={(url) => window.location.assign(url)}
+          />
         ) : (
           <p>Loading…</p>
         )}

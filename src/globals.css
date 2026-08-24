@@ -253,6 +253,47 @@ select.bg-white {
   max-width: 62ch;
 }
 
+/* Connected accounts: the real account name, then a pill saying what kind of
+   account it is, then the marketplaces. The name alone is not enough — this
+   account holds three connections all called "Paramint Designs". */
+.vm-form [data-account-name] {
+  font-weight: 550;
+}
+.vm-form [data-pill] {
+  display: inline-block;
+  margin-left: 0.45rem;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 550;
+  line-height: 1.5;
+  white-space: nowrap;
+  vertical-align: 0.05rem;
+}
+.vm-form [data-countries] {
+  margin-left: 0.45rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+}
+
+/* Confirmations render beside the control that caused them. Give them a
+   surface so "Saved." is not mistaken for more help text. */
+.vm-form [data-status] {
+  display: inline-block;
+  margin: 0.75rem 0 0;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--muted);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  max-width: none;
+}
+
 .vm-form ul { margin: 0.5rem 0 0; padding: 0; list-style: none; }
 .vm-form li { margin: 0.6rem 0; }
 

@@ -67,9 +67,17 @@ const PROFILE = {
   socials: {}, published: false, verification: "unverified", verifiedAt: null, verifiedNote: null,
   visibility: {}, username_changes_used: 0, username_changes_limit: 2, connections: [],
 };
+/* Mirrors the real wire shape from connectionToWire — including the duplicate
+ * store name, which is the case `countries` exists to disambiguate. */
 const OPTIONS = [
-  { connectionId: "c1", name: "Acme US", provider: "amazon_selling_partner", linked: false, cogsBasis: "per_sku", blendedCogsPct: null },
-  { connectionId: "c2", name: "Acme UK", provider: "amazon_selling_partner", linked: true, cogsBasis: "blended_pct", blendedCogsPct: 32 },
+  { id: "c1", provider: "amazon_selling_partner", name: "Paramint Designs", account_type: null,
+    countries: ["US"], cogs_basis: "per_sku", blended_cogs_pct: null, linked_here: true, linked_elsewhere: false },
+  { id: "c2", provider: "amazon_selling_partner", name: "Paramint Designs", account_type: null,
+    countries: ["CA", "MX"], cogs_basis: "blended_pct", blended_cogs_pct: 32, linked_here: false, linked_elsewhere: false },
+  { id: "c3", provider: "amazon_ads", name: "Ballas & Ballas", account_type: "seller",
+    countries: ["CA", "MX", "US"], cogs_basis: "per_sku", blended_cogs_pct: null, linked_here: false, linked_elsewhere: false },
+  { id: "c4", provider: "amazon_ads", name: "Ballas & Ballas", account_type: "agency",
+    countries: ["US"], cogs_basis: "per_sku", blended_cogs_pct: null, linked_here: false, linked_elsewhere: true },
 ];
 const ROUTES = [
   [/\/v1\/profiles\/username-available/, { available: true }],
