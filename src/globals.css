@@ -191,6 +191,25 @@ select.bg-white {
   outline-offset: 1px;
 }
 
+/* The file picker is a native control the block-input rule above does not
+   reach; without this it renders at the browser's own font and reads as
+   caption text next to everything else. */
+.vm-form input[type="file"] {
+  display: block;
+  font: inherit;
+  font-size: 0.875rem;
+  margin: 0.15rem 0 0;
+}
+
+/* The avatar preview. Size and shape are set inline by the shared
+   component so it looks right unstyled; the surface is ours — a
+   transparent PNG on a white page is otherwise indistinguishable from
+   no picture at all. */
+.vm-form [data-avatar-preview] {
+  border: 1px solid var(--border);
+  background: var(--muted);
+}
+
 /* Checkboxes stay inline with their label — the block rule above would
    otherwise stack each box above its own text. */
 .vm-form input[type="checkbox"] {
