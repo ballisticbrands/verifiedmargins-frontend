@@ -62,7 +62,7 @@ page.on('request', r => {
   if (/google-analytics\.com|analytics\.google\.com|connect\.facebook\.net|facebook\.com\/tr|clarity\.ms/.test(u)) beacons.push(u);
 });
 
-await page.goto(`${origin}/sign-up`, { waitUntil: 'networkidle2', timeout: 45_000 });
+await page.goto(`${origin}/login`, { waitUntil: 'networkidle2', timeout: 45_000 });
 // The LP loads its pixel from index.html; the app INJECTS all three loaders
 // from main.tsx after the bundle executes, so networkidle2 can fire before
 // connect.facebook.net is even requested. Give the injected scripts a beat.

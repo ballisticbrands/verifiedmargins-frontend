@@ -92,8 +92,7 @@ const CORS = {
 };
 
 const PAGES = [
-  { route: "/sign-up", auth: false, name: "signup" },
-  { route: "/sign-in", auth: false, name: "signin" },
+  { route: "/login", auth: false, name: "login" },
   { route: "/dashboard", auth: true, name: "dashboard" },
   { route: "/settings", auth: true, name: "settings" },
 ];

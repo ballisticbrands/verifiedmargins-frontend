@@ -29,7 +29,7 @@
   choice by the seller.
 - Amazon connection: the official Amazon Selling Partner API (SP-API).
 - Company: Chacha Advisory LLC, 30 N Gould St Ste R, Sheridan, WY 82801, USA.
-- Website: https://verifiedmargins.com — sign-up: https://app.verifiedmargins.com/sign-up
+- Website: https://verifiedmargins.com — sign in: https://verifiedmargins.com/login
 
 ## Core pages
 - [Product overview](https://verifiedmargins.com/): what a profile shows and why verification is

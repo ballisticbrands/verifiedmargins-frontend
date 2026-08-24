@@ -1,15 +1,14 @@
 import { useEffect, useRef } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import {
-  ForgotPasswordPage,
+  MagicLoginPage,
   VerifyEmailPage,
   useBrand,
   useSession,
 } from "@ballisticbrands/frontend-shared";
 import { Dashboard } from "@/pages/Dashboard";
-import { SignIn } from "@/pages/SignIn";
+import { Login } from "@/pages/Login";
 import { Settings } from "@/pages/Settings";
-import { SignUp } from "@/pages/SignUp";
 import { PublicProfile } from "@/pages/PublicProfile";
 
 export default function App() {
@@ -54,15 +53,39 @@ export default function App() {
 
   return (
     <Routes>
-      {/* No landing page: this is a social app, so the root is sign-up for a
-          visitor and their own dashboard once signed in. */}
+      {/* No landing page: this is a social app, so the root is the login
+          page for a visitor and their own dashboard once signed in. */}
       <Route path="/" element={<RootRedirect />} />
-      <Route path="/sign-up" element={<PublicOnly><SignUp /></PublicOnly>} />
-      <Route path="/sign-in" element={<PublicOnly><SignIn /></PublicOnly>} />
+      {/* ONE auth page. Continue with Google or ask for a link; the same
+          submit serves a brand-new visitor and a returning one, because
+          the backend creates the account for an unknown address (and
+          answers identically either way, so nothing here can tell). */}
+      <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
+      {/* Tombstones, not deletions. The LP, emails already in inboxes and
+          any live ad creative point at /sign-up and /sign-in, and GitHub
+          Pages serves both paths today — they must keep resolving. */}
+      <Route path="/sign-up" element={<Navigate to="/login" replace />} />
+      <Route path="/sign-in" element={<Navigate to="/login" replace />} />
       {/* Shared pages — identical across every brand app, styled from the
           brand context. Do not fork these locally. */}
       <Route path="/verify-email" element={<VerifyEmailPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      {/* 🚨 Where every emailed sign-in link lands. This route did not
+          exist until 2026-08-24, so /magic?token=… fell through to the
+          /:username catch-all below and rendered "profile not found" —
+          magic-link sign-in could not work at all on this brand. */}
+      <Route
+        path="/magic"
+        element={
+          <MagicLoginPage
+            signInPath="/login"
+            signInPrompt="Prefer Google?"
+            signInLabel="Back to sign in"
+          />
+        }
+      />
+      {/* No /forgot-password: there is no password to forget. The link on
+          /login IS the recovery path. ForgotPasswordPage stays in the
+          shared package for the brands that still need it. */}
       <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
       {/* The profile settings form — username, bio, links, per-field
           visibility toggles and the connected-account opt-in. */}
@@ -78,11 +101,11 @@ export default function App() {
   );
 }
 
-/** Root: signed out → sign up; signed in → your dashboard. */
+/** Root: signed out → the one login page; signed in → your dashboard. */
 function RootRedirect() {
   const { status } = useSession();
   if (status === "loading") return null;
-  return <Navigate to={status === "authenticated" ? "/dashboard" : "/sign-up"} replace />;
+  return <Navigate to={status === "authenticated" ? "/dashboard" : "/login"} replace />;
 }
 
 function PublicOnly({ children }: { children: React.ReactNode }) {
@@ -96,5 +119,5 @@ function PublicOnly({ children }: { children: React.ReactNode }) {
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
   if (status === "loading") return null;
-  return status === "authenticated" ? <>{children}</> : <Navigate to="/sign-in" replace />;
+  return status === "authenticated" ? <>{children}</> : <Navigate to="/login" replace />;
 }
