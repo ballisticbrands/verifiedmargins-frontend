@@ -5,3 +5,6 @@ dist
 .env.local
 tsconfig.tsbuildinfo
 .npmrc
+
+# Screenshot output — for looking at, not for committing.
+screenshots/

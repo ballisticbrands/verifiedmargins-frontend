@@ -6,7 +6,7 @@ import {
   useBrand,
   useSession,
 } from "@ballisticbrands/frontend-shared";
-import { AuthShell } from "./AuthShell";
+import { Shell } from "./Shell";
 
 /**
  * Placeholder dashboard.
@@ -38,7 +38,7 @@ export function Dashboard() {
   }, []);
 
   return (
-    <AuthShell>
+    <Shell width="wide">
       {user?.email ? <VerifyEmailBanner email={user.email} /> : null}
       <h1 className="mt-4 text-2xl font-bold tracking-tight">
         {user?.name ? `Hi, ${user.name}` : "Dashboard"}
@@ -50,6 +50,6 @@ export function Dashboard() {
       <p className="mt-3 text-sm">
         <Link to="/settings">Edit your profile →</Link>
       </p>
-    </AuthShell>
+    </Shell>
   );
 }

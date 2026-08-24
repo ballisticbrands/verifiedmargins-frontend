@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   ProfileSettingsPage,
   createProfile,
   listProfiles,
   useBrand,
 } from "@ballisticbrands/frontend-shared";
-import { AuthShell } from "./AuthShell";
+import { Shell } from "./Shell";
 
 /**
  * Profile settings — the one screen that actually edits the product.
@@ -53,19 +52,25 @@ export function Settings() {
   }, [resolve]);
 
   return (
-    <AuthShell>
-      <p className="text-sm">
-        <Link to="/dashboard">← Dashboard</Link>
-      </p>
-      {error ? (
-        <p role="alert" className="mt-4 text-sm">
-          Could not open your profile: {error}
-        </p>
-      ) : profileId ? (
-        <ProfileSettingsPage profileId={profileId} publicBaseUrl="https://verifiedmargins.com" />
-      ) : (
-        <p className="mt-4 text-sm">Loading…</p>
-      )}
-    </AuthShell>
+    // `wide` because this is a form, not an auth card — at max-w-md every field
+    // and every line of help text was crushed into ~400px. The "← Dashboard"
+    // link that used to sit here is gone: Shell has real nav now.
+    <Shell width="wide">
+      {/* .vm-form styles ProfileSettingsPage by element (see globals.css). The
+          shared component ships 545 lines of semantic HTML with one className,
+          so there is nothing else to hook onto — and styling it here avoids
+          changing a package three other brand apps depend on. */}
+      <div className="vm-form">
+        {error ? (
+          <p role="alert" style={{ color: "var(--danger)" }}>
+            Could not open your profile: {error}
+          </p>
+        ) : profileId ? (
+          <ProfileSettingsPage profileId={profileId} publicBaseUrl="https://verifiedmargins.com" />
+        ) : (
+          <p>Loading…</p>
+        )}
+      </div>
+    </Shell>
   );
 }

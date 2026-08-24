@@ -10,7 +10,8 @@ import {
   useBrand,
   useSignUpForm,
 } from "@ballisticbrands/frontend-shared";
-import { AuthShell } from "./AuthShell";
+import { config } from "@/lib/config";
+import { Shell } from "./Shell";
 
 /**
  * Sign-up. Placeholder presentation; the account itself is created by the
@@ -36,7 +37,7 @@ export function SignUp() {
   }, [brand.displayName]);
 
   return (
-    <AuthShell>
+    <Shell>
       <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
       <p className="mt-2 text-sm opacity-70">
         Reserve your profile handle. Connecting an Amazon account does not publish
@@ -55,7 +56,10 @@ export function SignUp() {
         />
         {googleError ? <p className="mt-2 text-sm text-red-600">{googleError}</p> : null}
       </div>
-      <AuthDivider />
+      {/* Only when Google can actually render. <GoogleSignInButton> returns
+          null on an empty client ID, which otherwise leaves an orphaned "OR"
+          floating above the form with nothing above it. */}
+      {config.googleClientId ? <AuthDivider /> : null}
 
       <form onSubmit={form.onSubmit} className="mt-6 space-y-4">
         <div>
@@ -88,6 +92,6 @@ export function SignUp() {
       <p className="mt-6 text-sm opacity-70">
         Already have an account? <Link to="/sign-in" className="underline">Sign in</Link>
       </p>
-    </AuthShell>
+    </Shell>
   );
 }

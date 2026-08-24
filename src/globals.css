@@ -2,18 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Minimal readable defaults. Scaffolding, not a design system — the shared
-   auth components bring their own Tailwind classes, and VerifiedMargins'
-   visual identity is still outstanding. Everything here is expected to be
-   replaced. Deliberately no Dragon palette. */
+/* ─── Design tokens ───────────────────────────────────────────────────
+ *
+ * 🚨 THESE ARE REQUIRED, NOT DECORATION. Every component in
+ * @ballisticbrands/frontend-shared is built against these custom properties —
+ * <Button> is `bg-[var(--accent)]`, <Input> is `border-[var(--border)]`, and so
+ * on. With them undefined the classes still apply but resolve to nothing, so
+ * buttons render as bare text with no background and inputs lose their borders.
+ * The app looks broken rather than unstyled, and nothing errors.
+ *
+ * Only --background and --foreground were defined here before, which is why the
+ * sign-in button had no surface. Grep the shared package before dropping any:
+ *   grep -rhoE "var\(--[a-z-]+\)" node_modules/@ballisticbrands/frontend-shared/dist/
+ *
+ * ⚠️ These values are PLACEHOLDER greys. VerifiedMargins has no visual identity
+ * yet and is deliberately not Dragon-branded — no Forest/Lime. The palette is a
+ * later pass; the point today is that the layout is usable.
+ */
 :root {
   color-scheme: light dark;
+
   --background: #ffffff;
   --foreground: #16181d;
+  --muted: #f2f4f7;            /* subtle fills, hover states */
+  --muted-foreground: #5c636e; /* helper text — 6.4:1 on white, clears AA */
+  --border: #d9dde3;
+  --card: #ffffff;
+
+  --accent: #16181d;           /* primary action. Near-black on purpose: a real
+                                  accent colour is a branding decision, and a
+                                  placeholder blue would read as one. */
+  --accent-foreground: #ffffff;
+  --success: #10683f;
+  --danger: #b42318;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root { --background: #101216; --foreground: #e9ecf1; }
+  :root {
+    --background: #101216;
+    --foreground: #e9ecf1;
+    --muted: #1c1f26;
+    --muted-foreground: #a2abb8; /* 7.4:1 on --background */
+    --border: #2b3038;
+    --card: #15181d;
+
+    --accent: #e9ecf1;
+    --accent-foreground: #101216;
+    --success: #4ade80;
+    --danger: #f87171;
+  }
 }
 
 body {
@@ -21,4 +58,202 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* ─── Shared <Input> dark-mode fix ────────────────────────────────────
+ *
+ * 🚨 A REAL BUG, not a preference. The shared <Input> hardcodes `bg-white` and
+ * sets no text colour, so the value inherits `--foreground` from <body>. In
+ * dark mode that is near-white text on a white field: measured
+ * rgb(255,255,255) background against rgb(233,236,241) text — about 1.1:1,
+ * i.e. what you type is invisible. Placeholders are fine, which is why it
+ * survives a glance at a screenshot.
+ *
+ * `bg-white` is a literal class in the DOM, and a Tailwind utility outranks an
+ * element selector, so the override has to target the class and win on
+ * specificity. In light mode --card is #ffffff, so this is a no-op there.
+ *
+ * This belongs upstream in @ballisticbrands/frontend-shared — every brand app
+ * has it. Remove this block once the shared component pairs its background
+ * with a foreground.
+ */
+input.bg-white,
+textarea.bg-white,
+select.bg-white {
+  background-color: var(--card);
+  color: var(--foreground);
+}
+
+/* ─── Form pages ──────────────────────────────────────────────────────
+ *
+ * `<ProfileSettingsPage>` from the shared package is 545 lines of semantic HTML
+ * with exactly one className — deliberately unstyled, because the look was left
+ * as a later pass. Unstyled turned out to mean unusable: no heading hierarchy,
+ * no spacing between sections, and <button> rendering as plain text, so nothing
+ * on the page looked clickable.
+ *
+ * Styled by ELEMENT here, scoped to `.vm-form`, rather than threading
+ * classNames through the shared component: the markup is semantic and
+ * well-structured so element selectors reach all of it, and this needs no
+ * change to a package three other brand apps depend on. If a design system
+ * lands later it should replace this wholesale.
+ */
+.vm-form {
+  line-height: 1.55;
+}
+
+/* The shared component separates each label from its control with <br>, which
+   is the right call when nothing is styled. Once labels and inputs are block
+   elements those line breaks stack on top of the margins and open a visible
+   gap between every label and its own field. Hide them rather than edit the
+   shared markup. */
+.vm-form br {
+  display: none;
+}
+
+/* Each field is wrapped in a <p>. The generic paragraph rule below is for help
+   text; a paragraph that contains a control is a field row and needs its own
+   spacing, not a text bottom-margin. */
+.vm-form p:has(input, textarea, select) {
+  margin: 0 0 1.1rem;
+  max-width: none;
+}
+
+.vm-form h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+}
+
+/* Sections are the page's real structure — give them a visible boundary,
+   because without one every field ran straight into the next. */
+.vm-form section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.vm-form section:first-of-type {
+  margin-top: 1.5rem;
+}
+
+.vm-form h2 {
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.75rem;
+}
+
+.vm-form p {
+  margin: 0 0 0.75rem;
+  color: var(--muted-foreground);
+  max-width: 62ch; /* long help text is unreadable at full page width */
+}
+
+/* Labels sit on their own line above their control. In the original, label and
+   input shared a line with no gap — the main reason the form read as a wall of
+   text rather than a form. */
+.vm-form label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 550;
+  margin: 0 0 0.35rem;
+  color: var(--foreground);
+}
+
+.vm-form input[type="text"],
+.vm-form input[type="url"],
+.vm-form input[type="number"],
+.vm-form input:not([type]),
+.vm-form textarea,
+.vm-form select {
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+  padding: 0.5rem 0.65rem;
+  font: inherit;
+  font-size: 0.925rem;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+.vm-form textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+.vm-form input:focus-visible,
+.vm-form textarea:focus-visible,
+.vm-form select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Checkboxes stay inline with their label — the block rule above would
+   otherwise stack each box above its own text. */
+.vm-form input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0 0.55rem 0 0;
+  vertical-align: -0.15rem;
+  accent-color: var(--accent);
+}
+.vm-form label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  font-weight: 450;
+  margin: 0.4rem 0;
+  cursor: pointer;
+}
+
+/* The worst of the original: an unstyled <button> reads as a caption, so "Save"
+   and "Publish my profile" did not look pressable at all. */
+.vm-form button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 0.5rem 0.9rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-foreground);
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.vm-form button:hover:not(:disabled) { opacity: 0.9; }
+.vm-form button:disabled { opacity: 0.5; cursor: default; }
+
+/* The username row is label + input + "Change" and reads as one control, so
+   lay it out on a single line and let the input take the slack. */
+.vm-form p:has(> input + button) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.vm-form p:has(> input + button) label {
+  margin: 0;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+  font-weight: 450;
+}
+.vm-form p:has(> input + button) input { flex: 1 1 14rem; max-width: 22rem; }
+.vm-form p button { margin-top: 0; }
+
+.vm-form small {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  max-width: 62ch;
+}
+
+.vm-form ul { margin: 0.5rem 0 0; padding: 0; list-style: none; }
+.vm-form li { margin: 0.6rem 0; }
+
+.vm-form a { color: var(--foreground); }

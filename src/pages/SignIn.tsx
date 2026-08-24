@@ -9,7 +9,8 @@ import {
   useBrand,
   useSignInForm,
 } from "@ballisticbrands/frontend-shared";
-import { AuthShell } from "./AuthShell";
+import { config } from "@/lib/config";
+import { Shell } from "./Shell";
 
 export function SignIn() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export function SignIn() {
   }, [brand.displayName]);
 
   return (
-    <AuthShell>
+    <Shell>
       <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
 
       {/* The Google button must render on BOTH /sign-in and /sign-up — that is
@@ -37,7 +38,10 @@ export function SignIn() {
         />
         {googleError ? <p className="mt-2 text-sm text-red-600">{googleError}</p> : null}
       </div>
-      <AuthDivider />
+      {/* Only when Google can actually render. <GoogleSignInButton> returns
+          null on an empty client ID, which otherwise leaves an orphaned "OR"
+          floating above the form with nothing above it. */}
+      {config.googleClientId ? <AuthDivider /> : null}
 
       <form onSubmit={form.onSubmit} className="mt-6 space-y-4">
         <div>
@@ -66,6 +70,6 @@ export function SignIn() {
       <p className="mt-2 text-sm opacity-70">
         No account yet? <Link to="/sign-up" className="underline">Create one</Link>
       </p>
-    </AuthShell>
+    </Shell>
   );
 }
