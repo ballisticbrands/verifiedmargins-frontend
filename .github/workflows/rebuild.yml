@@ -32,6 +32,11 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  # Required — @ballisticbrands/frontend-shared is a private GitHub Packages
+  # dependency, and without this the job's GITHUB_TOKEN gets
+  # "403 Permission installation not allowed to Read organization package".
+  # deploy.yml has it; omitting it here is exactly why the first run failed.
+  packages: read
 
 concurrency:
   group: pages
