@@ -10,6 +10,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { SignIn } from "@/pages/SignIn";
 import { Settings } from "@/pages/Settings";
 import { SignUp } from "@/pages/SignUp";
+import { PublicProfile } from "@/pages/PublicProfile";
 
 export default function App() {
   const location = useLocation();
@@ -53,7 +54,9 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/sign-up" replace />} />
+      {/* No landing page: this is a social app, so the root is sign-up for a
+          visitor and their own dashboard once signed in. */}
+      <Route path="/" element={<RootRedirect />} />
       <Route path="/sign-up" element={<PublicOnly><SignUp /></PublicOnly>} />
       <Route path="/sign-in" element={<PublicOnly><SignIn /></PublicOnly>} />
       {/* Shared pages — identical across every brand app, styled from the
@@ -64,9 +67,22 @@ export default function App() {
       {/* The profile settings form — username, bio, links, per-field
           visibility toggles and the connected-account opt-in. */}
       <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
-      <Route path="*" element={<Navigate to="/sign-up" replace />} />
+      {/* A single path segment that is not one of the app routes above is a
+          seller's handle. Declared LAST so an app route can never be shadowed
+          by a username — the backend also refuses to issue one that collides
+          (usernames.ts reserved list), which is now load-bearing rather than
+          belt-and-braces, because the app and the profiles share one origin. */}
+      <Route path="/:username" element={<PublicProfile />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
+}
+
+/** Root: signed out → sign up; signed in → your dashboard. */
+function RootRedirect() {
+  const { status } = useSession();
+  if (status === "loading") return null;
+  return <Navigate to={status === "authenticated" ? "/dashboard" : "/sign-up"} replace />;
 }
 
 function PublicOnly({ children }: { children: React.ReactNode }) {

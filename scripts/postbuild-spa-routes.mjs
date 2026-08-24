@@ -20,6 +20,7 @@
 import { mkdirSync, copyFileSync, existsSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { APP_ROUTES as ROUTES } from '../src/data/site.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
@@ -33,14 +34,6 @@ if (!existsSync(shell)) {
 /* Keep in sync with the <Route> list in src/App.tsx. A route missing here still
  * works for a human (via the 404.html bounce) but answers 404 to everything
  * else — which is exactly the silent failure above. */
-const ROUTES = [
-  '/sign-up',
-  '/sign-in',
-  '/dashboard',
-  '/settings',
-  '/verify-email',
-  '/forgot-password',
-];
 
 for (const route of ROUTES) {
   const dir = join(dist, ...route.split('/').filter(Boolean));
@@ -48,16 +41,50 @@ for (const route of ROUTES) {
   copyFileSync(shell, join(dir, 'index.html'));
 }
 
-/* This host is the private application, not a marketing surface — the public
- * site and (later) the public profiles live on the apex domain. Nothing here
- * should be indexed, and without this file GitHub Pages 404s /robots.txt, which
- * crawlers treat as "crawl everything". */
+/* 🚨 This file used to say `Disallow: /`, which was right when this repo only
+ * served app.verifiedmargins.com. It now serves the APEX, and the apex is where
+ * published profiles live — the pages this whole product exists to make
+ * findable. Shipping the old file would have hidden every profile from Google
+ * and from every AI assistant, silently, while the site looked perfectly fine.
+ *
+ * So: allow by default, and disallow only the authenticated surfaces, which
+ * have nothing to index and would otherwise be crawled as an endless set of
+ * identical shells. */
 writeFileSync(join(dist, 'robots.txt'),
-`# app.verifiedmargins.com — the application. Not a marketing surface.
-# The public site, and public seller profiles, live on verifiedmargins.com,
-# which has its own robots.txt explicitly welcoming AI crawlers.
+`# verifiedmargins.com — published seller profiles are the point. Crawl them.
 User-agent: *
-Disallow: /
+Allow: /
+${ROUTES.map((r) => `Disallow: ${r}`).join('\n')}
+
+# AI / answer engines — explicit allow. The wildcard above already permits
+# them; this block exists so the intent is deliberate and nobody "tidies up" by
+# blocking them later. For a public seller-profile network a profile an AI
+# assistant cannot read is not public in the sense the product promises.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://verifiedmargins.com/sitemap.xml
 `);
 
 console.log(`postbuild: wrote ${ROUTES.length} static route stubs (HTTP 200) + robots.txt`);

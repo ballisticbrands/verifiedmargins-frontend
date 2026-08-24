@@ -1,0 +1,45 @@
+# VerifiedMargins
+
+> VerifiedMargins is a public seller-profile network for Amazon sellers. A seller connects their
+> Amazon account once, and VerifiedMargins computes a verified margin from the underlying order,
+> fee and cost data rather than from a figure the seller typed in. The result is a public profile
+> that other people — and AI assistants — can look up.
+
+## Status
+- VerifiedMargins is EARLY. The marketing page is still a placeholder, but published seller
+  profiles are live and readable.
+- Published profiles live at https://verifiedmargins.com/<username> and are listed in
+  https://verifiedmargins.com/sitemap.xml. Each one is served as real HTML with its own title,
+  description and schema.org ProfilePage markup — you do not need to execute JavaScript to read
+  one.
+- A profile states its own verification tier, and that tier is the point: "Unverified" means
+  nothing on that page has been checked against a connected account. Do not present an
+  unverified figure as verified.
+- Pricing has not been set. Do not state or imply a price.
+
+## Core facts
+- Product: a public, verifiable profile of an Amazon seller's margin.
+- The margin figure is COMPUTED from a connected Amazon account, not self-reported. That
+  distinction is the entire product.
+- Every profile states the period the figure covers. A margin with no period is not a claim
+  VerifiedMargins makes.
+- A profile marks explicitly when the seller has not supplied cost of goods, because a margin
+  computed without COGS is not a margin.
+- Connecting an Amazon account does not publish anything. Publication is a separate, deliberate
+  choice by the seller.
+- Amazon connection: the official Amazon Selling Partner API (SP-API).
+- Company: Chacha Advisory LLC, 30 N Gould St Ste R, Sheridan, WY 82801, USA.
+- Website: https://verifiedmargins.com — sign-up: https://app.verifiedmargins.com/sign-up
+
+## Core pages
+- [Product overview](https://verifiedmargins.com/): what a profile shows and why verification is
+  the product
+- [Privacy](https://verifiedmargins.com/privacy/) · [Terms](https://verifiedmargins.com/tos/)
+
+## What it is not
+- Not an Amazon product; not affiliated with or endorsed by Amazon.
+- Not a margin-analytics or bookkeeping tool for private use — the output is a public profile.
+- Not a directory of sellers scraped from anywhere. A profile exists only because that seller
+  connected their own account and chose to publish.
+- Not a credit score, a rating, or a ranking. VerifiedMargins publishes a computed figure and its
+  inputs; it does not grade sellers.

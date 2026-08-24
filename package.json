@@ -5,14 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/postbuild-spa-routes.mjs",
+    "build": "node scripts/check-site-constants.mjs && tsc -b && vite build && node scripts/build-profiles.mjs && node scripts/postbuild-spa-routes.mjs && node scripts/generate-sitemap.mjs",
     "preview": "vite preview",
     "verify:events": "node scripts/verify-events.mjs",
     "test": "node scripts/test-meta-events.mjs",
     "screenshot": "node scripts/screenshot.mjs"
   },
   "dependencies": {
-    "@ballisticbrands/frontend-shared": "^0.8.2",
+    "@ballisticbrands/frontend-shared": "^0.8.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0"
