@@ -1,6 +1,7 @@
 // Single-brand registry for verifiedmargins-frontend.
 //
-// This repo only builds the VerifiedMargins app (app.verifiedmargins.com).
+// This repo builds the whole of VerifiedMargins on verifiedmargins.com —
+// the app AND the public seller profiles. There is no separate app host.
 // The BrandConfig type is owned by @ballisticbrands/frontend-shared.
 
 import { VERIFIEDMARGINS } from "./verifiedmargins";

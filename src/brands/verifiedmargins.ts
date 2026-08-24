@@ -9,15 +9,19 @@ import type { BrandConfig } from "@ballisticbrands/frontend-shared";
  */
 export const VERIFIEDMARGINS: BrandConfig = {
   id: "verifiedmargins",
-  appHost: "app.verifiedmargins.com",
-  appOrigin: "https://app.verifiedmargins.com",
+  // ONE ORIGIN. The app and the public profiles share the apex — there is
+  // no app.* host, and no landing page. appOrigin is what the shared
+  // library builds auth redirects and OAuth popup targets from, so a stale
+  // subdomain here would bounce users to a host that no longer exists.
+  appHost: "verifiedmargins.com",
+  appOrigin: "https://verifiedmargins.com",
   headerLabel: "VerifiedMargins",
   displayName: "VerifiedMargins",
   metaDescription:
     "VerifiedMargins is a public seller-profile network. Your margin, computed from your connected Amazon account rather than self-reported.",
   supportEmail: "hello@verifiedmargins.com",
   // GA4 property 551201641 "VerifiedMargins" — its own property, spanning both
-  // verifiedmargins.com and app.verifiedmargins.com.
+  // verifiedmargins.com.
   ga4MeasurementId: "G-B9Y3JRFNT8",
   // Clarity project y6xgjjs7z9 — its own project, not a Dragon one.
   clarityId: "y6xgjjs7z9",

@@ -16,13 +16,13 @@ export const config = {
   // verifyTurnstile also skips when its secret is unset — so the two ends stay
   // in agreement with no test-mode plumbing.
   //
-  // 🚨 app.verifiedmargins.com must be added to the shared widget's hostname
+  // 🚨 verifiedmargins.com must be on the shared widget's hostname
   // allowlist in the Cloudflare dashboard, or the challenge fails on this host.
   turnstileSiteKey: import.meta.env.VITE_TURNSTILE_SITE_KEY ?? "",
   // Google OAuth Web client ID for "Sign in with Google". Public by design.
   // When empty the shared <GoogleSignInButton> renders nothing at all — so a
   // missing button here is almost always an empty client ID, not a bug.
-  // 🚨 https://app.verifiedmargins.com must be on the client's Authorized
+  // 🚨 https://verifiedmargins.com must be on the client's Authorized
   // JavaScript origins in the Google Cloud console (~5 min to propagate).
   googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "",
 };
