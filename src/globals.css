@@ -298,3 +298,66 @@ select.bg-white {
 .vm-form li { margin: 0.6rem 0; }
 
 .vm-form a { color: var(--foreground); }
+
+/* ─── The verification modal ──────────────────────────────────────────
+ *
+ * A native <dialog> (shared package, VerifyAccounts.tsx) — so the backdrop,
+ * the focus trap and Esc-to-close come from the browser rather than from
+ * code we would have to get right.
+ *
+ * What it does NOT come with is a size. A UA-default dialog shrink-wraps to
+ * its content and does not scroll, so on a phone the panel that asks for
+ * Seller Central access can push its own Connect button off-screen. These
+ * rules are that fix and little else — the surface is still deliberately
+ * plain, like the rest of this form. */
+.vm-form dialog {
+  max-width: min(34rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  padding: 1.25rem 1.4rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--foreground);
+}
+.vm-form dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+.vm-form dialog fieldset {
+  margin: 0 0 1.1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.vm-form dialog legend {
+  padding: 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 550;
+  color: var(--foreground);
+}
+/* Radio rows: label and control on ONE line. `.vm-form label` is block by
+   default, which is right for a field with an input under it and wrong for a
+   choice whose control sits inside the label. */
+.vm-form dialog fieldset label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0;
+  font-weight: 450;
+}
+.vm-form dialog fieldset p {
+  margin: 0 0 0.4rem;
+}
+.vm-form dialog fieldset p:last-child {
+  margin-bottom: 0;
+}
+.vm-form dialog input[type="file"] {
+  display: block;
+  font: inherit;
+  font-size: 0.875rem;
+}
+.vm-form dialog [data-privacy-promise] {
+  margin: 1.25rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
