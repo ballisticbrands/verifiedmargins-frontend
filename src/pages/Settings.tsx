@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   ProfileSettingsPage,
-  createProfile,
   listProfiles,
   useBrand,
 } from "@ballisticbrands/frontend-shared";
@@ -16,13 +15,20 @@ import { Shell } from "./Shell";
  * branding lands, style the shared component (or fork it there, not here) so
  * every brand app gets the same behaviour.
  *
- * WHY THE CREATE FALLBACK: signing up on verifiedmargins.com auto-creates an
- * unpublished profile with a temporary `vm-…` username, but that create is
- * fire-and-forget on the backend — a user whose signup raced a database hiccup,
- * or who signed up before the auto-create existed, would otherwise have no
- * profile at all and no way to make one. Creating on first visit here is the
- * recovery path. It is idempotent in effect: a user with a profile never hits
- * it.
+ * ⚠️ THERE IS NO CREATE FALLBACK HERE, AND THAT IS DELIBERATE. This screen used
+ * to call createProfile({}) when the list came back empty, as a recovery path
+ * for a fire-and-forget backend create. It was not recovering an edge case: it
+ * was quietly carrying the entire Google signup flow, which never created a
+ * profile at all. Because the repair was silent, nobody noticed for weeks — and
+ * a seller who signed up, landed on the dashboard and left still had no page,
+ * because the fallback only ran if they happened to open settings.
+ *
+ * Every VerifiedMargins signup now creates the profile in the same transaction
+ * as the account (backend: src/services/auth/provision.ts), so an empty list
+ * here means something is genuinely broken and we say so instead of papering
+ * over it. POST /v1/profiles still exists — a user may legitimately want a
+ * second profile — it just stops being something this page calls behind their
+ * back. See skills/feature-dev/…/FEATURE_VM_2026-08-24_profile-on-every-signup-path §4.
  */
 export function Settings() {
   const brand = useBrand();
@@ -40,8 +46,11 @@ export function Settings() {
         setProfileId(mine[0]!.id);
         return;
       }
-      const created = await createProfile({});
-      setProfileId(created.id);
+      // Loud on purpose. Silently creating one here is what hid the
+      // signup bug; the seller needs a human, not a self-heal.
+      setError(
+        "Your account has no profile yet. That shouldn't happen — please contact support and we'll set it up.",
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
