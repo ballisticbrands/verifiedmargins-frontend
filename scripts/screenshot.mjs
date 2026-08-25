@@ -151,6 +151,11 @@ const browser = await puppeteer.launch({
 for (const { route, auth, name } of PAGES) {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 900 });
+  /* The site is light-only (globals.css has no dark override), so this is
+     asserting rather than choosing: emulating a DARK OS preference and still
+     getting a light page is the check that no stray `prefers-color-scheme`
+     rule crept back in. `--light` flips the emulated preference, not the
+     product. */
   await page.emulateMediaFeatures([
     { name: "prefers-color-scheme", value: light ? "light" : "dark" },
   ]);

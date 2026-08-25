@@ -6,10 +6,11 @@
  * stays legible in both schemes. A file with a hard-coded black M would vanish
  * against the dark background, where globals.css flips --accent to #e9ecf1.
  *
- * The check keeps an explicit green in both schemes: it is the "verified"
- * signal, and it is the one piece of real brand colour the product has. Light
- * mode uses --success (#10683f); the dark-scheme override is applied by the
- * class below so the green lifts to #4ade80, matching --success in dark.
+ * The check is drawn in --success (an alias of --verified, #10683f): it is
+ * the "verified" signal and the one piece of real brand colour the product
+ * has. The site is light-only today, so there is no scheme override; if dark
+ * mode returns, the token lifts to #3fbb7f and this mark follows it without
+ * changing (BRANDING.md §3).
  *
  * /public/logo.svg is the same artwork as a standalone file, for the favicon,
  * og:image and anywhere outside React.

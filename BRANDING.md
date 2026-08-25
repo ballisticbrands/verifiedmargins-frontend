@@ -70,7 +70,7 @@ only chroma in the entire system, which is what makes it carry meaning.
 
 | Token | Hex | Use | Contrast |
 |---|---|---|---|
-| `--background` | `#ffffff` | Page | — |
+| `--background` | `#ffffff` | Page. White, not light grey — see below | — |
 | `--foreground` | `#16181d` | Primary text, the logo's M | 17.4:1 on white |
 | `--muted` | `#f2f4f7` | Section fills, table zebra, hover | — |
 | `--muted-foreground` | `#5c636e` | Help text, metadata, handles | 6.4:1 on white |
@@ -84,10 +84,24 @@ only chroma in the entire system, which is what makes it carry meaning.
 | `--estimated` | `#5c636e` | Estimated state — grey, never amber | 6.4:1 on white |
 | `--danger` | `#b42318` | Errors only. Never "a bad number" | 5.9:1 on white |
 
-### Dark
+### Dark — specified, not shipped
 
-Dark is a first-class mode, not an afterthought — half this audience
-lives in dark UIs, and the dev-tool reference points that way.
+**The site is light-only today.** `globals.css` carries no
+`prefers-color-scheme: dark` override, and `color-scheme: light` is set
+so native controls (dropdowns, scrollbars, autofill) paint light too —
+otherwise a visitor on a dark OS gets a dark `<select>` hanging off a
+white page, which reads as a rendering bug.
+
+The reason is not that dark is wrong for this audience — half of it
+lives in dark UIs, and the X/Reddit reference points that way. It is
+that a scheme which silently follows the OS is a scheme **nobody
+chose**: half of visitors were seeing a dark product page while this
+guide, the OG cards and every screenshot showed a light one. Dark comes
+back with an explicit toggle, not with a media query.
+
+The palette below is measured and ready for that day. Restoring it is
+pasting this table into a `[data-theme="dark"]` block — not re-deriving
+it.
 
 | Token | Hex | Note |
 |---|---|---|
@@ -106,7 +120,17 @@ lives in dark UIs, and the dev-tool reference points that way.
 > ⚠️ **`#10683f` fails on dark.** It measures **2.6:1** against
 > `#101216` — unreadable. The green *must* lighten in dark mode. This is
 > the single easiest way to ship an inaccessible verified badge, and it
-> looks fine on the designer's light-mode screen.
+> looks fine on the designer's light-mode screen. It is also the one
+> line to re-read before dark mode is ever switched back on.
+
+**Why a white page rather than a light-grey one.** A grey page only
+earns its keep when white cards float on it — that is the
+dashboard/directory pattern. This layout separates with **hairlines, not
+surfaces** (§7), so a grey page would buy no separation while forcing a
+re-decision of two other tokens: `--card` would have to stop being
+white, and `--muted` could no longer double as the section fill because
+it would equal the page. White page, grey fills, 1px borders is the
+version that holds together.
 
 ### 3.1 The green discipline — the one rule that matters
 

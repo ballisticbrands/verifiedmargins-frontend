@@ -23,7 +23,13 @@
  *   grep -rhoE "var\(--[a-z-]+\)" node_modules/@ballisticbrands/frontend-shared/dist/
  */
 :root {
-  color-scheme: light dark;
+  /* `light`, not `light dark`: this is load-bearing beyond the page
+     background. It also tells the browser how to paint NATIVE controls —
+     <select> menus, date pickers, scrollbars, autofill. Left as
+     `light dark`, a visitor whose OS is in dark mode gets a dark dropdown
+     hanging off a white page, which reads as a rendering bug rather than a
+     choice. */
+  color-scheme: light;
 
   --background: #ffffff;
   --foreground: #16181d;       /* 17.4:1 on white */
@@ -57,29 +63,21 @@
   --radius-lg: 10px;           /* modals */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #101216;     /* near-black, slightly cool. Not #000 */
-    --foreground: #e9ecf1;
-    --muted: #1c1f26;
-    --muted-foreground: #a2abb8; /* 7.4:1 on --background */
-    --border: #2b3038;
-    --card: #15181d;           /* lifted one step off the page */
-
-    --accent: #e9ecf1;
-    --accent-foreground: #101216;
-
-    /* 🚨 The light green MUST lift here. #10683f on #101216 measures 2.6:1 —
-       unreadable — and it looks perfectly fine on a light-mode screen, which
-       is how an inaccessible badge ships. #3fbb7f is 7.7:1. */
-    --verified: #3fbb7f;
-    --verified-strong: #5fd39a;
-    --verified-tint: #12271d;
-
-    --estimated: #a2abb8;
-    --danger: #f87171;
-  }
-}
+/* ─── One scheme, for now ─────────────────────────────────────────────
+ *
+ * The site ships LIGHT ONLY. There is no `prefers-color-scheme: dark`
+ * override here on purpose: a scheme that follows the OS is a scheme nobody
+ * chose, and until there is a real toggle, half of visitors were seeing a
+ * dark product page while the brand guide, the OG cards and every screenshot
+ * showed a light one.
+ *
+ * The dark palette is NOT lost — it is specified and contrast-measured in
+ * BRANDING.md §3 ("Dark"), including the one rule that matters when it comes
+ * back: --verified must lift from #10683f to #3fbb7f, because #10683f
+ * measures 2.6:1 against #101216 and is unreadable. Restoring dark mode is
+ * pasting that table into a media query (or a [data-theme] block, if the
+ * toggle is explicit), not re-deriving it.
+ */
 
 body {
   margin: 0;
