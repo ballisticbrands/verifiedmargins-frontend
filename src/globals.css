@@ -726,19 +726,23 @@ a, button, [role="button"] {
 }
 .vm-profile [data-demo-primary]:disabled { opacity: 0.45; cursor: default; }
 
-/* ── social proof beside the price ── */
+/* ── social proof, small, under the price ── */
+.vm-profile [data-demo-proof-row] {
+  margin-top: 0.35rem;
+}
 .vm-profile [data-demo-proof] {
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  font-size: 0.8125rem;
+  gap: 0.3rem;
+  font-size: 0.75rem;
   color: var(--muted-foreground);
 }
 /* The figures are numbers, so they follow the site's rule: mono, tabular. */
 .vm-profile [data-demo-proof] b {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--foreground);
 }

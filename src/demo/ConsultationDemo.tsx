@@ -208,8 +208,10 @@ export function ConsultationDemo({ username }: { username: string }) {
         <button type="button" data-demo-primary="" onClick={() => setOpen(true)}>
           Consultation — {CONSULTATION_PRICE}
         </button>
-        {/* Social proof, beside the price rather than under it: the point is
-            that they are read together. */}
+      </div>
+      {/* Social proof sits UNDER the price, small: it qualifies the button
+          rather than competing with it. */}
+      <div data-demo-proof-row="">
         <span data-demo-proof="">
           <span data-demo-stat="">
             <b>{STATS.consultations}</b> consultations
