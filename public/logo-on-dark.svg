@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="VerifiedMargins">
+  <title>VerifiedMargins</title>
+  <path d="M 66 240 L 140 362 L 240 152"
+        fill="none" stroke="#10683f" stroke-width="50"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 330 362 L 330 178 L 388 296 L 446 178 L 446 362"
+        fill="none" stroke="#ffffff" stroke-width="50"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

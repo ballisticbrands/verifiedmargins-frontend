@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
+import { Logo } from "@/components/Logo";
 
 /**
  * Page chrome: header, content column, footer.
@@ -45,7 +46,11 @@ export function Shell({
         className="flex items-center justify-between gap-4 border-b pb-4"
         style={{ borderColor: "var(--border)" }}
       >
-        <Link to="/" className="text-[17px] font-bold tracking-tight">
+        <Link
+          to="/"
+          className="flex items-center gap-2 text-[17px] font-bold tracking-tight"
+        >
+          <Logo size={26} />
           {brand.displayName}
         </Link>
         {/* Signed-in nav. Without it /settings was reachable only by typing the
