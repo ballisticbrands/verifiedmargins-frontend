@@ -40,6 +40,39 @@ const DEMO_USERNAME = "ggballas";
 
 const CONSULTATION_PRICE = "$150";
 
+/** Fake social proof for the demo. The numbers are internally consistent on
+ *  purpose — 13 × $150 = $1,950 — because a client who does the arithmetic
+ *  and finds it wrong stops believing the rest of the page. */
+const STATS = {
+  consultations: 13,
+  rating: 4.5,
+  comments: 9,
+  earned: "$1,950",
+};
+
+/** Two stacked rows of stars, the filled one clipped to the rating. Cheaper
+ *  and sharper than half-star SVG paths, and it degrades to plain glyphs if
+ *  the CSS is stripped.
+ *
+ *  Ink, not gold: the palette is green/black/white/grey, and green here means
+ *  VERIFIED. A rating is not a verification, so it must not borrow the badge
+ *  colour — and inventing a gold would put a sixth colour on a page whose
+ *  whole visual argument is restraint (BRANDING.md §3). */
+function Stars({ rating }: { rating: number }) {
+  return (
+    <span data-demo-stars="" role="img" aria-label={`${rating} out of 5`}>
+      <span data-demo-stars-empty="" aria-hidden="true">★★★★★</span>
+      <span
+        data-demo-stars-full=""
+        aria-hidden="true"
+        style={{ width: `${(rating / 5) * 100}%` }}
+      >
+        ★★★★★
+      </span>
+    </span>
+  );
+}
+
 /** Slots are fixed, not generated from "now" — a demo that shows different
  *  availability every time it is opened invites questions about the booking
  *  system, which does not exist. */
@@ -82,6 +115,7 @@ export function ConsultationDemo({ username }: { username: string }) {
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [socials, setSocials] = useState<Record<string, string>>({});
   const [open, setOpen] = useState(false);
+  const [comments, setComments] = useState(false);
 
   // Insert the portal target directly after the shared page's header.
   useEffect(() => {
@@ -174,10 +208,70 @@ export function ConsultationDemo({ username }: { username: string }) {
         <button type="button" data-demo-primary="" onClick={() => setOpen(true)}>
           Consultation — {CONSULTATION_PRICE}
         </button>
+        {/* Social proof, beside the price rather than under it: the point is
+            that they are read together. */}
+        <span data-demo-proof="">
+          <span data-demo-stat="">
+            <b>{STATS.consultations}</b> consultations
+          </span>
+          <span data-demo-sep="" aria-hidden="true">·</span>
+          <Stars rating={STATS.rating} />
+          <b data-demo-rating="">{STATS.rating.toFixed(1)}</b>
+          <span data-demo-sep="" aria-hidden="true">·</span>
+          <button type="button" data-demo-link="" onClick={() => setComments(true)}>
+            {STATS.comments} comments
+          </button>
+          <span data-demo-sep="" aria-hidden="true">·</span>
+          <span data-demo-stat="">
+            <b>{STATS.earned}</b> earned
+          </span>
+        </span>
       </div>
       {open ? <SchedulerDialog onClose={() => setOpen(false)} /> : null}
+      {comments ? <CommentsDialog onClose={() => setComments(false)} /> : null}
     </div>,
     host,
+  );
+}
+
+/** Fake reviews. Deliberately short, specific and unglowing — five-star
+ *  raves read as invented, which is the opposite of what a demo for a
+ *  verification product wants. */
+const COMMENTS = [
+  { who: "@northgate", when: "Aug 2026", stars: 5,
+    text: "Went through my ad spend line by line. Found £4k of wasted spend in 20 minutes." },
+  { who: "@saltwater", when: "Jul 2026", stars: 4,
+    text: "Useful on sourcing. Wanted more on EU VAT, which was outside his lane — he said so up front." },
+  { who: "@bellweather", when: "Jul 2026", stars: 5,
+    text: "Straight answers, no upsell at the end." },
+];
+
+function CommentsDialog({ onClose }: { onClose: () => void }) {
+  return (
+    <div data-demo-backdrop="" role="dialog" aria-modal="true" aria-label="Consultation reviews">
+      <div data-demo-modal="">
+        <div data-demo-modal-head="">
+          <strong>Reviews</strong>
+          <button type="button" onClick={onClose} aria-label="Close">×</button>
+        </div>
+        <p data-demo-price="">
+          {STATS.consultations} consultations · {STATS.rating.toFixed(1)} average
+        </p>
+        <ul data-demo-comments="">
+          {COMMENTS.map((c) => (
+            <li key={c.who}>
+              <span data-demo-comment-head="">
+                <b>{c.who}</b>
+                <Stars rating={c.stars} />
+                <span data-demo-when="">{c.when}</span>
+              </span>
+              <p>{c.text}</p>
+            </li>
+          ))}
+        </ul>
+        <p data-demo-hint="">Demo only. These reviews are invented.</p>
+      </div>
+    </div>
   );
 }
 

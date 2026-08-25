@@ -189,6 +189,7 @@ const PAGES = [
   // a broken modal first.
   { route: "/ggballas", auth: false, name: "profile-demo" },
   { route: "/ggballas", auth: false, name: "profile-demo-scheduler", click: "[data-demo-primary]" },
+  { route: "/ggballas", auth: false, name: "profile-demo-comments", click: "[data-demo-link]" },
   { route: "/ggballas", auth: false, name: "profile-demo-booked",
     click: ["[data-demo-primary]", "[data-demo-day]:not(:disabled)", "[data-demo-slot]",
             "[data-demo-modal] [data-demo-primary]"] },

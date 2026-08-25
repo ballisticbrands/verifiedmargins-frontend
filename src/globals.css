@@ -726,6 +726,74 @@ a, button, [role="button"] {
 }
 .vm-profile [data-demo-primary]:disabled { opacity: 0.45; cursor: default; }
 
+/* ── social proof beside the price ── */
+.vm-profile [data-demo-proof] {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+/* The figures are numbers, so they follow the site's rule: mono, tabular. */
+.vm-profile [data-demo-proof] b {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.vm-profile [data-demo-sep] { color: var(--border); }
+
+/* Two stacked star rows; the filled one is clipped to the rating, which is
+   how the half star happens without a second glyph set. */
+.vm-profile [data-demo-stars] {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.vm-profile [data-demo-stars-empty] { color: var(--border); }
+.vm-profile [data-demo-stars-full] {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--foreground);
+}
+
+/* A button that reads as a link — the comments affordance. */
+.vm-profile [data-demo-link] {
+  padding: 0;
+  border: 0;
+  margin: 0;
+  background: none;
+  font: inherit;
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.vm-profile [data-demo-link]:hover { color: var(--foreground); }
+
+.vm-profile [data-demo-comments] {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+.vm-profile [data-demo-comments] li {
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--border);
+}
+.vm-profile [data-demo-comment-head] {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8125rem;
+}
+.vm-profile [data-demo-comment-head] b { font-family: var(--font-mono); font-weight: 600; }
+.vm-profile [data-demo-when] { color: var(--muted-foreground); }
+.vm-profile [data-demo-comments] p { margin: 0.3rem 0 0; font-size: 0.875rem; }
+
 /* Socials are secondary: same shape, outlined rather than filled, so the
    priced action stays the one thing that reads as a call to action. */
 .vm-profile [data-demo-social] {
