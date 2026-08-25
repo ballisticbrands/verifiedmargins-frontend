@@ -90,7 +90,7 @@ export function PublicProfile() {
 
   return (
     <Shell width="wide">
-      <div className="vm-form">
+      <div className="vm-form vm-profile">
         <PublicProfilePage
           username={username}
           owner={

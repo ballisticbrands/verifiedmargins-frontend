@@ -79,7 +79,52 @@ const OPTIONS = [
   { id: "c4", provider: "amazon_ads", name: "Ballas & Ballas", account_type: "agency",
     countries: ["US"], cogs_basis: "per_sku", blended_cogs_pct: null, linked_here: false, linked_elsewhere: true },
 ];
+/* The public profile — the page the whole product exists to produce, and the
+ * one the brand system lands hardest on (badge, headline figure, tabular
+ * metrics, avatar). Shape mirrors buildPublicProfile()'s payload; a field
+ * invented here renders as NaN and reads like a page bug.
+ *
+ * Two fixtures because the two verification states MUST look different, and a
+ * screenshot of only one proves nothing about that. */
+function publicProfile(over = {}) {
+  return {
+    username: "acme", display_name: "Acme Brands", bio: "Private-label kitchen gear. Eight years, two people.",
+    avatar_url: null, website_url: "https://acme.test", socials: { x: "acmebrands", reddit: "u/acmebrands" },
+    seller_type: "private_label", type: "seller", claimed: true, noindex: false,
+    verification: {
+      tier: "verified_margin", label: "Verified margin",
+      description: "Revenue, fees and ad spend come straight from Amazon, and margin is computed from per-SKU costs the seller uploaded.",
+      revenueSource: "spapi", marginBasis: "per_sku", verified_at: "2026-08-24T00:00:00.000Z", note: null,
+    },
+    window: { months: 12, from: "2025-09", through: "2026-08", includes_partial_month: true },
+    visibility: { margin: true, sales: true, skuCount: true, brands: true, category: true },
+    metrics: {
+      native: [{ currency: "USD", revenue: 2140000, units: 48210, orders: 41880, fees: -412000,
+                 ad_spend: -186000, cogs: 861000, profit: 681000, margin_pct: 31.8, cogs_complete: true }],
+      display: { currency: "USD", revenue: 2140000, fees: -412000, ad_spend: -186000, cogs: 861000,
+                 profit: 681000, margin_pct: 31.8, fx: { as_of: "2026-08-01", source: "builtin-placeholder", unconvertible: [] } },
+      series: [], margin_pct: 31.8, margin_basis: "per_sku", margin_note: null,
+      sku_count: 62, brand_count: 3, brands_label: "Brands sold", category: "Home & Kitchen",
+      categories: [{ name: "Home & Kitchen", revenue: 2140000 }],
+    },
+    currency_options: ["USD", "EUR", "GBP"], notes: [],
+    ...over,
+  };
+}
+const ESTIMATED = publicProfile({
+  username: "e/8x2k9", display_name: "An FBA seller in Home & Kitchen", claimed: false, noindex: true,
+  bio: null, socials: {}, website_url: null,
+  verification: {
+    tier: "estimated", label: "Estimated",
+    description: "These numbers are estimated from public data and reviewed by our team. They are not verified against the seller's Amazon account.",
+    revenueSource: "manual", marginBasis: "blended_pct", verified_at: null, note: null,
+  },
+  metrics: { ...publicProfile().metrics, margin_basis: "blended_pct" },
+});
+
 const ROUTES = [
+  [/\/v1\/public\/profiles\/e%2F|\/v1\/public\/profiles\/8x2k9/, ESTIMATED],
+  [/\/v1\/public\/profiles\//, publicProfile()],
   [/\/v1\/profiles\/username-available/, { available: true }],
   [/\/v1\/profiles\/[^/]+\/connection-options/, OPTIONS],
   [/\/v1\/profiles\/[^/]+$/, PROFILE],
@@ -95,6 +140,8 @@ const PAGES = [
   { route: "/login", auth: false, name: "login" },
   { route: "/dashboard", auth: true, name: "dashboard" },
   { route: "/settings", auth: true, name: "settings" },
+  { route: "/acme", auth: false, name: "profile-verified" },
+  { route: "/8x2k9", auth: false, name: "profile-estimated" },
 ];
 
 const browser = await puppeteer.launch({

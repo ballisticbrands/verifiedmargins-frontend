@@ -4,51 +4,79 @@
 
 /* ─── Design tokens ───────────────────────────────────────────────────
  *
+ * The palette from BRANDING.md. Four colours — green, black, white, light
+ * grey — and the green is the only chroma in the system, which is what lets
+ * it carry meaning.
+ *
+ * 🚨 GREEN MEANS VERIFIED. It is not "the brand colour" and it is not the
+ * primary-button colour: primary actions are --accent (near-black). If the
+ * Publish button, the nav and the headings are also green, a reader scanning
+ * the page sees green everywhere and the verified badge stops being a signal.
+ * Scarcity is the whole mechanism. See BRANDING.md §3.1 before spending it.
+ *
  * 🚨 THESE ARE REQUIRED, NOT DECORATION. Every component in
  * @ballisticbrands/frontend-shared is built against these custom properties —
- * <Button> is `bg-[var(--accent)]`, <Input> is `border-[var(--border)]`, and so
- * on. With them undefined the classes still apply but resolve to nothing, so
- * buttons render as bare text with no background and inputs lose their borders.
- * The app looks broken rather than unstyled, and nothing errors.
- *
- * Only --background and --foreground were defined here before, which is why the
- * sign-in button had no surface. Grep the shared package before dropping any:
+ * <Button> is `bg-[var(--accent)]`, <Input> is `border-[var(--border)]`, and
+ * so on. With one undefined the classes still apply but resolve to nothing,
+ * so buttons render as bare text with no background. Nothing errors. Grep the
+ * shared package before dropping any:
  *   grep -rhoE "var\(--[a-z-]+\)" node_modules/@ballisticbrands/frontend-shared/dist/
- *
- * ⚠️ These values are PLACEHOLDER greys. VerifiedMargins has no visual identity
- * yet and is deliberately not Dragon-branded — no Forest/Lime. The palette is a
- * later pass; the point today is that the layout is usable.
  */
 :root {
   color-scheme: light dark;
 
   --background: #ffffff;
-  --foreground: #16181d;
-  --muted: #f2f4f7;            /* subtle fills, hover states */
-  --muted-foreground: #5c636e; /* helper text — 6.4:1 on white, clears AA */
-  --border: #d9dde3;
+  --foreground: #16181d;       /* 17.4:1 on white */
+  --muted: #f2f4f7;            /* section fills, zebra, hover */
+  --muted-foreground: #5c636e; /* help text, metadata, handles — 6.4:1 on white */
+  --border: #d9dde3;           /* hairlines. 1px, everywhere, never a shadow */
   --card: #ffffff;
 
-  --accent: #16181d;           /* primary action. Near-black on purpose: a real
-                                  accent colour is a branding decision, and a
-                                  placeholder blue would read as one. */
+  --accent: #16181d;           /* PRIMARY ACTIONS. Deliberately not green. */
   --accent-foreground: #ffffff;
-  --success: #10683f;
-  --danger: #b42318;
+
+  /* Verification. --success is kept as an alias because the shared package
+     and <Logo> reference it; --verified is the name to use in new code. */
+  --verified: #10683f;         /* 6.8:1 on white */
+  --verified-strong: #0d5433;  /* hover / press on green surfaces */
+  --verified-tint: #e8f3ed;    /* badge fill — green on tint = 6.0:1 */
+  --success: var(--verified);
+
+  --estimated: #5c636e;        /* the un-verified state. Grey, never amber. */
+
+  --danger: #b42318;           /* ERRORS ONLY. Never "a bad number". */
+
+  /* Type. Two stacks, both native: no request, no layout shift, and it reads
+     as native-tool rather than marketing-site. */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --radius: 6px;               /* controls + cards */
+  --radius-lg: 10px;           /* modals */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #101216;
+    --background: #101216;     /* near-black, slightly cool. Not #000 */
     --foreground: #e9ecf1;
     --muted: #1c1f26;
     --muted-foreground: #a2abb8; /* 7.4:1 on --background */
     --border: #2b3038;
-    --card: #15181d;
+    --card: #15181d;           /* lifted one step off the page */
 
     --accent: #e9ecf1;
     --accent-foreground: #101216;
-    --success: #4ade80;
+
+    /* 🚨 The light green MUST lift here. #10683f on #101216 measures 2.6:1 —
+       unreadable — and it looks perfectly fine on a light-mode screen, which
+       is how an inaccessible badge ships. #3fbb7f is 7.7:1. */
+    --verified: #3fbb7f;
+    --verified-strong: #5fd39a;
+    --verified-tint: #12271d;
+
+    --estimated: #a2abb8;
     --danger: #f87171;
   }
 }
@@ -57,8 +85,9 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* ─── Shared <Input> dark-mode fix ────────────────────────────────────
@@ -380,3 +409,188 @@ select.bg-white {
   padding-top: 0.9rem;
   border-top: 1px solid var(--border);
 }
+
+/* ─── Numbers ─────────────────────────────────────────────────────────
+ *
+ * BRANDING.md §4.2: every business number on this site is monospace with
+ * TABULAR figures. That is the analytical/accounting register a sans stack
+ * cannot give you — digits share one advance width, so columns line up and a
+ * changing value does not reflow its own row.
+ *
+ * One class, used everywhere a figure renders. Per-component font stacks
+ * drift within a month; this is the only place the mono stack is named.
+ */
+.vm-num,
+.vm-profile dl dd,
+.vm-profile [data-metric] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
+}
+
+/* The handle. An identifier is a token, not a name — this is where the
+   X/Reddit register comes from. `[data-handle]` is the shared package's
+   neutral hook; .vm-handle stays as an alias for markup this app owns. */
+.vm-handle,
+.vm-profile [data-handle] {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--muted-foreground);
+}
+
+/* ─── Verification badges ─────────────────────────────────────────────
+ *
+ * Styled off the shared package's NEUTRAL hooks (`[data-badge]`,
+ * `[data-state]`) rather than a class it hardcodes. Five brand apps install
+ * that package; the look belongs here, in the app that has a brand. The
+ * `.vm-*` classes are kept for markup this repo owns itself.
+ *
+ * The two states differ in SHAPE, COLOUR and WORD — never colour alone.
+ * Greyscale screenshots are how most people will see this product, and a
+ * colour-only distinction is invisible to them and to colour-blind readers.
+ */
+.vm-badge,
+.vm-profile [data-badge] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+  white-space: nowrap;
+  vertical-align: 0.08rem;
+}
+.vm-badge[data-state="verified"],
+.vm-profile [data-badge][data-state="verified"] {
+  border-color: var(--verified);
+  background: var(--verified-tint);
+  color: var(--verified);
+}
+/* Estimated: no fill, no green, grey type. Provisional by appearance. */
+.vm-badge[data-state="estimated"],
+.vm-profile [data-badge][data-state="estimated"] {
+  background: transparent;
+  color: var(--estimated);
+}
+
+/* The metrics block takes its rule from the same state: solid green when the
+   numbers are verified, dotted grey when they are asserted. A second,
+   non-colour channel for the same fact. */
+.vm-profile [data-verification="verified_margin"] + section,
+.vm-profile [data-verification="verified_revenue"] + section {
+  border-top: 2px solid var(--verified);
+}
+.vm-profile [data-verification="estimated"] + section,
+.vm-profile [data-verification="self_reported"] + section,
+.vm-profile [data-verification="unverified"] + section {
+  border-top: 1px dotted var(--border);
+}
+
+/* ─── Anonymous avatars ───────────────────────────────────────────────
+ *
+ * Most profiles are anonymous and many will never upload a picture, so the
+ * DEFAULT has to look deliberate — a wall of empty circles reads as an
+ * abandoned product. Monogram on a flat in-palette surface, square with a
+ * small radius (circles read social-network; squares read directory).
+ * Never a silhouette: those read as "missing".
+ */
+.vm-avatar,
+.vm-profile [data-avatar] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.vm-avatar img,
+.vm-profile [data-avatar] img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ─── The public profile ──────────────────────────────────────────────
+ *
+ * Denser than the forms: this is a page people scan, not one they fill in.
+ */
+.vm-profile h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.15rem;
+}
+.vm-profile dl {
+  display: grid;
+  grid-template-columns: minmax(9rem, max-content) 1fr;
+  gap: 0.4rem 1.25rem;
+  margin: 0.75rem 0 0;
+  line-height: 1.35;
+}
+.vm-profile dt {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+.vm-profile dd {
+  margin: 0;
+  font-weight: 550;
+  /* Right-aligned columns are what make tabular figures worth having. */
+  justify-self: start;
+}
+/* The headline figure — margin. The one number the product is named for, so
+   it does NOT inherit the muted colour every other paragraph on the page
+   gets. */
+.vm-profile [data-metric="headline"] {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0.15rem 0 0.35rem;
+  color: var(--foreground);
+  max-width: none;
+}
+
+/* Metric values sit at full contrast; their labels are the muted half. */
+.vm-profile dl dd { color: var(--foreground); }
+.vm-profile [data-metric] { color: var(--foreground); }
+
+/* ─── Motion ──────────────────────────────────────────────────────────
+ *
+ * Almost none, and never on a number: a figure that animates while you read
+ * it undermines the only thing we are selling.
+ */
+a, button, [role="button"] {
+  transition: color 140ms ease, background-color 140ms ease,
+    border-color 140ms ease, opacity 140ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Profile header: avatar beside the name, handle under it. */
+.vm-profile [data-profile-head] {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+.vm-profile [data-profile-head] h1 { margin: 0; }
+.vm-profile [data-profile-head] p { margin: 0; }
