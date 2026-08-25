@@ -5,7 +5,12 @@
  * against its twin by scripts/check-site-constants.mjs, so the two cannot
  * drift into disagreeing about the site's own URL. */
 export const SITE = 'https://verifiedmargins.com';
-export const API_BASE = 'https://api.getdragonbot.com';
+/* Build-time ONLY — this file's reader is scripts/build-profiles.mjs. The
+ * browser bundle's API base is `config.apiUrl` (src/lib/config.ts), a
+ * different constant that deliberately still points at api.getdragonbot.com.
+ * 🚨 Must match site.ts — scripts/check-site-constants.mjs runs first in
+ * `npm run build` and fails a one-sided edit. */
+export const API_BASE = 'https://api.verifiedmargins.com';
 export const BRAND_NAME = 'VerifiedMargins';
 
 /* The authenticated app's routes.
