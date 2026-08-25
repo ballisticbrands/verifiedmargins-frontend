@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { listProfiles, signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
+import { signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
 import { Logo } from "@/components/Logo";
 
 /**
@@ -31,44 +30,29 @@ export function Shell({
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  /* Where "Profile" points.
+  /* Where "Profile" points: at /profile, a literal, always.
    *
-   * The X.com model the operator asked for: the nav takes you to your OWN
-   * public page — the thing other people see — and the edit affordance lives
-   * on it ("Edit your profile →", already rendered there for the owner).
+   * The X.com model the operator asked for is that the nav takes you to your
+   * OWN public page — the thing other people see — and the edit affordance
+   * lives ON it. But WHICH page that is takes a round trip to answer, so this
+   * header used to compute the href: it seeded the link at "/settings" and
+   * replaced it when `listProfiles()` came back.
    *
-   * 🚨 Falls back to /settings when the profile is NOT published, because an
-   * unpublished profile is a deliberate 404 (src/routes/public-profiles.ts:
-   * "unpublished and not_found are the same answer on purpose" — no existence
-   * oracle). Linking there unconditionally would dead-end a new seller on
-   * their own profile before they publish it. /settings is also the honest
-   * destination in that state: publishing is what they need to do next.
+   * 🚨 A computed href is a guess, and it was wrong in two ordinary
+   * situations, both of which reached the operator as "the Profile link still
+   * goes to /settings" on a bundle that had the fix in it:
    *
-   * Defaults to /settings until the answer arrives, so the link is never
-   * broken mid-load. */
-  const [profileHref, setProfileHref] = useState("/settings");
-
-  useEffect(() => {
-    if (status !== "authenticated") return;
-    let cancelled = false;
-    listProfiles()
-      .then((mine) => {
-        if (cancelled) return;
-        // The data model is many-to-many on purpose (a user may own more
-        // than one profile), so prefer a PUBLISHED one rather than assuming
-        // the first row is the one they mean. With none published there is
-        // no public page to send them to.
-        const shown = mine.find((p) => p.published && p.username);
-        setProfileHref(shown ? `/${shown.username}` : "/settings");
-      })
-      .catch(() => {
-        // Can't tell — keep the safe destination rather than guessing a URL.
-        if (!cancelled) setProfileHref("/settings");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [status]);
+   *   1. Click before the round trip finishes and you follow the placeholder.
+   *   2. A failed lookup fell back to "/settings" silently, which is
+   *      indistinguishable from "nothing is published" — and from the bug.
+   *
+   * So the header no longer knows. /profile resolves the destination when it
+   * is opened (src/pages/ProfileRedirect.tsx), which cannot be stale and has
+   * somewhere to SHOW a failure. It also drops a duplicate listProfiles()
+   * call: on a profile page this header and the page itself were each asking.
+   *
+   * "profile" is in the backend's RESERVED_USERNAMES, so no seller's handle
+   * can shadow it. */
 
   // Sign out clears the local session token even if the server call fails
   // (signOut is best-effort by design), then sends you to the one door in.
@@ -98,7 +82,7 @@ export function Shell({
         {status === "authenticated" ? (
           <nav className="flex items-center gap-4 text-sm">
             <NavLink to="/dashboard" current={pathname}>Dashboard</NavLink>
-            <NavLink to={profileHref} current={pathname}>Profile</NavLink>
+            <NavLink to="/profile" current={pathname}>Profile</NavLink>
             <button
               type="button"
               onClick={() => void onSignOut()}

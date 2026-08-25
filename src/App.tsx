@@ -10,6 +10,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { Login } from "@/pages/Login";
 import { Settings } from "@/pages/Settings";
 import { PublicProfile } from "@/pages/PublicProfile";
+import { ProfileRedirect } from "@/pages/ProfileRedirect";
 import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
 import { Terms } from "@/pages/Terms";
@@ -90,8 +91,18 @@ export default function App() {
           /login IS the recovery path. ForgotPasswordPage stays in the
           shared package for the brands that still need it. */}
       <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
-      {/* The profile settings form — username, bio, links, per-field
-          visibility toggles and the connected-account opt-in. */}
+      {/* Where the nav's "Profile" link points. It resolves which page is
+          "yours" and redirects — bio, links and the visibility toggles are
+          edited ON that page now, in place. The header deliberately does NOT
+          compute the destination itself: a computed href is stale until the
+          round trip lands and silently wrong when it fails, which is what
+          BUG_VM_2026-08-25_profile-page-not-editable-in-place was reported
+          as. "profile" is in the backend's RESERVED_USERNAMES, so the
+          /:username catch-all below can never shadow it. */}
+      <Route path="/profile" element={<RequireAuth><ProfileRedirect /></RequireAuth>} />
+      {/* Still the home of everything that is NOT on the public page: the
+          username (renames are capped and tombstoned), the picture,
+          connected accounts and publishing. */}
       <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
       {/* A single path segment that is not one of the app routes above is a
           seller's handle. Declared LAST so an app route can never be shadowed

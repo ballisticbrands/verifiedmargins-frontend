@@ -63,6 +63,15 @@ export const APP_ROUTES = [
    * in, on an HTTP 404. */
   '/magic',
   '/dashboard',
+  /* The nav's "Profile" link. A resolver route, not a page — it reads the
+   * signed-in user's profiles and redirects to their own /:username page (or
+   * to /settings when there is nothing publishable yet). Needs a 200-answering
+   * stub like every other app route, and a Disallow: there is nothing here to
+   * index and it requires auth to do anything at all.
+   * 🚨 Must stay in the backend's RESERVED_USERNAMES
+   * (src/services/profiles/usernames.ts) — it already is — or a seller could
+   * register "profile" and shadow it. */
+  '/profile',
   '/settings',
   '/verify-email',
   /* No /forgot-password: this brand has no passwords, and the route is
