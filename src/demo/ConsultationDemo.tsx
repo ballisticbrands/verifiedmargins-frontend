@@ -152,21 +152,28 @@ export function ConsultationDemo({ username }: { username: string }) {
 
   return createPortal(
     <div data-demo-extras="">
+      {/* Two rows, not one wrapping row. Socials first, the priced action
+          under them: it is the last thing read before the numbers start, and
+          it is never optically grouped with the free links. */}
+      {links.length > 0 ? (
+        <div data-demo-socials="">
+          {links.map(([key, value]) => (
+            <a
+              key={key}
+              href={socialHref(key, value)}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              data-demo-social=""
+            >
+              {SOCIAL_LABELS[key] ?? key}
+            </a>
+          ))}
+        </div>
+      ) : null}
       <div data-demo-actions="">
         <button type="button" data-demo-primary="" onClick={() => setOpen(true)}>
           Consultation — {CONSULTATION_PRICE}
         </button>
-        {links.map(([key, value]) => (
-          <a
-            key={key}
-            href={socialHref(key, value)}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            data-demo-social=""
-          >
-            {SOCIAL_LABELS[key] ?? key}
-          </a>
-        ))}
       </div>
       {open ? <SchedulerDialog onClose={() => setOpen(false)} /> : null}
     </div>,

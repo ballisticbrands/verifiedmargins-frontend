@@ -695,6 +695,17 @@ a, button, [role="button"] {
   align-items: center;
 }
 
+/* Socials are the FIRST row; the priced action sits under them. */
+.vm-profile [data-demo-socials] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+.vm-profile [data-demo-socials] + [data-demo-actions] {
+  margin-top: 0.45rem;
+}
+
 /* The consultation button is the page's one commercial action, so it takes
    --accent like every other primary action on the site. Deliberately NOT
    green: green means verified here, and a paid booking is not a verification
