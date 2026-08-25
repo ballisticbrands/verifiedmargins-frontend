@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useBrand } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 
@@ -160,7 +161,11 @@ export function Privacy() {
             <a className="underline underline-offset-4" href="mailto:owner@ballisticbrands.co">
               owner@ballisticbrands.co
             </a>
-            .
+            . The{" "}
+            <Link className="underline underline-offset-4" to="/tos">
+              terms of service
+            </Link>{" "}
+            cover the rest of the agreement between us.
           </p>
         </section>
       </div>

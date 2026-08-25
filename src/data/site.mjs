@@ -38,6 +38,10 @@ export const PUBLIC_PAGES = [
   /* Also the about URL on our Reddit / X / LinkedIn OAuth app records, so it
    * has to answer 200 to a reviewer's fetch, not bounce through 404.html. */
   '/about',
+  /* The footer's "Terms" link on every page, and the terms URL the X / Reddit /
+   * LinkedIn app registrations ask for alongside the privacy one.
+   * generate-sitemap.mjs has always priced /tos/ at 0.3 — it expected this. */
+  '/tos',
 ];
 
 export const APP_ROUTES = [
