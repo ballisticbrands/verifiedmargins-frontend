@@ -10,6 +10,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { Login } from "@/pages/Login";
 import { Settings } from "@/pages/Settings";
 import { PublicProfile } from "@/pages/PublicProfile";
+import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
 
 export default function App() {
@@ -97,9 +98,13 @@ export default function App() {
           (usernames.ts reserved list), which is now load-bearing rather than
           belt-and-braces, because the app and the profiles share one origin. */}
       {/* Public + indexable. MUST stay above /:username, or the catch-all
-          would treat "privacy" as a seller handle. Also in the backend's
-          RESERVED_USERNAMES so nobody can register it. */}
+          would treat "privacy" or "about" as a seller handle. Both are also in
+          the backend's RESERVED_USERNAMES so nobody can register them, and in
+          PUBLIC_PAGES (site.mjs) so the build emits a 200-answering stub.
+          /about is additionally the about URL registered with Reddit, X and
+          LinkedIn for our OAuth apps — a dead one fails their review. */}
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/about" element={<About />} />
       <Route path="/:username" element={<PublicProfile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

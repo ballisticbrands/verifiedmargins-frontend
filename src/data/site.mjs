@@ -35,6 +35,9 @@ export const BRAND_NAME = 'VerifiedMargins';
  * handle and shadow the page via the /:username catch-all. */
 export const PUBLIC_PAGES = [
   '/privacy',
+  /* Also the about URL on our Reddit / X / LinkedIn OAuth app records, so it
+   * has to answer 200 to a reviewer's fetch, not bounce through 404.html. */
+  '/about',
 ];
 
 export const APP_ROUTES = [

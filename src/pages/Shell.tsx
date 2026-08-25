@@ -117,6 +117,8 @@ export function Shell({
         className="mt-10 border-t pt-4 text-sm"
         style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
       >
+        <a href="https://verifiedmargins.com/about/">About</a>
+        {" · "}
         <a href="https://verifiedmargins.com/privacy/">Privacy</a>
         {" · "}
         <a href="https://verifiedmargins.com/tos/">Terms</a>
