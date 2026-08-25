@@ -86,6 +86,20 @@ const OPTIONS = [
  *
  * Two fixtures because the two verification states MUST look different, and a
  * screenshot of only one proves nothing about that. */
+/* Twelve months with a seasonal Q4 lift and one month whose COGS coverage is
+ * incomplete — the null is deliberate: a gap in the line must read as "not
+ * computable", never as a zero. */
+const MONTHS = [
+  ["2025-09", 132000, 41], ["2025-10", 158000, 39], ["2025-11", 246000, 33],
+  ["2025-12", 311000, 30], ["2026-01", 176000, 34], ["2026-02", 149000, 36],
+  ["2026-03", 163000, 35], ["2026-04", 171000, null], ["2026-05", 184000, 33],
+  ["2026-06", 192000, 32], ["2026-07", 187000, 31], ["2026-08", 96000, 30],
+].map(([month, revenue, marginPct]) => ({
+  month, currency: "USD", revenue,
+  units: Math.round(revenue / 44), orders: Math.round(revenue / 51),
+  profit: marginPct === null ? null : Math.round(revenue * (marginPct / 100)),
+}));
+
 function publicProfile(over = {}) {
   return {
     username: "acme", display_name: "Acme Brands", bio: "Private-label kitchen gear. Eight years, two people.",
@@ -103,7 +117,11 @@ function publicProfile(over = {}) {
                  ad_spend: -186000, cogs: 861000, profit: 681000, margin_pct: 31.8, cogs_complete: true }],
       display: { currency: "USD", revenue: 2140000, fees: -412000, ad_spend: -186000, cogs: 861000,
                  profit: 681000, margin_pct: 31.8, fx: { as_of: "2026-08-01", source: "builtin-placeholder", unconvertible: [] } },
-      series: [], margin_pct: 31.8, margin_basis: "per_sku", margin_note: null,
+      series: MONTHS, margin_series: MONTHS.map((m) => ({
+        month: m.month,
+        margin_pct: m.profit === null ? null : (m.profit / m.revenue) * 100,
+      })),
+      margin_pct: 31.8, margin_basis: "per_sku", margin_note: null,
       sku_count: 62, brand_count: 3, brands_label: "Brands sold", category: "Home & Kitchen",
       categories: [{ name: "Home & Kitchen", revenue: 2140000 }],
     },
@@ -122,8 +140,25 @@ const ESTIMATED = publicProfile({
   metrics: { ...publicProfile().metrics, margin_basis: "blended_pct" },
 });
 
+/* Margin public, revenue private — the combination the product's premise
+ * rests on. `series` and `display` are null (the backend gates them on
+ * visibility.sales) while `margin_series` still arrives, so the page must
+ * plot a trend that discloses no absolute figure. If a revenue number ever
+ * appears on this screenshot, the gating broke. */
+const MARGIN_ONLY = publicProfile({
+  username: "quietseller", display_name: "Quiet Seller",
+  bio: "Margin is public. Revenue is nobody's business.",
+  visibility: { margin: true },
+  metrics: {
+    ...publicProfile().metrics,
+    native: null, display: null, series: null,
+    sku_count: null, brand_count: null, category: null, categories: null,
+  },
+});
+
 const ROUTES = [
   [/\/v1\/public\/profiles\/e%2F|\/v1\/public\/profiles\/8x2k9/, ESTIMATED],
+  [/\/v1\/public\/profiles\/quietseller/, MARGIN_ONLY],
   [/\/v1\/public\/profiles\//, publicProfile()],
   [/\/v1\/profiles\/username-available/, { available: true }],
   [/\/v1\/profiles\/[^/]+\/connection-options/, OPTIONS],
@@ -142,6 +177,7 @@ const PAGES = [
   { route: "/settings", auth: true, name: "settings" },
   { route: "/acme", auth: false, name: "profile-verified" },
   { route: "/8x2k9", auth: false, name: "profile-estimated" },
+  { route: "/quietseller", auth: false, name: "profile-margin-only" },
 ];
 
 const browser = await puppeteer.launch({

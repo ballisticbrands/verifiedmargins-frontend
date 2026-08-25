@@ -592,3 +592,82 @@ a, button, [role="button"] {
 }
 .vm-profile [data-profile-head] h1 { margin: 0; }
 .vm-profile [data-profile-head] p { margin: 0; }
+
+/* ─── The profile dashboard ───────────────────────────────────────────
+ *
+ * Tiles + one chart, built from the shared StatTile/TrendChart primitives —
+ * the same two the DragonBot dashboard uses, so there is one charting
+ * implementation in the estate rather than two that drift.
+ *
+ * 🚨 --chart-accent points at INK, not the verified green. The shared chart
+ * defaults its series colour to the brand accent; on this product green is a
+ * claim about where a number came from, and a revenue line is not a
+ * verification. Spending the badge colour on chart furniture would blunt the
+ * badge (BRANDING.md §3.1). The green stays on the badge and the section rule
+ * — which is exactly where a reader is deciding whether to believe the chart.
+ */
+.vm-profile [data-profile-dashboard] {
+  --chart-accent: var(--foreground);
+}
+
+.vm-profile [data-tiles] {
+  display: grid;
+  /* auto-FILL, not auto-fit: a margin-only profile has ONE tile, and auto-fit
+     collapses the empty tracks so that tile stretches the full page width and
+     stops reading as a tile. */
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.6rem;
+  margin: 0.9rem 0 0;
+}
+
+/* The tiles are the chart's metric picker, so they have to look pressable
+   and the selected one has to be obvious — with a border weight, not only a
+   colour, so the state survives greyscale.
+ *
+ * 🚨 `color` is not optional here. An interactive StatTile renders as a
+ * <button>, so it inherits the generic `.vm-form button` rule further up —
+ * which paints --accent-foreground (white, in light mode) on a --card (white)
+ * tile. The label survived because it sets its own colour; the FIGURE did
+ * not, so every tile rendered its number in white on white and looked empty
+ * while the DOM was perfectly correct. Nothing errors, and a screenshot is
+ * the only way to catch it. */
+.vm-profile [data-tiles] > * {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--foreground);
+  padding: 0.6rem 0.7rem;
+  margin: 0;
+  cursor: pointer;
+}
+.vm-profile [data-tiles] > [aria-pressed="true"],
+.vm-profile [data-tiles] > [data-selected="true"] {
+  border-color: var(--foreground);
+  box-shadow: inset 0 0 0 1px var(--foreground);
+}
+
+/* Tile figures follow the same rule as every other number on the site. */
+.vm-profile [data-tiles] > * > span:nth-of-type(2),
+.vm-profile [data-tiles] [data-value],
+.vm-profile [data-tiles] strong,
+.vm-profile [data-tiles] b {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
+}
+
+.vm-profile [data-chart] {
+  margin-top: 0.9rem;
+  padding: 0.85rem 0.9rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+/* Chart text — axis ticks, tooltip figures — is data, so it is mono too. */
+.vm-profile [data-chart] svg text {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  fill: var(--muted-foreground);
+}
