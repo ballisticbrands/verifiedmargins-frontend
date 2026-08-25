@@ -671,3 +671,161 @@ a, button, [role="button"] {
   font-size: 11px;
   fill: var(--muted-foreground);
 }
+
+/* ═════════════════════════════════════════════════════════════════════
+ * 🚨 DEMO_PROFILE — DELETE THIS WHOLE BLOCK WHEN THE DEMO IS OVER 🚨
+ *
+ * Styling for src/demo/ConsultationDemo.tsx: a fake paid-consultation button
+ * and social buttons on ONE profile, for a client demo on 2026-08-25. It is
+ * scoped to `body[data-demo-profile]`, which that component sets only for the
+ * username it targets — so nothing here can reach another profile even by
+ * accident.
+ *
+ * Delete: this block, src/demo/, and the two lines marked DEMO_PROFILE in
+ * src/pages/PublicProfile.tsx.
+ * ═════════════════════════════════════════════════════════════════════ */
+
+.vm-profile [data-demo-extras] {
+  margin: 0.15rem 0 0.4rem;
+}
+.vm-profile [data-demo-actions] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+/* The consultation button is the page's one commercial action, so it takes
+   --accent like every other primary action on the site. Deliberately NOT
+   green: green means verified here, and a paid booking is not a verification
+   (BRANDING.md §3.1) — a demo is exactly where that rule would slip. */
+.vm-profile [data-demo-primary] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.vm-profile [data-demo-primary]:disabled { opacity: 0.45; cursor: default; }
+
+/* Socials are secondary: same shape, outlined rather than filled, so the
+   priced action stays the one thing that reads as a call to action. */
+.vm-profile [data-demo-social] {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--foreground) !important;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  text-decoration: none;
+}
+.vm-profile [data-demo-social]:hover { border-color: var(--muted-foreground); }
+
+/* The links section at the bottom of the shared page — the demo "moves" the
+   socials up, so the original has to go, or they appear twice. */
+body[data-demo-profile] .vm-profile [data-profile-links] { display: none; }
+
+/* ── the scheduler ── */
+.vm-profile [data-demo-backdrop] {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 45%);
+}
+.vm-profile [data-demo-modal] {
+  width: min(23rem, 100%);
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  padding: 1rem 1.15rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  color: var(--foreground);
+}
+.vm-profile [data-demo-modal-head] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+.vm-profile [data-demo-modal-head] button {
+  border: 0;
+  background: none;
+  color: var(--muted-foreground);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.15rem;
+}
+.vm-profile [data-demo-price] { margin: 0 0 0.9rem; color: var(--muted-foreground); font-size: 0.875rem; }
+.vm-profile [data-demo-month] { margin: 0 0 0.4rem; font-weight: 600; font-size: 0.9rem; }
+
+.vm-profile [data-demo-cal] {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.15rem;
+  margin-bottom: 0.8rem;
+}
+.vm-profile [data-demo-dow] {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+  padding-bottom: 0.2rem;
+}
+/* Dates are data, so they get the mono stack like every other figure. */
+.vm-profile [data-demo-day] {
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.vm-profile [data-demo-day]:hover:not(:disabled) { border-color: var(--border); }
+.vm-profile [data-demo-day]:disabled { color: var(--border); cursor: default; }
+.vm-profile [data-demo-day][aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.vm-profile [data-demo-slots] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+}
+.vm-profile [data-demo-slot] {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.vm-profile [data-demo-slot][aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-color: var(--accent);
+}
+.vm-profile [data-demo-hint] { margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--muted-foreground); }
+.vm-profile [data-demo-booked] p { margin: 0 0 0.6rem; }

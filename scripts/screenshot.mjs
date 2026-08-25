@@ -159,6 +159,12 @@ const MARGIN_ONLY = publicProfile({
 const ROUTES = [
   [/\/v1\/public\/profiles\/e%2F|\/v1\/public\/profiles\/8x2k9/, ESTIMATED],
   [/\/v1\/public\/profiles\/quietseller/, MARGIN_ONLY],
+  // DEMO_PROFILE — delete with src/demo/.
+  [/\/v1\/public\/profiles\/ggballas/, publicProfile({
+    username: "ggballas", display_name: "Gershon Ballas",
+    bio: "Private-label kitchen gear. Eight years, two people.",
+    socials: { x: "ggballas", linkedin: "ggballas", reddit: "u/ggballas" },
+  })],
   [/\/v1\/public\/profiles\//, publicProfile()],
   [/\/v1\/profiles\/username-available/, { available: true }],
   [/\/v1\/profiles\/[^/]+\/connection-options/, OPTIONS],
@@ -178,13 +184,21 @@ const PAGES = [
   { route: "/acme", auth: false, name: "profile-verified" },
   { route: "/8x2k9", auth: false, name: "profile-estimated" },
   { route: "/quietseller", auth: false, name: "profile-margin-only" },
+  // DEMO_PROFILE — delete with src/demo/. `click` opens the fake scheduler so
+  // the popup gets reviewed too; a demo nobody looked at is how a client sees
+  // a broken modal first.
+  { route: "/ggballas", auth: false, name: "profile-demo" },
+  { route: "/ggballas", auth: false, name: "profile-demo-scheduler", click: "[data-demo-primary]" },
+  { route: "/ggballas", auth: false, name: "profile-demo-booked",
+    click: ["[data-demo-primary]", "[data-demo-day]:not(:disabled)", "[data-demo-slot]",
+            "[data-demo-modal] [data-demo-primary]"] },
 ];
 
 const browser = await puppeteer.launch({
   executablePath: chromePath(), headless: "new", args: ["--no-sandbox", "--disable-dev-shm-usage"],
 });
 
-for (const { route, auth, name } of PAGES) {
+for (const { route, auth, name, click } of PAGES) {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 900 });
   /* The site is light-only (globals.css has no dark override), so this is
@@ -220,6 +234,10 @@ for (const { route, auth, name } of PAGES) {
 
   await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: "networkidle2", timeout: 45_000 });
   await new Promise((r) => setTimeout(r, 2_000));
+  for (const sel of [click].flat().filter(Boolean)) {
+    await page.click(sel).catch(() => console.warn(`  (no ${sel} to click)`));
+    await new Promise((r) => setTimeout(r, 350));
+  }
   const file = join(outDir, `${name}${light ? "-light" : ""}.png`);
   await page.screenshot({ path: file, fullPage: true });
   console.log(`  ${route} → ${file}`);
