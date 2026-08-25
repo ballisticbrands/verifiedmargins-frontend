@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  VerifyEmailBanner,
   reconcileConnectionActivations,
   useBrand,
   useSession,
@@ -10,6 +9,14 @@ import { Shell } from "./Shell";
 
 /**
  * Placeholder dashboard.
+ *
+ * 🚨 NO VerifyEmailBanner here, deliberately. VerifiedMargins has exactly two
+ * ways in and both prove the address before a session exists: Google (Google
+ * asserts the email) and a magic link (the click proves inbox possession, and
+ * /magic-login stamps emailVerifiedAt). There is no password path, so there is
+ * no unverified-but-signed-in state to nag about — a banner here can only ever
+ * be wrong. It was also rendering unconditionally on `user?.email` rather than
+ * on the verification flag, so verified users saw it forever.
  *
  * ⚠️ Still deliberately plain, but no longer empty: the backend profile models,
  * brand.ts row and CORS entry have landed, so /settings is a real screen that
@@ -39,7 +46,6 @@ export function Dashboard() {
 
   return (
     <Shell width="wide">
-      {user?.email ? <VerifyEmailBanner email={user.email} /> : null}
       <h1 className="mt-4 text-2xl font-bold tracking-tight">
         {user?.name ? `Hi, ${user.name}` : "Dashboard"}
       </h1>

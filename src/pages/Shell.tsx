@@ -1,5 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
-import { useBrand, useSession } from "@ballisticbrands/frontend-shared";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
 
 /**
  * Page chrome: header, content column, footer.
@@ -27,6 +27,16 @@ export function Shell({
   const brand = useBrand();
   const { status } = useSession();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  // Sign out clears the local session token even if the server call fails
+  // (signOut is best-effort by design), then sends you to the one door in.
+  // Full reload so no authenticated state survives in memory.
+  async function onSignOut() {
+    await signOut();
+    navigate("/login", { replace: true });
+    window.location.reload();
+  }
   const max = width === "wide" ? "max-w-3xl" : "max-w-md";
 
   return (
@@ -44,6 +54,14 @@ export function Shell({
           <nav className="flex items-center gap-4 text-sm">
             <NavLink to="/dashboard" current={pathname}>Dashboard</NavLink>
             <NavLink to="/settings" current={pathname}>Profile</NavLink>
+            <button
+              type="button"
+              onClick={() => void onSignOut()}
+              className="text-sm underline underline-offset-4 opacity-70 hover:opacity-100"
+              style={{ color: "inherit" }}
+            >
+              Sign out
+            </button>
           </nav>
         ) : null}
       </header>
