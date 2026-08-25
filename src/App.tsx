@@ -10,6 +10,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { Login } from "@/pages/Login";
 import { Settings } from "@/pages/Settings";
 import { PublicProfile } from "@/pages/PublicProfile";
+import { Privacy } from "@/pages/Privacy";
 
 export default function App() {
   const location = useLocation();
@@ -95,6 +96,10 @@ export default function App() {
           by a username — the backend also refuses to issue one that collides
           (usernames.ts reserved list), which is now load-bearing rather than
           belt-and-braces, because the app and the profiles share one origin. */}
+      {/* Public + indexable. MUST stay above /:username, or the catch-all
+          would treat "privacy" as a seller handle. Also in the backend's
+          RESERVED_USERNAMES so nobody can register it. */}
+      <Route path="/privacy" element={<Privacy />} />
       <Route path="/:username" element={<PublicProfile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

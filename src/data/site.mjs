@@ -20,6 +20,23 @@ export const BRAND_NAME = 'VerifiedMargins';
  *
  * Keep in sync with the <Route> list in src/App.tsx. Anything NOT here is a
  * seller's handle. */
+/* PUBLIC, indexable pages that are still React routes.
+ *
+ * 🚨 Deliberately NOT in APP_ROUTES. Both lists get a static stub so GitHub
+ * Pages answers 200 instead of falling through to 404.html — but APP_ROUTES
+ * also becomes a `Disallow:` line in robots.txt and is excluded from the
+ * sitemap, which is right for authenticated shells and wrong for these. A
+ * privacy policy nobody can crawl is a privacy policy that fails the audit it
+ * exists to pass, and generate-sitemap.mjs already scores /privacy/ at 0.3,
+ * so it expects to find them.
+ *
+ * Anything here must also be in RESERVED_USERNAMES on the backend
+ * (src/services/profiles/usernames.ts) — otherwise a seller could register the
+ * handle and shadow the page via the /:username catch-all. */
+export const PUBLIC_PAGES = [
+  '/privacy',
+];
+
 export const APP_ROUTES = [
   /* The one auth page. /sign-up and /sign-in are TOMBSTONES that redirect
    * to it — they stay in this list precisely because they must keep

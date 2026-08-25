@@ -20,7 +20,7 @@
 import { mkdirSync, copyFileSync, existsSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { APP_ROUTES as ROUTES } from '../src/data/site.mjs';
+import { APP_ROUTES as ROUTES, PUBLIC_PAGES } from '../src/data/site.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
@@ -35,7 +35,9 @@ if (!existsSync(shell)) {
  * works for a human (via the 404.html bounce) but answers 404 to everything
  * else — which is exactly the silent failure above. */
 
-for (const route of ROUTES) {
+/* Both lists need a real index.html so Pages answers 200. Only ROUTES gets
+ * a Disallow below — see PUBLIC_PAGES' comment in site.mjs. */
+for (const route of [...ROUTES, ...PUBLIC_PAGES]) {
   const dir = join(dist, ...route.split('/').filter(Boolean));
   mkdirSync(dir, { recursive: true });
   copyFileSync(shell, join(dir, 'index.html'));
