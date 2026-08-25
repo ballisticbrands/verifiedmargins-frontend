@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
+import { listProfiles, signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
 import { Logo } from "@/components/Logo";
 
 /**
@@ -30,6 +31,45 @@ export function Shell({
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
+  /* Where "Profile" points.
+   *
+   * The X.com model the operator asked for: the nav takes you to your OWN
+   * public page — the thing other people see — and the edit affordance lives
+   * on it ("Edit your profile →", already rendered there for the owner).
+   *
+   * 🚨 Falls back to /settings when the profile is NOT published, because an
+   * unpublished profile is a deliberate 404 (src/routes/public-profiles.ts:
+   * "unpublished and not_found are the same answer on purpose" — no existence
+   * oracle). Linking there unconditionally would dead-end a new seller on
+   * their own profile before they publish it. /settings is also the honest
+   * destination in that state: publishing is what they need to do next.
+   *
+   * Defaults to /settings until the answer arrives, so the link is never
+   * broken mid-load. */
+  const [profileHref, setProfileHref] = useState("/settings");
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    let cancelled = false;
+    listProfiles()
+      .then((mine) => {
+        if (cancelled) return;
+        // The data model is many-to-many on purpose (a user may own more
+        // than one profile), so prefer a PUBLISHED one rather than assuming
+        // the first row is the one they mean. With none published there is
+        // no public page to send them to.
+        const shown = mine.find((p) => p.published && p.username);
+        setProfileHref(shown ? `/${shown.username}` : "/settings");
+      })
+      .catch(() => {
+        // Can't tell — keep the safe destination rather than guessing a URL.
+        if (!cancelled) setProfileHref("/settings");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [status]);
+
   // Sign out clears the local session token even if the server call fails
   // (signOut is best-effort by design), then sends you to the one door in.
   // Full reload so no authenticated state survives in memory.
@@ -58,7 +98,7 @@ export function Shell({
         {status === "authenticated" ? (
           <nav className="flex items-center gap-4 text-sm">
             <NavLink to="/dashboard" current={pathname}>Dashboard</NavLink>
-            <NavLink to="/settings" current={pathname}>Profile</NavLink>
+            <NavLink to={profileHref} current={pathname}>Profile</NavLink>
             <button
               type="button"
               onClick={() => void onSignOut()}
