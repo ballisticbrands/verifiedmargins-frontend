@@ -686,24 +686,13 @@ a, button, [role="button"] {
  * ═════════════════════════════════════════════════════════════════════ */
 
 .vm-profile [data-demo-extras] {
-  margin: 0.15rem 0 0.4rem;
+  margin: 0.9rem 0 0.2rem;
 }
 .vm-profile [data-demo-actions] {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
   align-items: center;
-}
-
-/* Socials are the FIRST row; the priced action sits under them. */
-.vm-profile [data-demo-socials] {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  align-items: center;
-}
-.vm-profile [data-demo-socials] + [data-demo-actions] {
-  margin-top: 0.45rem;
 }
 
 /* The consultation button is the page's one commercial action, so it takes
@@ -814,10 +803,6 @@ a, button, [role="button"] {
 }
 .vm-profile [data-demo-social]:hover { border-color: var(--muted-foreground); }
 
-/* The links section at the bottom of the shared page — the demo "moves" the
-   socials up, so the original has to go, or they appear twice. */
-body[data-demo-profile] .vm-profile [data-profile-links] { display: none; }
-
 /* ── the scheduler ── */
 .vm-profile [data-demo-backdrop] {
   position: fixed;
@@ -912,3 +897,76 @@ body[data-demo-profile] .vm-profile [data-profile-links] { display: none; }
 }
 .vm-profile [data-demo-hint] { margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--muted-foreground); }
 .vm-profile [data-demo-booked] p { margin: 0 0 0.6rem; }
+
+
+/* ─── Businesses strip ────────────────────────────────────────────────
+ *
+ * One row per linked platform, under the bio: what this person runs, how big
+ * it is, and how much of it we checked. Per connection, not per profile — a
+ * synced Amazon account and a typed-in legacy business have different claims
+ * behind them, and one badge over both either flatters the weaker or maligns
+ * the stronger.
+ */
+.vm-profile [data-profile-businesses] {
+  margin: 0.85rem 0 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.vm-profile [data-business] {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+.vm-profile [data-business-name] {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+/* Figures push right so a column of businesses lines up down the page. */
+.vm-profile [data-business-figures] {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.vm-profile [data-business-figures] b {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+/* ─── Socials row ─────────────────────────────────────────────────────
+ *
+ * Buttons rather than a bulleted list: this is the social-network half of the
+ * product, and a list of "x: handle" reads like a database dump.
+ */
+.vm-profile [data-profile-socials] {
+  margin: 0.7rem 0 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.vm-profile [data-social-link] {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 550;
+  text-decoration: none;
+}
+.vm-profile [data-social-link]:hover { border-color: var(--muted-foreground); }

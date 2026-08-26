@@ -3,12 +3,9 @@
  * ═══════════════════════════════════════════════════════════════════════
  *
  * Built 2026-08-25 to show a potential client what a VerifiedMargins profile
- * COULD do. None of it is real:
- *
- *   - "Consultation — $150" takes no payment, books nothing, and tells
- *     nobody. The calendar is a static month with plausible slots.
- *   - The social buttons link to the seller's real handles, but "moving them
- *     to the top" is a demo layout, not a decision about the page.
+ * COULD do. None of it is real: the consultation takes no payment, books
+ * nothing and tells nobody, the calendar is a static month with plausible
+ * slots, and the reviews are invented.
  *
  * It renders for exactly ONE username (DEMO_USERNAME below) and returns null
  * everywhere else, so every other profile on the site is untouched.
@@ -24,25 +21,22 @@
  *
  * ── WHY A PORTAL ──
  * The profile page is rendered by <PublicProfilePage> from the shared
- * package, and the client asked for this "at the very top, below the name" —
- * which is INSIDE that component's markup. Rather than add a slot prop to a
- * shared package for a throwaway demo, this finds the header the shared page
- * already marks (`[data-profile-head]`) and portals into a node inserted
- * after it. When the demo goes, the DOM goes back to normal by deletion
- * alone.
+ * package, and this belongs between the socials and the dashboard — inside
+ * that component's markup. Rather than add a slot prop to a shared package
+ * for a throwaway, it portals into a node inserted after the socials section
+ * the shared page already marks (`[data-profile-socials]`).
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { fetchPublicProfile, type PublicProfile } from "@ballisticbrands/frontend-shared";
 
 /** The only profile this renders on. */
 const DEMO_USERNAME = "ggballas";
 
 const CONSULTATION_PRICE = "$150";
 
-/** Fake social proof for the demo. The numbers are internally consistent on
- *  purpose — 13 × $150 = $1,950 — because a client who does the arithmetic
- *  and finds it wrong stops believing the rest of the page. */
+/** Fake social proof. The numbers are internally consistent on purpose —
+ *  13 × $150 = $1,950 — because a client who does the arithmetic and finds
+ *  it wrong stops believing the rest of the page. */
 const STATS = {
   consultations: 13,
   rating: 4.5,
@@ -50,14 +44,17 @@ const STATS = {
   earned: "$1,950",
 };
 
+/** Slots are fixed, not generated from "now" — a demo that shows different
+ *  availability every time it is opened invites questions about the booking
+ *  system, which does not exist. */
+const SLOTS = ["09:00", "10:30", "13:00", "14:30", "16:00"];
+
 /** Two stacked rows of stars, the filled one clipped to the rating. Cheaper
  *  and sharper than half-star SVG paths, and it degrades to plain glyphs if
  *  the CSS is stripped.
  *
- *  Ink, not gold: the palette is green/black/white/grey, and green here means
- *  VERIFIED. A rating is not a verification, so it must not borrow the badge
- *  colour — and inventing a gold would put a sixth colour on a page whose
- *  whole visual argument is restraint (BRANDING.md §3). */
+ *  Ink, not gold: green here means VERIFIED, and a rating is not a
+ *  verification, so it must not borrow the badge colour. */
 function Stars({ rating }: { rating: number }) {
   return (
     <span data-demo-stars="" role="img" aria-label={`${rating} out of 5`}>
@@ -73,34 +70,6 @@ function Stars({ rating }: { rating: number }) {
   );
 }
 
-/** Slots are fixed, not generated from "now" — a demo that shows different
- *  availability every time it is opened invites questions about the booking
- *  system, which does not exist. */
-const SLOTS = ["09:00", "10:30", "13:00", "14:30", "16:00"];
-
-const SOCIAL_LABELS: Record<string, string> = {
-  x: "X",
-  reddit: "Reddit",
-  linkedin: "LinkedIn",
-  instagram: "Instagram",
-  tiktok: "TikTok",
-  facebook: "Facebook",
-};
-
-function socialHref(key: string, value: string): string {
-  if (value.startsWith("http")) return value;
-  const handle = value.replace(/^@/, "").replace(/^u\//, "");
-  switch (key) {
-    case "x": return `https://x.com/${handle}`;
-    case "reddit": return `https://reddit.com/user/${handle}`;
-    case "linkedin": return `https://linkedin.com/in/${handle}`;
-    case "instagram": return `https://instagram.com/${handle}`;
-    case "tiktok": return `https://tiktok.com/@${handle}`;
-    case "facebook": return `https://facebook.com/${handle}`;
-    default: return value;
-  }
-}
-
 /** A fixed month grid. Weekends and past days are disabled so it reads like a
  *  real scheduler without pretending to know anything about availability. */
 function monthGrid(year: number, month: number): Array<number | null> {
@@ -113,42 +82,31 @@ function monthGrid(year: number, month: number): Array<number | null> {
 export function ConsultationDemo({ username }: { username: string }) {
   const isDemo = username.trim().toLowerCase() === DEMO_USERNAME;
   const [host, setHost] = useState<HTMLElement | null>(null);
-  const [socials, setSocials] = useState<Record<string, string>>({});
   const [open, setOpen] = useState(false);
   const [comments, setComments] = useState(false);
 
-  // Insert the portal target directly after the shared page's header.
   useEffect(() => {
     if (!isDemo) return;
     let node: HTMLDivElement | null = null;
     let cancelled = false;
-    // The shared page renders after its own fetch resolves, so poll briefly
-    // rather than assume the header exists on first paint.
     const attach = () => {
       if (cancelled || node) return true;
-      const head = document.querySelector("[data-profile-head]");
-      if (!head?.parentElement) return false;
+      /* Anchored to the SOCIALS section: the layout is name → bio →
+       * businesses → socials → consultation → dashboard. Falls back to the
+       * header for a profile with no links at all. */
+      const anchor =
+        document.querySelector("[data-profile-socials]") ??
+        document.querySelector("[data-profile-head]");
+      if (!anchor?.parentElement) return false;
       node = document.createElement("div");
       node.setAttribute("data-demo-profile-extras", "");
-      head.parentElement.insertBefore(node, head.nextSibling);
+      anchor.parentElement.insertBefore(node, anchor.nextSibling);
       setHost(node);
       document.body.setAttribute("data-demo-profile", "");
-
-      /* "Move the links to the top" means the originals have to go, or they
-       * appear twice. CSS cannot reach them: the shared page marks only its
-       * OWNER-EDITING links section with `data-profile-links`, while the
-       * public list is a bare <section>. Rather than add a hook to a shared
-       * package for a demo, the hiding happens here in JS and is undone in
-       * the cleanup below — so deleting this file restores the page exactly,
-       * with nothing left behind in the shared component or the stylesheet. */
-      for (const section of Array.from(document.querySelectorAll(".vm-profile section"))) {
-        if (section.querySelector("h2")?.textContent?.trim() === "Links") {
-          (section as HTMLElement).dataset.demoHidden = "";
-          (section as HTMLElement).style.display = "none";
-        }
-      }
       return true;
     };
+    // The shared page renders after its own fetch resolves, so poll briefly
+    // rather than assume the anchor exists on first paint.
     if (!attach()) {
       const t = window.setInterval(() => attach() && window.clearInterval(t), 120);
       window.setTimeout(() => window.clearInterval(t), 6_000);
@@ -157,53 +115,13 @@ export function ConsultationDemo({ username }: { username: string }) {
       cancelled = true;
       node?.remove();
       document.body.removeAttribute("data-demo-profile");
-      for (const el of Array.from(document.querySelectorAll<HTMLElement>("[data-demo-hidden]"))) {
-        el.style.removeProperty("display");
-        delete el.dataset.demoHidden;
-      }
     };
   }, [isDemo]);
-
-  // The links come from the real payload so the demo shows the seller's own
-  // handles. Second request, browser-cached; acceptable for demo code.
-  useEffect(() => {
-    if (!isDemo) return;
-    let cancelled = false;
-    fetchPublicProfile(username)
-      .then((p: PublicProfile) => {
-        if (!cancelled) setSocials((p.socials ?? {}) as Record<string, string>);
-      })
-      .catch(() => undefined);
-    return () => { cancelled = true; };
-  }, [isDemo, username]);
-
-  const links = useMemo(
-    () => Object.entries(socials).filter(([, v]) => Boolean(v)),
-    [socials],
-  );
 
   if (!isDemo || !host) return null;
 
   return createPortal(
     <div data-demo-extras="">
-      {/* Two rows, not one wrapping row. Socials first, the priced action
-          under them: it is the last thing read before the numbers start, and
-          it is never optically grouped with the free links. */}
-      {links.length > 0 ? (
-        <div data-demo-socials="">
-          {links.map(([key, value]) => (
-            <a
-              key={key}
-              href={socialHref(key, value)}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              data-demo-social=""
-            >
-              {SOCIAL_LABELS[key] ?? key}
-            </a>
-          ))}
-        </div>
-      ) : null}
       <div data-demo-actions="">
         <button type="button" data-demo-primary="" onClick={() => setOpen(true)}>
           Consultation — {CONSULTATION_PRICE}

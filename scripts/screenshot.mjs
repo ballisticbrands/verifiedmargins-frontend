@@ -117,6 +117,16 @@ function publicProfile(over = {}) {
                  ad_spend: -186000, cogs: 861000, profit: 681000, margin_pct: 31.8, cogs_complete: true }],
       display: { currency: "USD", revenue: 2140000, fees: -412000, ad_spend: -186000, cogs: 861000,
                  profit: 681000, margin_pct: 31.8, fx: { as_of: "2026-08-01", source: "builtin-placeholder", unconvertible: [] } },
+      /* Per-connection rows. Two businesses with DIFFERENT badges, because
+         that is the case the per-connection change exists for: one synced
+         Amazon account and one typed-in legacy business must not share a
+         verdict. */
+      businesses: [
+        { platform: "amazon_selling_partner", label: "Amazon FBA", revenue: 1840000,
+          margin_pct: 33.1, verification: { tier: "verified_margin", label: "Verified margin" } },
+        { platform: "manual", label: "Self-reported", revenue: 300000,
+          margin_pct: 24.0, verification: { tier: "self_reported", label: "Self-reported" } },
+      ],
       series: MONTHS, margin_series: MONTHS.map((m) => ({
         month: m.month,
         margin_pct: m.profit === null ? null : (m.profit / m.revenue) * 100,
@@ -152,6 +162,10 @@ const MARGIN_ONLY = publicProfile({
   metrics: {
     ...publicProfile().metrics,
     native: null, display: null, series: null,
+    businesses: [
+      { platform: "amazon_selling_partner", label: "Amazon FBA", revenue: null,
+        margin_pct: 31.8, verification: { tier: "verified_margin", label: "Verified margin" } },
+    ],
     sku_count: null, brand_count: null, category: null, categories: null,
   },
 });
