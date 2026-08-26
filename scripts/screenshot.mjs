@@ -31,6 +31,11 @@ import puppeteer from "puppeteer-core";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
 const light = process.argv.includes("--light");
+/* A phone, because this product's most common first view is a profile link
+ * opened from a DM or a post. Portrait 390x844 is an iPhone 14/15 class
+ * viewport; deviceScaleFactor 2 so text renders the way it does on the
+ * device rather than at desktop hinting. */
+const mobile = process.argv.includes("--mobile");
 const outIdx = process.argv.indexOf("--out");
 const outDir = outIdx > -1 ? process.argv[outIdx + 1] : join(root, "screenshots");
 
@@ -204,6 +209,41 @@ const ROUTES = [
   [/\/v1\/profiles\/[^/]+$/, PROFILE],
   [/\/v1\/profiles$/, [PROFILE]],
 ];
+/* The stub converts, because the top bar's currency picker is a control whose
+ * ONLY visible effect is that the figures change. A stub that answered in
+ * dollars whatever was asked would render an identical page for every
+ * selection — and a screenshot run would go on passing with the picker wired
+ * to nothing at all. Rates match the backend's builtin table (fx.ts). */
+const STUB_RATES = { USD: 1, EUR: 0.92, GBP: 0.78, CAD: 1.36, AUD: 1.52, JPY: 150 };
+
+/** Field names that hold money. Percentages, counts and dates must not be
+ *  touched — converting a margin_pct would be the exact bug this is here to
+ *  catch, in reverse. */
+const MONEY_KEYS = new Set(["revenue", "profit", "fees", "ad_spend", "cogs"]);
+
+function convertMoney(value, rate, currency) {
+  if (Array.isArray(value)) return value.map((v) => convertMoney(v, rate, currency));
+  if (value === null || typeof value !== "object") return value;
+  const out = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (MONEY_KEYS.has(k) && typeof v === "number") out[k] = Math.round(v * rate);
+    else if (k === "currency" && typeof v === "string") out[k] = currency;
+    else out[k] = convertMoney(v, rate, currency);
+  }
+  return out;
+}
+
+/** Re-price a stub payload into the currency the app actually asked for. */
+function inCurrency(body, url) {
+  const asked = new URL(url).searchParams.get("currency");
+  if (!asked || !STUB_RATES[asked] || asked === "USD") return body;
+  const converted = convertMoney(body, STUB_RATES[asked], asked);
+  // `native` is what was EARNED, not what is displayed — it must survive the
+  // conversion untouched, or the page would claim the seller banked euros.
+  if (body?.metrics?.native) converted.metrics.native = body.metrics.native;
+  return converted;
+}
+
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "*",
@@ -218,15 +258,27 @@ const PAGES = [
   { route: "/8x2k9", auth: false, name: "profile-estimated" },
   { route: "/quietseller", auth: false, name: "profile-margin-only" },
   { route: "/leaderboard", auth: false, name: "leaderboard" },
+  /* The same profile, read in euros. Proves the top bar's picker reaches the
+     API and that every figure on the page moves with it. */
+  {
+    route: "/acme",
+    auth: false,
+    name: "profile-eur",
+    select: ["[data-currency-picker] select", "EUR"],
+  },
 ];
 
 const browser = await puppeteer.launch({
   executablePath: chromePath(), headless: "new", args: ["--no-sandbox", "--disable-dev-shm-usage"],
 });
 
-for (const { route, auth, name, click } of PAGES) {
+for (const { route, auth, name, click, select } of PAGES) {
   const page = await browser.newPage();
-  await page.setViewport({ width: 1280, height: 900 });
+  await page.setViewport(
+    mobile
+      ? { width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true }
+      : { width: 1280, height: 900 },
+  );
   /* The site is light-only (globals.css has no dark override), so this is
      asserting rather than choosing: emulating a DARK OS preference and still
      getting a light page is the check that no stray `prefers-color-scheme`
@@ -246,7 +298,13 @@ for (const { route, auth, name, click } of PAGES) {
           : r.respond({ status: 401, contentType: "application/json", headers: CORS, body: "{}" });
       }
       for (const [re, body] of ROUTES) {
-        if (re.test(u)) return r.respond({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify(body) });
+        if (re.test(u))
+          return r.respond({
+            status: 200,
+            contentType: "application/json",
+            headers: CORS,
+            body: JSON.stringify(inCurrency(body, u)),
+          });
       }
       return r.respond({ status: 200, contentType: "application/json", headers: CORS, body: "{}" });
     }
@@ -264,7 +322,13 @@ for (const { route, auth, name, click } of PAGES) {
     await page.click(sel).catch(() => console.warn(`  (no ${sel} to click)`));
     await new Promise((r) => setTimeout(r, 350));
   }
-  const file = join(outDir, `${name}${light ? "-light" : ""}.png`);
+  if (select) {
+    // A native <select> cannot be driven by clicking — and the point of the
+    // step is the REFETCH it triggers, so wait for that to land.
+    await page.select(select[0], select[1]).catch(() => console.warn(`  (no ${select[0]})`));
+    await new Promise((r) => setTimeout(r, 1_200));
+  }
+  const file = join(outDir, `${name}${mobile ? "-mobile" : ""}${light ? "-light" : ""}.png`);
   await page.screenshot({ path: file, fullPage: true });
   console.log(`  ${route} → ${file}`);
   await page.close();

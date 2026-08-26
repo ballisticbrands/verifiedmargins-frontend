@@ -7,6 +7,7 @@ import {
   useSession,
 } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
+import { useCurrency } from "@/currency";
 
 /**
  * A seller profile at verifiedmargins.com/<username>.
@@ -35,6 +36,11 @@ export function PublicProfile() {
   const navigate = useNavigate();
   const brand = useBrand();
   const { status } = useSession();
+  const { currency } = useCurrency();
+  /** What the top bar calls this page. Seeded with the handle — which is
+   *  known from the URL, so the breadcrumb is complete on first paint — and
+   *  upgraded to the display name when the payload lands. */
+  const [crumbName, setCrumbName] = useState(`@${username}`);
   /** `null` = not mine (or not signed in). `undefined` = don't know yet. */
   const [owner, setOwner] = useState<{ profileId: string; published: boolean } | null | undefined>(
     undefined,
@@ -80,16 +86,24 @@ export function PublicProfile() {
    * first and swapping it for the owner's would cost a second fetch, and on
    * an UNPUBLISHED profile it would flash "No profile here." at the person
    * who owns it — the public endpoint 404s that on purpose. */
+  const crumbs = [
+    { label: brand.displayName, to: "/" },
+    // "Founder" mirrors the leaderboard's own axis (By founder / By
+    // business) — the crumb is a real destination, not decoration.
+    { label: "Founder", to: "/leaderboard" },
+    { label: crumbName },
+  ];
+
   if (owner === undefined) {
     return (
-      <Shell width="profile">
+      <Shell width="profile" crumbs={crumbs}>
         <p>Loading…</p>
       </Shell>
     );
   }
 
   return (
-    <Shell width="profile">
+    <Shell width="profile" crumbs={crumbs}>
       <div className="vm-form vm-profile">
         <PublicProfilePage
           username={username}
@@ -101,6 +115,11 @@ export function PublicProfile() {
           // A released username 301s to its current one. Router push rather
           // than a reload: same origin now that the app owns the apex.
           onMoved={(to) => navigate(`/${to}`, { replace: true })}
+          // The reader's choice, from the top bar. The shared page holds this
+          // as a controlled value, so switching currency refetches and every
+          // figure converts.
+          defaultCurrency={currency}
+          onLoaded={(p) => setCrumbName(p.display_name || `@${p.username}`)}
         />
       </div>
     </Shell>

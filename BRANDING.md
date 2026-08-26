@@ -160,18 +160,75 @@ signal. **Scarcity is what makes it legible.** When in doubt, use ink.
 
 ## 4. Typography
 
-Two families. No web fonts — both stacks are native, which costs no
-request, causes no layout shift, and reads as native-tool rather than
-marketing-site on both references we're borrowing from.
-
-### 4.1 Interface — system sans
+**One family: Inconsolata.** Interface and figures alike — headings, bios,
+buttons, nav, revenue, margins, handles. The entire page is set in a
+monospace.
 
 ```css
-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-             Roboto, "Helvetica Neue", Arial, sans-serif;
+--font-sans: "Inconsolata", "Inconsolata Fallback", ui-monospace,
+             SFMono-Regular, Menlo, Consolas, monospace;
+--font-mono: /* the same stack — see 4.3 */
 ```
 
-Everything that is words: headings, body, labels, buttons, nav, bios.
+### 4.1 Why one mono, for everything
+
+The subject of this site is numbers. Setting the words around them in a
+proportional sans and the numbers in a mono says the numbers are a
+special inset inside a marketing page; setting the whole page in the
+register of numbers says the page **is** the numbers. That is the
+difference between a site that reports margins and a site that reads
+like a terminal someone is running their business from.
+
+It is also, precisely, what TrustMRR does — the reference we borrowed
+the profile layout from sets its whole page in Inconsolata. Matching the
+register matters more than matching the layout did: a founder who has
+seen that page recognises this one as the same kind of object.
+
+And it retires a problem: the sans/mono boundary had to be adjudicated
+case by case ("is a SKU count prose or data?"). There is no boundary now.
+
+### 4.2 What this cost, honestly
+
+This **reverses** the "no web fonts, both stacks native" rule this
+document carried until 2026-08-27. That rule bought a zero-request,
+zero-shift page, and giving it up is a real cost:
+
+- **One blocking request** to fonts.googleapis.com + fonts.gstatic.com,
+  preconnected in `index.html`. It is a third-party dependency on the
+  critical path of a page whose entire job is to load fast for a
+  stranger who clicked a link in a DM.
+- **A swap.** `display=swap` means the fallback paints first.
+
+The shift is bought back rather than accepted (4.3). If the request ever
+proves costly — a slow region, a Google Fonts outage, a privacy
+objection — **self-host the woff2 subset** rather than reverting to a
+system stack. The typeface is now part of the identity; the delivery
+mechanism is not.
+
+### 4.3 The fallback face
+
+```css
+@font-face {
+  font-family: "Inconsolata Fallback";
+  src: local("Arial");
+  ascent-override: 76.59%;
+  descent-override: 16.94%;
+  line-gap-override: 0%;
+  size-adjust: 112.16%;
+}
+```
+
+Local Arial, re-cut to Inconsolata's exact metrics, so the moment the
+real face swaps in **not one line reflows**. Without it a profile
+visibly jumps a beat after paint — on the page a stranger judges us by,
+in the first second they see it. Do not remove this to "simplify."
+
+Both `--font-sans` and `--font-mono` survive as separate variables even
+though they now resolve to the same stack. That is deliberate: it keeps
+one seam through which a display face could be reintroduced for headings
+alone, without touching a single figure.
+
+### 4.4 Scale
 
 | Role | Size | Weight | Tracking |
 |---|---|---|---|
@@ -184,34 +241,14 @@ Everything that is words: headings, body, labels, buttons, nav, bios.
 
 Line-height **1.55 for prose**, **1.35 for data rows**. Prose is capped
 at **62ch** — help text at full page width is the fastest way to make a
-dense layout unreadable.
+dense layout unreadable. A mono runs wider per character than a sans, so
+that cap does more work now than it did.
 
-### 4.2 Numbers — system mono, tabular
+### 4.5 Numbers
 
-```css
-font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-             "Liberation Mono", monospace;
-font-variant-numeric: tabular-nums;
-font-feature-settings: "tnum" 1;
-```
-
-**Every business number on this site is monospace with tabular figures.**
-That is the accounting/analytical register you cannot get from a sans
-stack: digits share one advance width, so columns align, and a changing
-value doesn't reflow its own row.
-
-Mono applies to:
-
-- revenue, profit, COGS, fees, ad spend
-- margin %, ROI, TACOS
-- units, orders, SKU count, brand count
-- currency codes (`USD`, `EUR`), dates, the FX as-of stamp
-- the `@handle`, and estimated profiles' opaque ids (`/e/8x2k9`) — this
-  is where the X/Reddit register comes from: an identifier is a token,
-  not a name
-
-Mono does **not** apply to headings, bios, help text, buttons, or a
-number that appears inside a sentence.
+Tabular figures are no longer something we switch on for a subset of the
+page — they are what the page is made of. Digits share one advance
+width, so columns align and a changing value never reflows its own row.
 
 **Writing numbers**
 
@@ -224,8 +261,9 @@ number that appears inside a sentence.
 - Every headline figure carries its basis in `--muted-foreground`
   beneath it: *"12 months to Jul 2026 · verified"*.
 
-If we ever want a distinctive mono, self-host **JetBrains Mono**, subset
-to latin + digits. Do not add a Google Fonts link.
+Identifiers — the `@handle`, an estimated profile's opaque id
+(`/e/8x2k9`) — read as tokens rather than names. That is where the
+X/Reddit register comes from, and it now comes for free.
 
 ---
 
@@ -301,6 +339,35 @@ Dense, not airy. This is a tool, and the reader is scanning.
 - Content column 62ch for prose; data views take the full width.
 - Focus is always visible: 2px `--accent` outline, 1px offset. Never
   `outline: none`.
+
+### 7.1 The chrome: a top bar over a left rail
+
+Three fixed pieces, in this order down the page:
+
+1. **Top bar** — full-bleed, hairline-bottomed. Breadcrumb left,
+   currency right. Its inner column tracks the shell's `84rem` so the
+   two line up.
+2. **Left rail** — the site's navigation, sticky, icons + labels.
+3. **Content column.**
+
+The **breadcrumb is for profile pages only.** A profile is the one page
+strangers arrive at cold, from a link, with no idea what site they are
+on; `VerifiedMargins › Founder › Acme Brands` answers that in one line
+and gives them two ways further in. Every other page was reached through
+our own navigation, which already says where they are — a breadcrumb
+there is furniture.
+
+The **currency picker is site-wide, and it belongs in the chrome, not on
+the page.** Every figure is stored in the currency it was earned in and
+converted only at render, so a seller with a EUR marketplace and a USD
+one has no single native currency. "Which currency am I reading this
+in?" is therefore a property of the reader, not of the profile. It
+defaults to **US$**, persists per reader, and both money pages (profile
+and leaderboard) refetch against it.
+
+The bar is deliberately quiet — 0.8125rem, `--muted-foreground`, no
+fill. If it ever competes with the profile header for attention, it is
+wrong.
 
 ---
 

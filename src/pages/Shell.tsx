@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
 import { Logo } from "@/components/Logo";
+import { CURRENCIES, useCurrency } from "@/currency";
 import {
   DashboardIcon,
   FeedIcon,
@@ -25,11 +26,22 @@ import {
  * That is how an inherited parent brand shipped in the header of every page on
  * dragonrestock-frontend. When real branding lands, keep it a single node.
  */
+export interface Crumb {
+  label: string;
+  /** Omitted on the last crumb — you are already there. */
+  to?: string;
+}
+
 export function Shell({
   children,
   width = "narrow",
+  crumbs,
 }: {
   children: React.ReactNode;
+  /** Breadcrumb for the top bar. Profile pages only for now: they are the
+   *  only pages you can arrive at from outside with no idea what site you
+   *  are on, which is the whole job of a breadcrumb. */
+  crumbs?: Crumb[];
   /** `narrow` is an auth card. `wide` is for forms and dashboards — the
    *  settings page at auth-card width was a big part of why it was unusable.
    *  `profile` is wider still: a public profile is a page people land on
@@ -82,7 +94,9 @@ export function Shell({
        becomes a horizontal strip above the content (see globals.css) rather
        than a hamburger: four destinations fit on a line, and a menu that has
        to be opened hides the only navigation this product has. */
-    <div data-app-shell="">
+    <>
+      <TopBar crumbs={crumbs} />
+      <div data-app-shell="">
       <aside data-sidebar="">
         <Link to="/" data-sidebar-brand="">
           <Logo size={26} />
@@ -138,6 +152,54 @@ export function Shell({
           {" · "}
           <a href="https://verifiedmargins.com/support/">Support</a>
         </footer>
+      </div>
+      </div>
+    </>
+  );
+}
+
+/**
+ * The row above everything: where you are on the left, what currency you are
+ * reading in on the right.
+ *
+ * Full-bleed, and OUTSIDE the shell's sidebar/content row on purpose — it
+ * describes the page rather than sitting in it, and a bar that stopped at the
+ * content column would read as part of the profile.
+ */
+function TopBar({ crumbs }: { crumbs?: Crumb[] }) {
+  const { currency, setCurrency } = useCurrency();
+  return (
+    <div data-topbar="">
+      <div data-topbar-inner="">
+        <nav data-crumbs="" aria-label="Breadcrumb">
+          {/* Nothing on pages that pass no crumbs — the element stays so the
+              currency control keeps its place on the right. */}
+          {(crumbs ?? []).map((c, i) => (
+            <span key={`${c.label}-${i}`} data-crumb="">
+              {i > 0 ? <span data-crumb-sep="" aria-hidden="true">›</span> : null}
+              {c.to ? (
+                <Link to={c.to}>{c.label}</Link>
+              ) : (
+                <span aria-current="page">{c.label}</span>
+              )}
+            </span>
+          ))}
+        </nav>
+
+        {/* Every figure on this site is converted at render from the currency
+            it was earned in, so the display currency is a reader preference,
+            not a property of any profile. It lives here, once, and every
+            money page reads it. */}
+        <label data-currency-picker="">
+          <span className="vm-visually-hidden">Display currency</span>
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            {CURRENCIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.symbol} {c.code}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
     </div>
   );

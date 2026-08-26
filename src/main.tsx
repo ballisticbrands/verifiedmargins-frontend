@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { CurrencyProvider } from "@/currency";
 import { BrowserRouter } from "react-router-dom";
 import {
   BrandProvider,
@@ -119,7 +120,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrandProvider brand={brand}>
       <BrowserRouter>
-        <App />
+        <CurrencyProvider>
+          <App />
+        </CurrencyProvider>
       </BrowserRouter>
     </BrandProvider>
   </StrictMode>,

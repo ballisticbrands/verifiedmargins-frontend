@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ApiError, apiFetch, useBrand } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
+import { useCurrency } from "@/currency";
 
 /**
  * The leaderboard — and the site's front door (`/` lands here).
@@ -68,6 +69,7 @@ function initials(name: string): string {
 
 export function Leaderboard() {
   const brand = useBrand();
+  const { currency } = useCurrency();
   const [mode, setMode] = useState<Mode>("founder");
   const [board, setBoard] = useState<Board | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -82,11 +84,18 @@ export function Leaderboard() {
     try {
       // auth: false — this is a public page and must render identically for
       // a signed-out visitor and a crawler.
-      setBoard(await apiFetch<Board>(`/v1/public/leaderboard?by=${mode}`, { auth: false }));
+      // The reader's currency from the top bar. A board that ranks by margin
+      // but prints revenue in a currency the reader doesn't think in is half
+      // unreadable, and the endpoint converts for free.
+      setBoard(
+        await apiFetch<Board>(`/v1/public/leaderboard?by=${mode}&currency=${currency}`, {
+          auth: false,
+        }),
+      );
     } catch (err) {
       setError(err instanceof ApiError ? err.message : String(err));
     }
-  }, [mode]);
+  }, [mode, currency]);
 
   useEffect(() => {
     void load();
