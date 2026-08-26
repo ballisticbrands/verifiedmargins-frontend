@@ -39,6 +39,12 @@ export const BRAND_NAME = 'VerifiedMargins';
  * (src/services/profiles/usernames.ts) — otherwise a seller could register the
  * handle and shadow the page via the /:username catch-all. */
 export const PUBLIC_PAGES = [
+  /* The front door: `/` redirects here, the rail links here from every page,
+   * and it is the one URL that shows what this site is for without an
+   * account. It belongs in PUBLIC_PAGES rather than APP_ROUTES precisely
+   * because APP_ROUTES gets a `Disallow:` — hiding the leaderboard from
+   * crawlers would hide the product's own index. */
+  '/leaderboard',
   '/privacy',
   /* Also the about URL on our Reddit / X / LinkedIn OAuth app records, so it
    * has to answer 200 to a reviewer's fetch, not bounce through 404.html. */
@@ -68,6 +74,14 @@ export const APP_ROUTES = [
    * in, on an HTTP 404. */
   '/magic',
   '/dashboard',
+  /* 🚧 Nav destinations with no page yet. They are in APP_ROUTES rather than
+   * PUBLIC_PAGES on purpose: they need a 200 because the rail links to them
+   * from every page and a 404 from our own navigation reads as a broken
+   * site — but they must NOT be crawled while they say "not built yet".
+   * Move each to PUBLIC_PAGES when it becomes a real page. */
+  '/feed',
+  '/how-verification-works',
+  '/verify',
   /* The nav's "Profile" link. A resolver route, not a page — it reads the
    * signed-in user's profiles and redirects to their own /:username page (or
    * to /settings when there is nothing publishable yet). Needs a 200-answering
