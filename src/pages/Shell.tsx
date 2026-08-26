@@ -22,8 +22,11 @@ export function Shell({
 }: {
   children: React.ReactNode;
   /** `narrow` is an auth card. `wide` is for forms and dashboards — the
-   *  settings page at auth-card width was a big part of why it was unusable. */
-  width?: "narrow" | "wide";
+   *  settings page at auth-card width was a big part of why it was unusable.
+   *  `profile` is wider still: a public profile is a page people land on
+   *  cold and scan, and its business cards need room for three figures
+   *  across without wrapping. */
+  width?: "narrow" | "wide" | "profile";
 }) {
   const brand = useBrand();
   const { status } = useSession();
@@ -62,12 +65,13 @@ export function Shell({
     navigate("/login", { replace: true });
     window.location.reload();
   }
-  const max = width === "wide" ? "max-w-3xl" : "max-w-md";
+  const max =
+    width === "profile" ? "max-w-4xl" : width === "wide" ? "max-w-3xl" : "max-w-md";
 
   return (
     <div className={`mx-auto flex min-h-screen w-full ${max} flex-col px-6 py-8`}>
       <header
-        className="flex items-center justify-between gap-4 border-b pb-4"
+        className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2 border-b pb-4"
         style={{ borderColor: "var(--border)" }}
       >
         <Link
@@ -77,6 +81,19 @@ export function Shell({
           <Logo size={26} />
           {brand.displayName}
         </Link>
+        {/* Product nav. These four are the shape of the site, so they render
+            for everyone — signed in or not.
+            🚧 NONE OF THESE PAGES EXIST YET. They are deliberate placeholders
+            so the navigation can be reviewed before the pages behind it are
+            built; each renders the "not built yet" route in App.tsx rather
+            than 404ing, which is what a dead <a> would do on a static host. */}
+        <nav data-product-nav="">
+          <NavLink to="/feed" current={pathname}>Feed</NavLink>
+          <NavLink to="/leaderboard" current={pathname}>Leaderboard</NavLink>
+          <NavLink to="/how-verification-works" current={pathname}>How verification works</NavLink>
+          <NavLink to="/verify" current={pathname}>Verify your business</NavLink>
+        </nav>
+
         {/* Signed-in nav. Without it /settings was reachable only by typing the
             URL — there was no link to it from anywhere in the app. */}
         {status === "authenticated" ? (

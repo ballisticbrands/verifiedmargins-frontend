@@ -9,6 +9,7 @@ import {
 import { Dashboard } from "@/pages/Dashboard";
 import { Login } from "@/pages/Login";
 import { Settings } from "@/pages/Settings";
+import { Shell } from "@/pages/Shell";
 import { PublicProfile } from "@/pages/PublicProfile";
 import { ProfileRedirect } from "@/pages/ProfileRedirect";
 import { About } from "@/pages/About";
@@ -123,6 +124,14 @@ export default function App() {
       <Route path="/about" element={<About />} />
       <Route path="/tos" element={<Terms />} />
       <Route path="/support" element={<Support />} />
+      {/* 🚧 Placeholder routes. The navbar links here so the navigation can be
+          reviewed before the pages exist; a real page replaces each stub.
+          They are declared BEFORE /:username so a stub never gets mistaken
+          for a seller whose handle happens to be "feed". */}
+      <Route path="/feed" element={<ComingSoon title="Feed" />} />
+      <Route path="/leaderboard" element={<ComingSoon title="Leaderboard" />} />
+      <Route path="/how-verification-works" element={<ComingSoon title="How verification works" />} />
+      <Route path="/verify" element={<ComingSoon title="Verify your business" />} />
       <Route path="/:username" element={<PublicProfile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -134,6 +143,21 @@ function RootRedirect() {
   const { status } = useSession();
   if (status === "loading") return null;
   return <Navigate to={status === "authenticated" ? "/dashboard" : "/login"} replace />;
+}
+
+
+/** 🚧 Placeholder for a nav destination that has no page yet. Says so
+ *  plainly: a blank screen reads as a bug, and a 404 on a link we put in our
+ *  own navbar reads as a broken site. */
+function ComingSoon({ title }: { title: string }) {
+  return (
+    <Shell width="wide">
+      <div className="vm-form">
+        <h1>{title}</h1>
+        <p>Not built yet — this link exists so the navigation can be reviewed first.</p>
+      </div>
+    </Shell>
+  );
 }
 
 function PublicOnly({ children }: { children: React.ReactNode }) {

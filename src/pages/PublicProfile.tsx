@@ -84,14 +84,14 @@ export function PublicProfile() {
    * who owns it — the public endpoint 404s that on purpose. */
   if (owner === undefined) {
     return (
-      <Shell width="wide">
+      <Shell width="profile">
         <p>Loading…</p>
       </Shell>
     );
   }
 
   return (
-    <Shell width="wide">
+    <Shell width="profile">
       <div className="vm-form vm-profile">
         {/* DEMO_PROFILE — renders for one username only, returns null for
             every other profile, and portals itself under the name. Delete

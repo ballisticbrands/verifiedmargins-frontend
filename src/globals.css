@@ -899,47 +899,102 @@ a, button, [role="button"] {
 .vm-profile [data-demo-booked] p { margin: 0 0 0.6rem; }
 
 
-/* ─── Businesses strip ────────────────────────────────────────────────
+/* ─── Businesses ──────────────────────────────────────────────────────
  *
- * One row per linked platform, under the bio: what this person runs, how big
- * it is, and how much of it we checked. Per connection, not per profile — a
- * synced Amazon account and a typed-in legacy business have different claims
- * behind them, and one badge over both either flatters the weaker or maligns
- * the stronger.
+ * Cards, modelled on trustmrr's founder page: platform mark, name, badge,
+ * then a row of figures. One card per CONNECTION — a synced Amazon account
+ * and a typed-in one carry their own badges side by side.
  */
 .vm-profile [data-profile-businesses] {
-  margin: 0.85rem 0 0;
+  margin: 1.4rem 0 0;
   padding: 0;
   border: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.6rem;
 }
+.vm-profile [data-profile-businesses] h2 {
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.1rem;
+}
+
 .vm-profile [data-business] {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+}
+.vm-profile [data-business-mark] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--muted);
+  color: var(--foreground);
+}
+.vm-profile [data-business-body] { flex: 1; min-width: 0; }
+.vm-profile [data-business-head] {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--card);
 }
-.vm-profile [data-business-name] {
-  font-weight: 600;
+
+/* 🚨 The business name is BLURRED, not omitted.
+ *
+ * Sellers will be able to reveal their brand later; until then the card shows
+ * the layout they will eventually get, and the hiding reads as a choice
+ * rather than as missing data. `user-select: none` stops a reader copying the
+ * placeholder text out and thinking they have found something — there is
+ * nothing to find, because the payload has never carried a brand name. This
+ * is a placeholder with a filter on it, not a redaction over real data. */
+.vm-profile [data-business-name][data-blurred] {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+  font-weight: 650;
   font-size: 0.9375rem;
+  color: var(--foreground);
 }
-/* Figures push right so a column of businesses lines up down the page. */
-.vm-profile [data-business-figures] {
-  margin-left: auto;
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+.vm-profile [data-business-sub] {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
 }
-.vm-profile [data-business-figures] b {
+.vm-profile [data-business-markets] {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+/* Three figures across, the way a card reads: label above, number below. */
+.vm-profile [data-business-stats] {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0.7rem 0 0;
+}
+.vm-profile [data-business-stats] > div { min-width: 0; }
+.vm-profile [data-business-stats] dt {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.vm-profile [data-business-stats] dd {
+  margin: 0.1rem 0 0;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--foreground);
 }
@@ -978,4 +1033,48 @@ a, button, [role="button"] {
   font-size: 0.75rem;
   letter-spacing: 0.02em;
   color: var(--muted-foreground);
+}
+
+
+/* ─── Profile header: handle beside the name, share on the right ──────── */
+.vm-profile [data-profile-head] { align-items: flex-start; }
+.vm-profile [data-profile-identity] { flex: 1; min-width: 0; }
+.vm-profile [data-profile-head] h1 {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.vm-profile [data-profile-head] [data-handle] {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--muted-foreground);
+}
+.vm-profile [data-share] {
+  flex-shrink: 0;
+  padding: 0.35rem 0.8rem;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  cursor: pointer;
+}
+.vm-profile [data-share]:hover { border-color: var(--muted-foreground); }
+
+/* ─── Product nav ─────────────────────────────────────────────────────
+ *
+ * The shape of the site, rendered for signed-out visitors too — a profile is
+ * a public page and the nav is how someone gets from it into the product.
+ */
+[data-product-nav] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 1rem;
+  font-size: 0.875rem;
 }
