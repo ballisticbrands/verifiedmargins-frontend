@@ -340,34 +340,55 @@ Dense, not airy. This is a tool, and the reader is scanning.
 - Focus is always visible: 2px `--accent` outline, 1px offset. Never
   `outline: none`.
 
-### 7.1 The chrome: a top bar over a left rail
+### 7.1 The chrome: a left rail, then a bar over the content
 
-Three fixed pieces, in this order down the page:
+Reading order down the page:
 
-1. **Top bar** — full-bleed, hairline-bottomed. Breadcrumb left,
-   currency right. Its inner column tracks the shell's `84rem` so the
-   two line up.
-2. **Left rail** — the site's navigation, sticky, icons + labels.
-3. **Content column.**
+1. **Left rail** — the wordmark and the site's navigation, sticky.
+2. **Top bar** — heads the CONTENT column, beside the rail rather than
+   above it. Breadcrumb left; currency right when it is shown.
+3. **The page.**
 
-The **breadcrumb is for profile pages only.** A profile is the one page
+The bar does **not** span the viewport. A full-bleed row sat above the
+wordmark and read as browser chrome — something the host put there — not
+as part of this site. Nothing precedes our own logo.
+
+It is **bordered on all four sides**, on `--muted`, at `--radius`. A
+lone bottom rule was the wrong instrument: at the top of a column whose
+sections are already separated by hairlines, it is indistinguishable
+from the profile's own first divider. A closed box is a different *kind*
+of thing, which is what it is.
+
+The **breadcrumb is profile-pages-only.** A profile is the one page
 strangers arrive at cold, from a link, with no idea what site they are
 on; `VerifiedMargins › Founder › Acme Brands` answers that in one line
 and gives them two ways further in. Every other page was reached through
 our own navigation, which already says where they are — a breadcrumb
-there is furniture.
+there is furniture. The `›` separators carry `--foreground`: at 13px a
+`--border`-coloured glyph is a colour chosen for 1px rules, and a
+separator you have to look for is not separating anything.
 
-The **currency picker is site-wide, and it belongs in the chrome, not on
-the page.** Every figure is stored in the currency it was earned in and
-converted only at render, so a seller with a EUR marketplace and a USD
-one has no single native currency. "Which currency am I reading this
-in?" is therefore a property of the reader, not of the profile. It
-defaults to **US$**, persists per reader, and both money pages (profile
-and leaderboard) refetch against it.
+**A bar with nothing in it does not render.** With the currency control
+standing down, a page that passes no crumbs would otherwise head its
+content with an empty box.
 
-The bar is deliberately quiet — 0.8125rem, `--muted-foreground`, no
-fill. If it ever competes with the profile header for attention, it is
-wrong.
+#### The currency picker — built, wired, not shown
+
+`SHOW_CURRENCY_PICKER` in `src/currency.tsx` is `false`. Everything
+behind it is live: the preference persists per reader, and the profile
+and leaderboard both refetch against it, so today every reader gets the
+USD default. Flip the flag to ship it — there is nothing else to do, and
+nothing about the context, the persistence or the currency props is dead
+code to be cleaned up in the meantime.
+
+When it does show, it belongs in the chrome rather than on the page.
+Every figure is stored in the currency it was earned in and converted
+only at render, so a seller with a EUR marketplace and a USD one has no
+single native currency. "Which currency am I reading this in?" is a
+property of the **reader**, not of the profile.
+
+The bar is deliberately quiet — 0.8125rem, `--muted-foreground`. If it
+ever competes with the profile header for attention, it is wrong.
 
 ---
 

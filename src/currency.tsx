@@ -40,7 +40,20 @@ export const CURRENCIES: { code: string; symbol: string }[] = [
   { code: "TRY", symbol: "₺" },
 ];
 
-const STORAGE_KEY = "vm.currency";
+export const STORAGE_KEY = "vm.currency";
+
+/* 🚧 The picker is BUILT AND WIRED, and deliberately not shown.
+ *
+ * Everything below and everything that reads it is live: the profile and the
+ * leaderboard both refetch against this value, and the backend converts. What
+ * is switched off is only the control in the top bar — so today every reader
+ * gets the USD default.
+ *
+ * Flip this to `true` to ship it; there is nothing else to do. Do NOT "clean
+ * up" the context, the persistence or the currency props while it is false —
+ * they are the feature, and the render of the <select> is the only part
+ * standing down. */
+export const SHOW_CURRENCY_PICKER = false;
 
 const CurrencyContext = createContext<{ currency: string; setCurrency: (c: string) => void }>({
   currency: DEFAULT_CURRENCY,

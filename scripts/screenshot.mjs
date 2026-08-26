@@ -258,21 +258,17 @@ const PAGES = [
   { route: "/8x2k9", auth: false, name: "profile-estimated" },
   { route: "/quietseller", auth: false, name: "profile-margin-only" },
   { route: "/leaderboard", auth: false, name: "leaderboard" },
-  /* The same profile, read in euros. Proves the top bar's picker reaches the
-     API and that every figure on the page moves with it. */
-  {
-    route: "/acme",
-    auth: false,
-    name: "profile-eur",
-    select: ["[data-currency-picker] select", "EUR"],
-  },
+  /* The same profile, read in euros. Proves a non-default currency reaches
+     the API and that every figure on the page moves with it — the picker is
+     hidden for now, but the path it drives is live and worth guarding. */
+  { route: "/acme", auth: false, name: "profile-eur", storage: ["vm.currency", "EUR"] },
 ];
 
 const browser = await puppeteer.launch({
   executablePath: chromePath(), headless: "new", args: ["--no-sandbox", "--disable-dev-shm-usage"],
 });
 
-for (const { route, auth, name, click, select } of PAGES) {
+for (const { route, auth, name, click, storage } of PAGES) {
   const page = await browser.newPage();
   await page.setViewport(
     mobile
@@ -315,6 +311,18 @@ for (const { route, auth, name, click, select } of PAGES) {
     r.continue().catch(() => {});
   });
   if (auth) await page.evaluateOnNewDocument(() => localStorage.setItem("dragonbot_session", "stub"));
+  /* Seeded preferences, read at boot. The currency shot goes through storage
+     rather than through the top bar's <select> because that control is hidden
+     today (SHOW_CURRENCY_PICKER) — and because the thing worth testing is the
+     conversion path, which is the same either way. */
+  if (storage) {
+    const [k, v] = storage;
+    await page.evaluateOnNewDocument(
+      (key, value) => localStorage.setItem(key, value),
+      k,
+      v,
+    );
+  }
 
   await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: "networkidle2", timeout: 45_000 });
   await new Promise((r) => setTimeout(r, 2_000));
@@ -322,12 +330,7 @@ for (const { route, auth, name, click, select } of PAGES) {
     await page.click(sel).catch(() => console.warn(`  (no ${sel} to click)`));
     await new Promise((r) => setTimeout(r, 350));
   }
-  if (select) {
-    // A native <select> cannot be driven by clicking — and the point of the
-    // step is the REFETCH it triggers, so wait for that to land.
-    await page.select(select[0], select[1]).catch(() => console.warn(`  (no ${select[0]})`));
-    await new Promise((r) => setTimeout(r, 1_200));
-  }
+
   const file = join(outDir, `${name}${mobile ? "-mobile" : ""}${light ? "-light" : ""}.png`);
   await page.screenshot({ path: file, fullPage: true });
   console.log(`  ${route} → ${file}`);

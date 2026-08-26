@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
 import { Logo } from "@/components/Logo";
-import { CURRENCIES, useCurrency } from "@/currency";
+import { CURRENCIES, SHOW_CURRENCY_PICKER, useCurrency } from "@/currency";
 import {
   DashboardIcon,
   FeedIcon,
@@ -94,9 +94,7 @@ export function Shell({
        becomes a horizontal strip above the content (see globals.css) rather
        than a hamburger: four destinations fit on a line, and a menu that has
        to be opened hides the only navigation this product has. */
-    <>
-      <TopBar crumbs={crumbs} />
-      <div data-app-shell="">
+    <div data-app-shell="">
       <aside data-sidebar="">
         <Link to="/" data-sidebar-brand="">
           <Logo size={26} />
@@ -141,6 +139,12 @@ export function Shell({
       </aside>
 
       <div data-app-content="" className={max}>
+        {/* Top of the CONTENT, not of the window: the rail's wordmark and
+            navigation come first, both in the DOM and on the page. A bar
+            spanning the whole viewport sat above the logo and read as
+            browser chrome rather than as part of this site. */}
+        <TopBar crumbs={crumbs} />
+
         <main>{children}</main>
 
         <footer data-app-footer="">
@@ -153,8 +157,7 @@ export function Shell({
           <a href="https://verifiedmargins.com/support/">Support</a>
         </footer>
       </div>
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -162,12 +165,18 @@ export function Shell({
  * The row above everything: where you are on the left, what currency you are
  * reading in on the right.
  *
- * Full-bleed, and OUTSIDE the shell's sidebar/content row on purpose — it
- * describes the page rather than sitting in it, and a bar that stopped at the
- * content column would read as part of the profile.
+ * It heads the content column, beneath nothing and beside the rail. Bordered
+ * on all four sides so it reads as its own object rather than as a rule drawn
+ * across the top of the profile.
  */
 function TopBar({ crumbs }: { crumbs?: Crumb[] }) {
   const { currency, setCurrency } = useCurrency();
+
+  /* Nothing to say, so nothing to draw. With the currency control standing
+     down, a page that passes no crumbs — the leaderboard, settings, login —
+     would otherwise head its content with an empty bordered box. */
+  if (!crumbs?.length && !SHOW_CURRENCY_PICKER) return null;
+
   return (
     <div data-topbar="">
       <div data-topbar-inner="">
@@ -189,7 +198,11 @@ function TopBar({ crumbs }: { crumbs?: Crumb[] }) {
         {/* Every figure on this site is converted at render from the currency
             it was earned in, so the display currency is a reader preference,
             not a property of any profile. It lives here, once, and every
-            money page reads it. */}
+            money page reads it.
+
+            🚧 Hidden for now (SHOW_CURRENCY_PICKER). The conversion path
+            stays live underneath — see the note in currency.tsx. */}
+        {SHOW_CURRENCY_PICKER ? (
         <label data-currency-picker="">
           <span className="vm-visually-hidden">Display currency</span>
           <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
@@ -200,6 +213,7 @@ function TopBar({ crumbs }: { crumbs?: Crumb[] }) {
             ))}
           </select>
         </label>
+        ) : null}
       </div>
     </div>
   );

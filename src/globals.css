@@ -955,28 +955,32 @@ a, button, [role="button"] {
  */
 /* ─── The top bar ─────────────────────────────────────────────────────
  *
- * A full-bleed row above the shell: where you are, and what currency you are
- * reading in. It sits OUTSIDE the sidebar/content row deliberately — it
- * describes the page rather than belonging to it, and a bar that stopped at
- * the content column would read as part of the profile.
+ * Heads the CONTENT column — beneath nothing, beside the rail. It used to
+ * span the viewport above everything, which put it over the wordmark and made
+ * it read as browser chrome rather than as part of this site.
  *
- * Quiet by construction. Its two jobs are orientation and a preference; if
- * it competes with the profile header for attention, it is wrong.
+ * Bordered on all four sides, not just underlined: at the top of a column
+ * whose sections are already separated by hairlines, a lone bottom rule is
+ * indistinguishable from the profile's own first divider. A closed box is a
+ * different KIND of thing, which is what it is.
+ *
+ * Quiet all the same. Its two jobs are orientation and a preference; if it
+ * competes with the profile header for attention, it is wrong.
  */
 [data-topbar] {
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--muted);
+  margin-bottom: 1.5rem;
 }
 
 [data-topbar-inner] {
-  max-width: 84rem; /* tracks [data-app-shell] — the two must line up */
-  margin: 0 auto;
-  padding: 0.5rem 2rem;
+  padding: 0.4rem 0.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  min-height: 2.25rem; /* holds the row's height on pages with no crumbs */
+  min-height: 1.9rem; /* holds the row's height on pages with no crumbs */
 }
 
 [data-crumbs] {
@@ -1011,15 +1015,20 @@ a, button, [role="button"] {
   font-weight: 600;
 }
 
+/* Full foreground. This was --border — a colour chosen for 1px rules, which
+   at 13px renders a glyph you have to look for. A separator you cannot read
+   is not separating anything. */
 [data-crumb-sep] {
-  color: var(--border);
+  color: var(--foreground);
 }
 
 [data-currency-picker] select {
   font: inherit;
   font-size: 0.8125rem;
   color: var(--foreground);
-  background: var(--surface);
+  /* --card, not the bar's own fill: a control that shares its container's
+     colour stops looking like a control. */
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 0.2rem 0.4rem;
@@ -1321,9 +1330,10 @@ a, button, [role="button"] {
     padding-left: 3.1rem; /* clears the rank + avatar columns */
   }
 
-  /* The top bar loses its desktop gutters and the crumb trail truncates
-     rather than wrapping the currency control onto a second line. */
-  [data-topbar-inner] { padding: 0.4rem 1rem; }
+  /* The crumb trail truncates rather than wrapping the currency control onto
+     a second line. */
+  [data-topbar] { margin-bottom: 1rem; }
+  [data-topbar-inner] { padding: 0.35rem 0.6rem; }
   [data-crumbs] { font-size: 0.75rem; flex-wrap: nowrap; overflow: hidden; }
   [data-crumb] { min-width: 0; }
   [data-crumb] > a,
