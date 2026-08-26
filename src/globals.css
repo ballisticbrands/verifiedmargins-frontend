@@ -970,3 +970,12 @@ a, button, [role="button"] {
   text-decoration: none;
 }
 .vm-profile [data-social-link]:hover { border-color: var(--muted-foreground); }
+
+/* Marketplaces beside a business name — the disambiguator when a seller has
+   two connections on one platform. Codes, so mono like every other datum. */
+.vm-profile [data-business-markets] {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--muted-foreground);
+}

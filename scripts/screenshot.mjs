@@ -122,9 +122,9 @@ function publicProfile(over = {}) {
          Amazon account and one typed-in legacy business must not share a
          verdict. */
       businesses: [
-        { platform: "amazon_selling_partner", label: "Amazon FBA", revenue: 1840000,
+        { platform: "amazon_selling_partner", label: "Amazon FBA", markets: ["US", "CA"], revenue: 1840000,
           margin_pct: 33.1, verification: { tier: "verified_margin", label: "Verified margin" } },
-        { platform: "manual", label: "Self-reported", revenue: 300000,
+        { platform: "manual", label: "Self-reported", markets: [], revenue: 300000,
           margin_pct: 24.0, verification: { tier: "self_reported", label: "Self-reported" } },
       ],
       series: MONTHS, margin_series: MONTHS.map((m) => ({
@@ -163,7 +163,7 @@ const MARGIN_ONLY = publicProfile({
     ...publicProfile().metrics,
     native: null, display: null, series: null,
     businesses: [
-      { platform: "amazon_selling_partner", label: "Amazon FBA", revenue: null,
+      { platform: "amazon_selling_partner", label: "Amazon FBA", markets: ["US"], revenue: null,
         margin_pct: 31.8, verification: { tier: "verified_margin", label: "Verified margin" } },
     ],
     sku_count: null, brand_count: null, category: null, categories: null,
