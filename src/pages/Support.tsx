@@ -10,13 +10,27 @@ import { Shell } from "./Shell";
  * than a generic help-desk shell: there are no passwords here, a profile is
  * invisible until it is published, and the username change limit's own error
  * string tells the seller to "contact support" — until this page existed that
- * sentence pointed nowhere (src/services/profiles/service.ts,
+ * sentence pointed nowhere (backend src/services/profiles/service.ts,
  * USERNAME_CHANGE_LIMIT).
+ *
+ * ⚠️ The two lists below are a claim about what the product can do TODAY, and
+ * they were written against the settings page, not from memory. As of
+ * 2026-08-26 `ProfileSettings.tsx` in frontend-shared has publish/re-publish
+ * but **no unpublish control** (deliberate — see the comment above
+ * `setPublished`), and **no disconnect control** for a connected account: the
+ * checkbox beside an account only chooses whether it appears on the profile.
+ * Nothing in the app deletes an account either. Everything in that state is
+ * listed here as "email us", which is the honest answer while it is true.
+ * Ship a self-serve control and move the line up in the same change.
  *
  * ⚠️ No response-time promise on this page, on purpose. About.tsx and
  * Privacy.tsx are written on the rule that a written promise we are failing is
  * worse than no page at all, and an SLA is the easiest one to break. Add one
  * only when somebody owns it.
+ *
+ * The address comes from `brand.supportEmail` — one value, shared with About,
+ * Privacy and Terms, so a change of inbox is a one-line change in
+ * src/brands/verifiedmargins.ts.
  *
  * 🚨 Also in PUBLIC_PAGES (src/data/site.mjs) so the build emits a static stub
  * and GitHub Pages answers 200 rather than the 404.html bounce, and in the
@@ -31,6 +45,8 @@ export function Support() {
     document.title = `Support — ${brand.displayName}`;
   }, [brand.displayName]);
 
+  const mailto = `mailto:${brand.supportEmail}`;
+
   return (
     <Shell width="wide">
       <h1 className="mt-4 text-2xl font-bold tracking-tight">Support</h1>
@@ -38,24 +54,86 @@ export function Support() {
       <div className="mt-6 space-y-6 text-sm leading-relaxed">
         <section>
           <p>
-            {brand.displayName} is run by a small team at Ballistic Brands, and
-            a person reads every message. Email{" "}
-            <a
-              className="underline underline-offset-4"
-              href="mailto:owner@ballisticbrands.co"
-            >
-              owner@ballisticbrands.co
+            {brand.displayName} is run by a small team, and a person reads every
+            message. Email{" "}
+            <a className="underline underline-offset-4" href={mailto}>
+              {brand.supportEmail}
             </a>{" "}
-            with the email address you sign in with, the profile URL if your
-            question is about a specific profile, and what you expected to see
-            versus what you saw. That is usually enough to answer without a
-            second round trip.
+            with the address you sign in with, the profile URL if your question
+            is about a specific profile, and what you expected versus what you
+            saw. That is usually enough to answer without a second round trip.
           </p>
           <p className="mt-2">
             Found a security problem? Same address, with{" "}
             <strong>security</strong> in the subject line. Please tell us before
             you tell anyone else, and we will tell you what we did about it.
           </p>
+        </section>
+
+        <section>
+          <h2 className="text-base font-semibold">What you can do yourself</h2>
+          <p className="mt-2">
+            All of this lives in your{" "}
+            <Link className="underline underline-offset-4" to="/settings">
+              settings
+            </Link>
+            :
+          </p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>Edit your bio, links and profile picture, and choose which fields are visible.</li>
+            <li>
+              Change your username — twice. Your username is your profile's URL,
+              and a handle that keeps moving breaks every link pointing at it.
+            </li>
+            <li>Publish your profile, and re-publish it after you edit.</li>
+            <li>
+              Choose which of your connected Amazon accounts appears on the
+              profile, and set the cost-of-goods basis used for margin.
+            </li>
+          </ul>
+          <p className="mt-2">
+            You can also <strong>revoke our access from inside Seller
+            Central</strong> at any time. That is Amazon's own screen and needs
+            nothing from us — it stops new data arriving.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-base font-semibold">What to email us for</h2>
+          <p className="mt-2">
+            These do not have a button yet. Email{" "}
+            <a className="underline underline-offset-4" href={mailto}>
+              {brand.supportEmail}
+            </a>{" "}
+            and we will do them for you:
+          </p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>
+              <strong>Take my profile down.</strong> Unpublishing is a rare,
+              deliberate act, so it is not a button next to Save — tell us and
+              the page comes down.
+            </li>
+            <li>
+              <strong>Disconnect an account from {brand.displayName}.</strong>{" "}
+              Unticking it in settings removes it from your profile but leaves
+              it connected here; ask us to disconnect it properly.
+            </li>
+            <li>
+              <strong>Delete my account and my data.</strong> There is no
+              self-serve delete yet.
+            </li>
+            <li>
+              <strong>Another username change,</strong> once you have used both.
+              Say why and we will look.
+            </li>
+            <li>
+              <strong>Remove a verified social account</strong> from a profile.
+            </li>
+            <li>
+              <strong>A figure that looks wrong.</strong> Send the profile URL
+              and the number you expected — see below.
+            </li>
+          </ul>
         </section>
 
         <section>
@@ -71,9 +149,9 @@ export function Support() {
           </p>
           <p className="mt-2">
             An emailed link is good for 15 minutes and works once. If yours has
-            expired, or the mail has not arrived, request another from that same
+            expired, or the mail never arrived, request another from that same
             page and check your spam folder — sign-in mail is the message most
-            likely to land there.
+            likely to land there. Still stuck: email us and we will get you in.
           </p>
         </section>
 
@@ -92,41 +170,6 @@ export function Support() {
             means we cannot edit one for you. If a figure still looks wrong once
             your account has synced, email us the profile URL and the number you
             expected, and we will trace it back to the report it came from.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-base font-semibold">Changing your username</h2>
-          <p className="mt-2">
-            Your username is your profile's URL, and you can change it twice
-            from your{" "}
-            <Link className="underline underline-offset-4" to="/settings">
-              settings
-            </Link>
-            . The cap exists because a public profile gets linked to and shared
-            — a handle that keeps moving breaks every link pointing at it. If
-            you genuinely need another change, email us and say why.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-base font-semibold">
-            Unpublishing, disconnecting, deleting
-          </h2>
-          <p className="mt-2">
-            <strong>Unpublish</strong> from your settings at any time. Your
-            public page comes down and your figures stop being shown; your
-            account and your data stay.
-          </p>
-          <p className="mt-2">
-            <strong>Disconnect Amazon</strong> from your settings, or revoke our
-            access from inside Seller Central — Amazon lets you do that
-            yourself, without asking us. That stops new data arriving.
-          </p>
-          <p className="mt-2">
-            <strong>Delete the account</strong> — email us and we will remove
-            the account and the data behind it. There is no self-serve delete
-            button yet.
           </p>
         </section>
 

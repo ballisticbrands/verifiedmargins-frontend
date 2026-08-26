@@ -130,9 +130,9 @@ export function About() {
             Questions, press, or anything about a specific profile:{" "}
             <a
               className="underline underline-offset-4"
-              href="mailto:owner@ballisticbrands.co"
+              href={`mailto:${brand.supportEmail}`}
             >
-              owner@ballisticbrands.co
+              {brand.supportEmail}
             </a>
             .
           </p>

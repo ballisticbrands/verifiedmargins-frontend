@@ -158,8 +158,8 @@ export function Privacy() {
             If this policy changes materially we will update the date above and,
             where appropriate, tell you directly. Questions, or any request about
             your data:{" "}
-            <a className="underline underline-offset-4" href="mailto:owner@ballisticbrands.co">
-              owner@ballisticbrands.co
+            <a className="underline underline-offset-4" href={`mailto:${brand.supportEmail}`}>
+              {brand.supportEmail}
             </a>
             . The{" "}
             <Link className="underline underline-offset-4" to="/tos">

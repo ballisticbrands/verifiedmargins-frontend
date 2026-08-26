@@ -382,9 +382,9 @@ export function Terms() {
             specific profile:{" "}
             <a
               className="underline underline-offset-4"
-              href="mailto:owner@ballisticbrands.co"
+              href={`mailto:${brand.supportEmail}`}
             >
-              owner@ballisticbrands.co
+              {brand.supportEmail}
             </a>
             . See also the{" "}
             <Link className="underline underline-offset-4" to="/privacy">
