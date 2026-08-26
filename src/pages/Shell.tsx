@@ -1,6 +1,15 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
 import { Logo } from "@/components/Logo";
+import {
+  DashboardIcon,
+  FeedIcon,
+  HowItWorksIcon,
+  LeaderboardIcon,
+  ProfileIcon,
+  SignOutIcon,
+  VerifyIcon,
+} from "@/components/NavIcons";
 
 /**
  * Page chrome: header, content column, footer.
@@ -66,66 +75,68 @@ export function Shell({
     window.location.reload();
   }
   const max =
-    width === "profile" ? "max-w-4xl" : width === "wide" ? "max-w-3xl" : "max-w-md";
+    width === "profile" ? "vm-col-profile" : width === "wide" ? "vm-col-wide" : "vm-col-narrow";
 
   return (
-    <div className={`mx-auto flex min-h-screen w-full ${max} flex-col px-6 py-8`}>
-      <header
-        className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2 border-b pb-4"
-        style={{ borderColor: "var(--border)" }}
-      >
-        <Link
-          to="/"
-          className="flex items-center gap-2 text-[17px] font-bold tracking-tight"
-        >
+    /* Left rail + content, the x.com shape. On narrow screens the rail
+       becomes a horizontal strip above the content (see globals.css) rather
+       than a hamburger: four destinations fit on a line, and a menu that has
+       to be opened hides the only navigation this product has. */
+    <div data-app-shell="">
+      <aside data-sidebar="">
+        <Link to="/" data-sidebar-brand="">
           <Logo size={26} />
-          {brand.displayName}
+          <span>{brand.displayName}</span>
         </Link>
-        {/* Product nav. These four are the shape of the site, so they render
-            for everyone — signed in or not.
-            🚧 NONE OF THESE PAGES EXIST YET. They are deliberate placeholders
-            so the navigation can be reviewed before the pages behind it are
-            built; each renders the "not built yet" route in App.tsx rather
-            than 404ing, which is what a dead <a> would do on a static host. */}
-        <nav data-product-nav="">
-          <NavLink to="/feed" current={pathname}>Feed</NavLink>
-          <NavLink to="/leaderboard" current={pathname}>Leaderboard</NavLink>
-          <NavLink to="/how-verification-works" current={pathname}>How verification works</NavLink>
-          <NavLink to="/verify" current={pathname}>Verify your business</NavLink>
+
+        {/* The shape of the site, for everyone — signed in or not. A profile
+            is a public page, and this is how a visitor gets from it into the
+            product.
+            🚧 NONE OF THESE PAGES EXIST YET. Each routes to a stub that says
+            so; a dead link in our own navbar would 404 on a static host and
+            read as a broken site. */}
+        <nav data-product-nav="" aria-label="Site">
+          <NavLink to="/feed" current={pathname} icon={<FeedIcon />}>Feed</NavLink>
+          <NavLink to="/leaderboard" current={pathname} icon={<LeaderboardIcon />}>
+            Leaderboard
+          </NavLink>
+          <NavLink to="/how-verification-works" current={pathname} icon={<HowItWorksIcon />}>
+            How verification works
+          </NavLink>
+          <NavLink to="/verify" current={pathname} icon={<VerifyIcon />}>
+            Verify your business
+          </NavLink>
         </nav>
 
-        {/* Signed-in nav. Without it /settings was reachable only by typing the
-            URL — there was no link to it from anywhere in the app. */}
         {status === "authenticated" ? (
-          <nav className="flex items-center gap-4 text-sm">
-            <NavLink to="/dashboard" current={pathname}>Dashboard</NavLink>
-            <NavLink to="/profile" current={pathname}>Profile</NavLink>
-            <button
-              type="button"
-              onClick={() => void onSignOut()}
-              className="text-sm underline underline-offset-4 opacity-70 hover:opacity-100"
-              style={{ color: "inherit" }}
-            >
-              Sign out
+          <nav data-account-nav="" aria-label="Account">
+            <NavLink to="/dashboard" current={pathname} icon={<DashboardIcon />}>
+              Dashboard
+            </NavLink>
+            <NavLink to="/profile" current={pathname} icon={<ProfileIcon />}>
+              Profile
+            </NavLink>
+            <button type="button" onClick={() => void onSignOut()} data-nav-signout="">
+              <SignOutIcon />
+              <span>Sign out</span>
             </button>
           </nav>
         ) : null}
-      </header>
+      </aside>
 
-      <main className="flex-1 pt-7">{children}</main>
+      <div data-app-content="" className={max}>
+        <main>{children}</main>
 
-      <footer
-        className="mt-10 border-t pt-4 text-sm"
-        style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
-      >
-        <a href="https://verifiedmargins.com/about/">About</a>
-        {" · "}
-        <a href="https://verifiedmargins.com/privacy/">Privacy</a>
-        {" · "}
-        <a href="https://verifiedmargins.com/tos/">Terms</a>
-        {" · "}
-        <a href="https://verifiedmargins.com/support/">Support</a>
-      </footer>
+        <footer data-app-footer="">
+          <a href="https://verifiedmargins.com/about/">About</a>
+          {" · "}
+          <a href="https://verifiedmargins.com/privacy/">Privacy</a>
+          {" · "}
+          <a href="https://verifiedmargins.com/tos/">Terms</a>
+          {" · "}
+          <a href="https://verifiedmargins.com/support/">Support</a>
+        </footer>
+      </div>
     </div>
   );
 }
@@ -133,23 +144,21 @@ export function Shell({
 function NavLink({
   to,
   current,
+  icon,
   children,
 }: {
   to: string;
   current: string;
+  icon?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  // "Active" includes children (/settings under /profile), so a nested page
+  // does not leave every item looking unselected.
   const active = current === to || current.startsWith(`${to}/`);
   return (
-    <Link
-      to={to}
-      aria-current={active ? "page" : undefined}
-      style={{
-        color: active ? "var(--foreground)" : "var(--muted-foreground)",
-        fontWeight: active ? 600 : 450,
-      }}
-    >
-      {children}
+    <Link to={to} aria-current={active ? "page" : undefined} data-nav-item="" data-active={active ? "" : undefined}>
+      {icon}
+      <span>{children}</span>
     </Link>
   );
 }
