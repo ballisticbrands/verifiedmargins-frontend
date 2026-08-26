@@ -133,6 +133,7 @@ function publicProfile(over = {}) {
           last_30d: { revenue: 26000, profit: 6200, margin_pct: 23.8 }, revenue: 300000,
           margin_pct: 24.0, verification: { tier: "self_reported", label: "Self-reported" } },
       ],
+      last_30d: { revenue: 231000, profit: 74000, units: 5240, margin_pct: 32.0 },
       series: MONTHS, margin_series: MONTHS.map((m) => ({
         month: m.month,
         margin_pct: m.profit === null ? null : (m.profit / m.revenue) * 100,
@@ -168,6 +169,7 @@ const MARGIN_ONLY = publicProfile({
   metrics: {
     ...publicProfile().metrics,
     native: null, display: null, series: null,
+    last_30d: { revenue: null, profit: null, units: 0, margin_pct: 31.8 },
     businesses: [
       { platform: "amazon_selling_partner", label: "Amazon FBA", markets: ["US"], seller_type: "private_label",
         last_30d: { revenue: null, profit: null, margin_pct: 31.8 }, revenue: null,
@@ -196,12 +198,6 @@ const ROUTES = [
   [/\/v1\/public\/leaderboard/, LEADERBOARD],
   [/\/v1\/public\/profiles\/e%2F|\/v1\/public\/profiles\/8x2k9/, ESTIMATED],
   [/\/v1\/public\/profiles\/quietseller/, MARGIN_ONLY],
-  // DEMO_PROFILE — delete with src/demo/.
-  [/\/v1\/public\/profiles\/ggballas/, publicProfile({
-    username: "ggballas", display_name: "Gershon Ballas",
-    bio: "Private-label kitchen gear. Eight years, two people.",
-    socials: { x: "ggballas", linkedin: "ggballas", reddit: "u/ggballas" },
-  })],
   [/\/v1\/public\/profiles\//, publicProfile()],
   [/\/v1\/profiles\/username-available/, { available: true }],
   [/\/v1\/profiles\/[^/]+\/connection-options/, OPTIONS],
@@ -222,15 +218,6 @@ const PAGES = [
   { route: "/8x2k9", auth: false, name: "profile-estimated" },
   { route: "/quietseller", auth: false, name: "profile-margin-only" },
   { route: "/leaderboard", auth: false, name: "leaderboard" },
-  // DEMO_PROFILE — delete with src/demo/. `click` opens the fake scheduler so
-  // the popup gets reviewed too; a demo nobody looked at is how a client sees
-  // a broken modal first.
-  { route: "/ggballas", auth: false, name: "profile-demo" },
-  { route: "/ggballas", auth: false, name: "profile-demo-scheduler", click: "[data-demo-primary]" },
-  { route: "/ggballas", auth: false, name: "profile-demo-comments", click: "[data-demo-link]" },
-  { route: "/ggballas", auth: false, name: "profile-demo-booked",
-    click: ["[data-demo-primary]", "[data-demo-day]:not(:disabled)", "[data-demo-slot]",
-            "[data-demo-modal] [data-demo-primary]"] },
 ];
 
 const browser = await puppeteer.launch({

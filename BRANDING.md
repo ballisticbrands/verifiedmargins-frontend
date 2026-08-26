@@ -273,8 +273,12 @@ has to look deliberate.
   handle, system-sans 600, on a flat background chosen by hashing the
   handle across a fixed set of in-palette greys plus two desaturated
   greens. Same handle → same avatar, forever.
-- Square with a 6px radius, not a circle — circles read social-network,
-  squares read directory-listing, and we are closer to the second.
+- **Circle on a profile, square in a list.** A profile header is a person, so
+  it takes a large circular avatar (5.5rem) — the convention every social
+  profile uses, and this product is a profile network. A leaderboard row or a
+  card is a listing, so it keeps the 6px-radius square: squares read as
+  entries in a directory, and mixing the two shapes is what tells a reader
+  which of the two they are looking at.
 - The handle is mono and always prefixed: `@paramint`. It is the
   identity; the display name is optional decoration above it.
 - An uploaded avatar sits on `--muted` with a 1px `--border`, because a

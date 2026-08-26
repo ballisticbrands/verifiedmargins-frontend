@@ -7,8 +7,6 @@ import {
   useSession,
 } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
-// DEMO_PROFILE — delete this import with src/demo/. See that file's header.
-import { ConsultationDemo } from "@/demo/ConsultationDemo";
 
 /**
  * A seller profile at verifiedmargins.com/<username>.
@@ -93,10 +91,6 @@ export function PublicProfile() {
   return (
     <Shell width="profile">
       <div className="vm-form vm-profile">
-        {/* DEMO_PROFILE — renders for one username only, returns null for
-            every other profile, and portals itself under the name. Delete
-            with src/demo/. */}
-        <ConsultationDemo username={username} />
         <PublicProfilePage
           username={username}
           owner={
