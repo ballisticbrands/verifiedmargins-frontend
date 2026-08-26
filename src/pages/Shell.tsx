@@ -106,6 +106,8 @@ export function Shell({
         <a href="https://verifiedmargins.com/privacy/">Privacy</a>
         {" · "}
         <a href="https://verifiedmargins.com/tos/">Terms</a>
+        {" · "}
+        <a href="https://verifiedmargins.com/support/">Support</a>
       </footer>
     </div>
   );

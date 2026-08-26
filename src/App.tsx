@@ -14,6 +14,7 @@ import { ProfileRedirect } from "@/pages/ProfileRedirect";
 import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
 import { Terms } from "@/pages/Terms";
+import { Support } from "@/pages/Support";
 
 export default function App() {
   const location = useLocation();
@@ -121,6 +122,7 @@ export default function App() {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/about" element={<About />} />
       <Route path="/tos" element={<Terms />} />
+      <Route path="/support" element={<Support />} />
       <Route path="/:username" element={<PublicProfile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

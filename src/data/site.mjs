@@ -47,6 +47,11 @@ export const PUBLIC_PAGES = [
    * LinkedIn app registrations ask for alongside the privacy one.
    * generate-sitemap.mjs has always priced /tos/ at 0.3 — it expected this. */
   '/tos',
+  /* Where every "contact support" sentence in the product points, including
+   * the username-change-limit error the backend returns
+   * (src/services/profiles/service.ts). Indexable on purpose: people search
+   * for "<brand> support" before they think to look in the footer. */
+  '/support',
 ];
 
 export const APP_ROUTES = [

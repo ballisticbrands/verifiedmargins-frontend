@@ -60,7 +60,7 @@ const EXCLUDE = APP_ROUTES.map((r) => new RegExp(`^${r}(/|$)`));
 
 function priority(route) {
   if (route === '/') return '1.0';
-  if (route === '/privacy/' || route === '/tos/') return '0.3';
+  if (route === '/privacy/' || route === '/tos/' || route === '/support/') return '0.3';
   return '0.8';
 }
 
