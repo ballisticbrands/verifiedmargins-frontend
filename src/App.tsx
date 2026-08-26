@@ -8,6 +8,7 @@ import {
 } from "@ballisticbrands/frontend-shared";
 import { Dashboard } from "@/pages/Dashboard";
 import { Login } from "@/pages/Login";
+import { Leaderboard } from "@/pages/Leaderboard";
 import { Settings } from "@/pages/Settings";
 import { Shell } from "@/pages/Shell";
 import { PublicProfile } from "@/pages/PublicProfile";
@@ -129,7 +130,7 @@ export default function App() {
           They are declared BEFORE /:username so a stub never gets mistaken
           for a seller whose handle happens to be "feed". */}
       <Route path="/feed" element={<ComingSoon title="Feed" />} />
-      <Route path="/leaderboard" element={<ComingSoon title="Leaderboard" />} />
+      <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/how-verification-works" element={<ComingSoon title="How verification works" />} />
       <Route path="/verify" element={<ComingSoon title="Verify your business" />} />
       <Route path="/:username" element={<PublicProfile />} />
@@ -139,10 +140,14 @@ export default function App() {
 }
 
 /** Root: signed out → the one login page; signed in → your dashboard. */
+/* `/` IS the leaderboard, for signed-in and signed-out alike.
+ *
+ * It used to bounce to /login or /dashboard, which meant the front door of a
+ * public product was a form. The leaderboard is the thing worth landing on:
+ * it shows what the site is for in one screen, and it is the page a stranger
+ * can act on without an account. */
 function RootRedirect() {
-  const { status } = useSession();
-  if (status === "loading") return null;
-  return <Navigate to={status === "authenticated" ? "/dashboard" : "/login"} replace />;
+  return <Navigate to="/leaderboard" replace />;
 }
 
 

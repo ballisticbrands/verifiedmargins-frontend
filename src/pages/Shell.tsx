@@ -96,10 +96,12 @@ export function Shell({
             so; a dead link in our own navbar would 404 on a static host and
             read as a broken site. */}
         <nav data-product-nav="" aria-label="Site">
-          <NavLink to="/feed" current={pathname} icon={<FeedIcon />}>Feed</NavLink>
+          {/* Leaderboard first: it is what `/` serves and the reason a
+              stranger stays. Feed sits under it. */}
           <NavLink to="/leaderboard" current={pathname} icon={<LeaderboardIcon />}>
             Leaderboard
           </NavLink>
+          <NavLink to="/feed" current={pathname} icon={<FeedIcon />}>Feed</NavLink>
           <NavLink to="/how-verification-works" current={pathname} icon={<HowItWorksIcon />}>
             How verification works
           </NavLink>

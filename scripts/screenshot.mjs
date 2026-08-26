@@ -125,6 +125,10 @@ function publicProfile(over = {}) {
         { platform: "amazon_selling_partner", label: "Amazon FBA", markets: ["US", "CA"], seller_type: "private_label",
           last_30d: { revenue: 164000, profit: 54000, margin_pct: 32.9 }, revenue: 1840000,
           margin_pct: 33.1, verification: { tier: "verified_margin", label: "Verified margin" } },
+        { platform: "amazon_selling_partner", label: "Amazon FBA", markets: ["DE", "FR"],
+          seller_type: "private_label",
+          last_30d: { revenue: 41000, profit: 11800, margin_pct: 28.8 }, revenue: 402000,
+          margin_pct: 29.1, verification: { tier: "verified_revenue", label: "Verified revenue" } },
         { platform: "manual", label: "Self-reported", markets: [], seller_type: "wholesaler",
           last_30d: { revenue: 26000, profit: 6200, margin_pct: 23.8 }, revenue: 300000,
           margin_pct: 24.0, verification: { tier: "self_reported", label: "Self-reported" } },
@@ -173,7 +177,23 @@ const MARGIN_ONLY = publicProfile({
   },
 });
 
+const LEADERBOARD = {
+  mode: "founder", window_months: 12, note: "2 profiles keep their margin private and are not ranked.",
+  entries: [
+    { rank: 1, username: "leanlabs", display_name: "Lean Labs", avatar_url: null, business: null,
+      margin_pct: 41.2, revenue: 640000, currency: "USD",
+      verification: { tier: "verified_margin", label: "Verified margin" } },
+    { rank: 2, username: "ggballas", display_name: "Gershon Ballas", avatar_url: null, business: null,
+      margin_pct: 31.8, revenue: 2140000, currency: "USD",
+      verification: { tier: "verified_margin", label: "Verified margin" } },
+    { rank: 3, username: "quietseller", display_name: "Quiet Seller", avatar_url: null, business: null,
+      margin_pct: 27.4, revenue: null, currency: "USD",
+      verification: { tier: "verified_revenue", label: "Verified revenue" } },
+  ],
+};
+
 const ROUTES = [
+  [/\/v1\/public\/leaderboard/, LEADERBOARD],
   [/\/v1\/public\/profiles\/e%2F|\/v1\/public\/profiles\/8x2k9/, ESTIMATED],
   [/\/v1\/public\/profiles\/quietseller/, MARGIN_ONLY],
   // DEMO_PROFILE — delete with src/demo/.
@@ -201,6 +221,7 @@ const PAGES = [
   { route: "/acme", auth: false, name: "profile-verified" },
   { route: "/8x2k9", auth: false, name: "profile-estimated" },
   { route: "/quietseller", auth: false, name: "profile-margin-only" },
+  { route: "/leaderboard", auth: false, name: "leaderboard" },
   // DEMO_PROFILE — delete with src/demo/. `click` opens the fake scheduler so
   // the popup gets reviewed too; a demo nobody looked at is how a client sees
   // a broken modal first.
