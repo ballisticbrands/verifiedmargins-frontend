@@ -1767,3 +1767,43 @@ dialog[data-add-business]::backdrop {
 [data-demo-booked] { padding-top: 0.4rem; }
 [data-demo-booked-line] { margin: 0 0 0.5rem; font-weight: 600; }
 [data-demo-booked] p { font-size: 0.86rem; color: var(--muted-foreground); }
+
+/* ── Demo /afrasiab: three overrides of the shared page ──────────────────
+   All scoped under .vm-demo. Done in CSS rather than by forking
+   frontend-shared or mutating its DOM: a fork drifts, and a mutation fights
+   React on every re-render. */
+
+/* The header count is computed from the businesses array's length, so the
+   shared page can only ever say "<cards shown> businesses with verified
+   revenue". This demo shows 12 cards but claims 142 — swap the text, keep the
+   element's box so the header does not reflow. Proper fix is an optional
+   `businesses_total` in the payload; see src/demo/README.md. */
+.vm-demo [data-verified-count] { visibility: hidden; position: relative; }
+.vm-demo [data-verified-count]::after {
+  content: "142 businesses with verified profits";
+  visibility: visible;
+  position: absolute;
+  inset: 0;
+  white-space: nowrap;
+}
+
+/* The bio reads as prose, not as data — everything else on this page is mono
+   because it is figures. */
+/* The bio is a bare <p> directly under main[data-noindex] — NOT inside
+   [data-profile-head], which is what an earlier selector here assumed and why
+   it silently matched nothing. Every other direct-child <p> of main carries a
+   data-* attribute, so excluding those isolates the bio. */
+.vm-demo main > p:not([data-fx-note]):not([data-window-note]):not([data-chart-label]) {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* The standalone Margin section. Identified by its headline metric rather than
+   by position: it carries no data attribute of its own, and "the section before
+   the dashboard" would silently retarget if a section were ever inserted. */
+.vm-demo section:has(> [data-metric="headline"]) { display: none; }
+
+/* The portalled CTA sits in the socials column, so it matches their width
+   rather than hugging its text. */
+[data-profile-actions-row] [data-demo-cta] { width: 100%; margin-top: 0.15rem; }

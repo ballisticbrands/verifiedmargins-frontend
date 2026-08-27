@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { createPortal } from "react-dom";
+import { useParams } from "react-router-dom";
 import { PublicProfilePage, useBrand } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { useCurrency } from "@/currency";
@@ -57,6 +58,25 @@ export function DemoProfile() {
   const { currency } = useCurrency();
   const demo = DEMOS[slug];
   const [booking, setBooking] = useState(false);
+  /* The CTA belongs UNDER the social buttons, which the shared page renders in
+   * its own column ([data-profile-actions-row]) — a slot the host is not given.
+   * Rather than fork the shared page for a demo-only control, portal into it.
+   * Polled because the row only exists once the payload lands, and the parent's
+   * mount effect fires long before that. */
+  const [actionsRow, setActionsRow] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    let tries = 0;
+    const id = window.setInterval(() => {
+      const el = document.querySelector<HTMLElement>("[data-profile-actions-row]");
+      if (el) {
+        setActionsRow(el);
+        window.clearInterval(id);
+      } else if (++tries > 60) {
+        window.clearInterval(id);
+      }
+    }, 50);
+    return () => window.clearInterval(id);
+  }, [slug]);
 
   /* Synchronous, in the body — see the header note on effect ordering. */
   const armed = useRef(false);
@@ -117,19 +137,17 @@ export function DemoProfile() {
               ]}
             />
           }
-          actions={
-            <>
-              {/* The actions slot is the host's, by design — so a demo can add
-                  a control the shared page knows nothing about without forking
-                  it. */}
-              <button type="button" data-demo-cta="" onClick={() => setBooking(true)}>
-                Paid consultation — $200
-              </button>
-              <Link to="/leaderboard">Back to leaderboard →</Link>
-            </>
-          }
+
         />
       </div>
+      {actionsRow
+        ? createPortal(
+            <button type="button" data-demo-cta="" onClick={() => setBooking(true)}>
+              Paid consultation — $200
+            </button>,
+            actionsRow,
+          )
+        : null}
       {booking ? (
         <ConsultationModal
           name="Afrasiab Khan"
