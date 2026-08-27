@@ -12,6 +12,7 @@ import { Leaderboard } from "@/pages/Leaderboard";
 import { Settings } from "@/pages/Settings";
 import { Shell } from "@/pages/Shell";
 import { PublicProfile } from "@/pages/PublicProfile";
+import { DemoProfile } from "./pages/DemoProfile";
 import { ProfileRedirect } from "@/pages/ProfileRedirect";
 import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
@@ -138,6 +139,12 @@ export default function App() {
           the reserved-username list and any link already shared — so it keeps
           resolving, and does the same thing the button does. */}
       <Route path="/verify" element={<OpenAddBusiness />} />
+      {/* 🎭 Demo pages. Real app components rendered against fixture data —
+          see src/demo/README.md. May show features that do not exist yet, so
+          they are noindex + Disallow'd (DEMO_PAGES in site.mjs). Declared
+          BEFORE /:username: "demo" is a path segment, not a handle, and the
+          two-segment shape would otherwise fall through to the catch-all. */}
+      <Route path="/demo/:slug" element={<DemoProfile />} />
       <Route path="/:username" element={<PublicProfile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

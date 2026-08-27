@@ -1625,3 +1625,31 @@ dialog[data-add-business]::backdrop {
 }
 [data-nav-cta]:hover { background: var(--foreground); }
 [data-nav-cta] svg { flex-shrink: 0; }
+
+/* 🎭 Demo banner — src/pages/DemoProfile.tsx.
+   The one deliberate deviation from the real profile layout: a demo page is
+   otherwise indistinguishable from a genuinely verified profile, and these
+   figures are illustrative. Amber rather than the verification green on
+   purpose — it must not read as a status badge. */
+.vm-demo-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 1.25rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid color-mix(in srgb, #b45309 35%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, #b45309 10%, transparent);
+  color: inherit;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+.vm-demo-banner strong {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: color-mix(in srgb, #b45309 22%, transparent);
+}

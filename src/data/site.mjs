@@ -60,6 +60,15 @@ export const PUBLIC_PAGES = [
   '/support',
 ];
 
+/* 🎭 Demo pages (/demo/<slug>) — real components, fixture data, and often
+ * features that do not exist yet. Spread into APP_ROUTES below so each gets a
+ * 200-answering stub AND a `Disallow:` AND sitemap exclusion: a demo must
+ * resolve on a cold link but must never be indexed. Adding a demo means adding
+ * a line here — see src/demo/README.md. */
+export const DEMO_PAGES = [
+  '/demo/afrasiab',
+];
+
 export const APP_ROUTES = [
   /* The one auth page. /sign-up and /sign-in are TOMBSTONES that redirect
    * to it — they stay in this list precisely because they must keep
@@ -93,6 +102,7 @@ export const APP_ROUTES = [
   '/profile',
   '/settings',
   '/verify-email',
+  ...DEMO_PAGES,
   /* No /forgot-password: this brand has no passwords, and the route is
    * gone from App.tsx. */
 ];

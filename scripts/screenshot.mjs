@@ -258,6 +258,10 @@ const PAGES = [
   { route: "/8x2k9", auth: false, name: "profile-estimated" },
   { route: "/quietseller", auth: false, name: "profile-margin-only" },
   { route: "/leaderboard", auth: false, name: "leaderboard" },
+  /* 🎭 Demo pages render fixture data through the real components — see
+   * src/demo/README.md. Worth shooting: a demo that renders wrong is a demo
+   * shown to a prospect. */
+  { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab" },
   /* The same profile, read in euros. Proves a non-default currency reaches
      the API and that every figure on the page moves with it — the picker is
      hidden for now, but the path it drives is live and worth guarding. */
