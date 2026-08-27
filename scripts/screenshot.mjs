@@ -290,6 +290,12 @@ const PAGES = [
   /* The wizard's later steps. Each needs the one before it completed, so the
      click list is cumulative — a step that only renders after a valid margin
      cannot be shot any other way. */
+  /* Each method changes the body AND the footer's enablement — worth a shot
+     each, because "disabled for the right reason" is not visible in source. */
+  { route: "/leaderboard", auth: false, name: "add-business-call",
+    steps: [{ click: "[data-nav-cta]" }, { select: ["[data-method-select]", "call"] }] },
+  { route: "/leaderboard", auth: false, name: "add-business-sellerboard",
+    steps: [{ click: "[data-nav-cta]" }, { select: ["[data-method-select]", "sellerboard"] }] },
   { route: "/leaderboard", auth: false, name: "add-business-claim",
     steps: [{ click: "[data-nav-cta]" }, { fill: ["input[type=number]", "24"] }, { click: "[data-primary]" }] },
   { route: "/leaderboard", auth: true, name: "add-business-signed-in", click: "[data-nav-cta]" },
@@ -371,6 +377,9 @@ for (const { route, auth, name, click, storage, steps } of PAGES) {
   for (const st of steps ?? []) {
     if (st.click) {
       await page.click(st.click).catch(() => console.warn(`  (no ${st.click} to click)`));
+    } else if (st.select) {
+      const [sel, value] = st.select;
+      await page.select(sel, value).catch(() => console.warn(`  (no ${sel} to select)`));
     } else if (st.fill) {
       const [sel, value] = st.fill;
       await page

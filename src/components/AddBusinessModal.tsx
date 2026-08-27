@@ -105,17 +105,14 @@ const METHODS: {
     label: "Connect to SellerBoard",
     price: "Coming soon",
     disabled: true,
-    blurb:
-      "Not built yet. SellerBoard already holds the cost data most sellers keep out of Seller " +
-      "Central, so this will verify margin without a COGS upload — but nothing behind it works " +
-      "today, and we would rather say so than take a signup we cannot honour.",
+    blurb: "Coming soon!",
   },
   {
     value: "call",
     label: "Video call verification",
     price: "$20",
     blurb:
-      "🚧 Placeholder. Fifteen minutes on a call, screen-sharing your Seller Central so we can " +
+      "Fifteen minutes on a call, screen-sharing your Seller Central so we can " +
       "see the figures ourselves. We'll send a booking link once you're in.",
   },
 ];
@@ -151,6 +148,14 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
      write to and where to land afterwards, without a second round trip. */
   const [claimed, setClaimed] = useState<{ id: string; username: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  /* Lifted out of ConnectSellerCentral: the footer's enablement depends on it,
+     and "Add your business" must not be pressable for a business that was
+     never actually verified. */
+  const [connected, setConnected] = useState(false);
+  /* Set when Connect sent a signed-out visitor to `claim` just to get a
+     session. They came here to connect, so claiming returns them to `details`
+     to finish that — not onward to `identity`. */
+  const [resumeConnect, setResumeConnect] = useState(false);
 
   const ref = useRef<HTMLDialogElement>(null);
   const magic = useMagicLinkForm();
@@ -185,7 +190,15 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
      method blocks `details` outright: the option exists to be seen, not
      submitted. */
   const canAdvance = (() => {
-    if (step === "details") return marginValid && !chosen.disabled;
+    if (step === "details") {
+      /* Each method earns the button differently. Connect must actually have
+         completed Amazon's OAuth — the whole claim of this route is that the
+         figures were not typed in, so a business added without connecting
+         would be exactly the thing the site says it does not accept. The
+         other two have nothing behind them yet and say so. */
+      if (method === "connect") return connected && marginValid;
+      return false;
+    }
     if (step === "claim") return emailValid && !magic.pending;
     return !saving; // identity: every field on it is optional
   })();
@@ -316,7 +329,11 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
       .then((mine) => {
         if (cancelled) return;
         const first = mine[0];
-        if (first) finish(first.username);
+        if (resumeConnect) {
+          // They came to connect; a session was only ever the prerequisite.
+          setResumeConnect(false);
+          setStep("details");
+        } else if (first) finish(first.username);
         else setStep("identity");
       })
       .catch(() => {
@@ -400,7 +417,11 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
 
               <label data-field="">
                 <span>Method</span>
-                <select value={method} onChange={(e) => setMethod(e.target.value as Method)}>
+                <select
+                  data-method-select=""
+                  value={method}
+                  onChange={(e) => setMethod(e.target.value as Method)}
+                >
                   {METHODS.map((m) => (
                     <option key={m.value} value={m.value}>
                       {m.label} — {m.price}
@@ -445,22 +466,45 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
                 </p>
               ) : null}
 
-              {method === "connect" ? <ConnectSellerCentral signedIn={signedIn} /> : null}
+              {method === "connect" ? (
+                <>
+                  <ConnectSellerCentral
+                    signedIn={signedIn}
+                    onConnected={() => setConnected(true)}
+                    onNeedsAccount={() => {
+                      setResumeConnect(true);
+                      setStep("claim");
+                    }}
+                  />
 
-              <label data-field="">
-                <span>Enter your profit margin %</span>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  min={-99}
-                  max={100}
-                  step="0.1"
-                  placeholder="e.g. 24"
-                  value={marginPct}
-                  onChange={(e) => setMarginPct(e.target.value)}
-                  required
-                />
-              </label>
+                  {/* Only this method asks for a margin. SellerBoard will carry
+                      the cost data itself, and the call reads the figures off a
+                      screen share — typing one in either case would be a number
+                      nobody verified. */}
+                  <label data-field="">
+                    <span>Enter your profit margin %</span>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={-99}
+                      max={100}
+                      step="0.1"
+                      placeholder="e.g. 24"
+                      value={marginPct}
+                      onChange={(e) => setMarginPct(e.target.value)}
+                      required
+                    />
+                  </label>
+                </>
+              ) : null}
+
+              {method === "call" ? (
+                /* 🚧 Inert. There is no scheduler behind it — see the demo
+                   page's ConsultationModal for the shape one would take. */
+                <button type="button" data-book-call="" onClick={() => {}}>
+                  Book your call
+                </button>
+              ) : null}
             </section>
           </>
         ) : null}
@@ -644,7 +688,19 @@ type Phase = "idle" | "waiting" | "linking" | "linked";
  * genuine flow — authorize, link to the profile, ask for a snapshot now
  * instead of at 08:30 UTC.
  */
-function ConnectSellerCentral({ signedIn }: { signedIn: boolean }) {
+function ConnectSellerCentral({
+  signedIn,
+  onConnected,
+  onNeedsAccount,
+}: {
+  signedIn: boolean;
+  onConnected: () => void;
+  /** Signed out. `POST /connect/start` 401s without a session AND signs the
+   *  OAuth state with the user id — that signed state IS the ownership
+   *  binding, so this cannot be worked around client-side. The wizard detours
+   *  through the claim step and comes back. */
+  onNeedsAccount: () => void;
+}) {
   const brand = useBrand();
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -661,6 +717,7 @@ function ConnectSellerCentral({ signedIn }: { signedIn: boolean }) {
     setError(null);
     if (!connectionId) {
       setPhase("linked");
+      onConnected();
       return;
     }
     try {
@@ -690,7 +747,12 @@ function ConnectSellerCentral({ signedIn }: { signedIn: boolean }) {
          "connection failed" would send them round again to make a second. */
     }
     setPhase("linked");
-  }, []);
+    /* Amazon granted consent, which is what the footer gates on. Linking to a
+       profile can still have failed above — that is recoverable in Settings,
+       and refusing to let them finish over it would send them back through
+       Amazon to create a second connection. */
+    onConnected();
+  }, [onConnected]);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
@@ -745,13 +807,21 @@ function ConnectSellerCentral({ signedIn }: { signedIn: boolean }) {
 
   return (
     <div data-connect="">
-      <button type="button" onClick={begin} disabled={!signedIn || phase !== "idle"}>
+      {/* Never disabled for being signed out — that left the primary action of
+          this screen dead with nothing on the page explaining how to revive it,
+          because "Who are you?" moved to its own step. Signed out, it takes you
+          to claim and returns here. */}
+      <button
+        type="button"
+        onClick={() => (signedIn ? void begin() : onNeedsAccount())}
+        disabled={phase !== "idle"}
+      >
         {phase === "idle" ? "Connect Seller Central" : "Waiting for Amazon…"}
       </button>
       {!signedIn ? (
         <p data-field-note="">
-          Amazon needs an account to connect to — finish &ldquo;Who are you?&rdquo; below and this
-          opens straight after.
+          Amazon needs an account to connect to — this takes you to claim yours first, then comes
+          straight back.
         </p>
       ) : null}
       {error ? (
