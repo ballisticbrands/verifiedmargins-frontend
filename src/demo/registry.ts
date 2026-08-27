@@ -51,5 +51,12 @@ export const DEMOS: Record<string, Demo> = {
     countLabel: "142 businesses with verified profits",
     consultation: { price: "$200", minutes: 45, name: "Afrasiab Khan" },
   },
-  Pure_Zookeepergame_2: { kind: "profile", build: pureZookeepergame },
+  Pure_Zookeepergame_2: {
+    kind: "profile",
+    build: pureZookeepergame,
+    pill: "✓ Verified margins",
+    /* No display_name on this profile, so the booking dialog addresses them by
+       handle — which is what the page shows too. */
+    consultation: { price: "$150", minutes: 45, name: "Pure_Zookeepergame_2" },
+  },
 };

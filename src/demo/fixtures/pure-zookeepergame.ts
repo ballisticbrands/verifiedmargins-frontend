@@ -81,10 +81,10 @@ export function pureZookeepergame(months: number, currency: string) {
   return {
     username: "Pure_Zookeepergame_2",
     display_name: null,
-    bio: null,
+    bio: "This is the bio of Pure_Zookeepergame_2",
     avatar_url: null,
     website_url: null,
-    socials: {},
+    socials: { reddit: "https://www.reddit.com/user/Pure_Zookeepergame_2/" },
     seller_type: "private_label",
     type: "seller",
     claimed: true,
