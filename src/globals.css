@@ -52,7 +52,21 @@
 
   --danger: #b42318;           /* ERRORS ONLY. Never "a bad number". */
 
-  /* Type. TWO faces, and the split is words vs. figures.
+  /* Type. THREE roles: titles, prose, figures.
+
+     Titles are PROPORTIONAL — the only face here that is not monospaced.
+     Everything else on this site is fixed-width, which is the register the
+     product lives in, but a page of nothing but monospace has no hierarchy:
+     a heading and the sentence beneath it differ only in size, so nothing
+     announces itself. A proportional title is the one contrast that makes
+     the rest read as deliberate rather than as terminal output.
+
+     🚨 --font-display is the ONLY non-monospace stack in the file. If a
+     heading looks like its own body copy, this variable is not reaching it. */
+  --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Prose and figures: two monospaced faces, split words vs. numbers.
      Words are Inconsolata; figures are the platform's own monospace. Both
      are monospaced, so the page keeps one register — but they are not the
      SAME face, and that difference is the point: a figure should read as a
@@ -1425,6 +1439,11 @@ dialog[data-add-business]::backdrop {
 [data-add-business-head] h2 {
   margin: 0;
   font-size: 1.25rem;
+  /* Tailwind's preflight resets headings to `font-weight: inherit`, so a
+     heading that does not name a weight renders at 400 — which reads as
+     thin body copy once the title face is proportional. Every heading on
+     this site states its own weight (BRANDING.md §4.1); these two did not. */
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -1476,6 +1495,7 @@ dialog[data-add-business]::backdrop {
 [data-add-business-section] h3 {
   margin: 0 0 0.8rem;
   font-size: 0.95rem;
+  font-weight: 650;
   letter-spacing: -0.01em;
 }
 
@@ -1885,3 +1905,38 @@ input[type="number"],
   cursor: pointer;
 }
 [data-book-call]:hover { background: var(--muted, rgba(127, 127, 127, 0.12)); }
+
+/* ─── Titles are proportional ─────────────────────────────────────────
+ *
+ * The one non-monospace face on the site, and the only source of visual
+ * hierarchy: set a heading in the same fixed-width face as the paragraph
+ * under it and the two differ by size alone, which reads as terminal output
+ * rather than as a designed page.
+ *
+ * Every heading, everywhere — profile names, section headings, the
+ * leaderboard, settings, and the add-business dialog. A flow whose titles do
+ * not match the rest of the site reads as a bug, not as emphasis.
+ *
+ * 🚨 LAST IN THE FILE, like the number-input rule below it, because
+ * `.vm-form h1` and the dialog's own heading rules set font-family at equal
+ * or higher specificity earlier on. Check a heading in the browser, not the
+ * declaration, after touching this.
+ *
+ * What this does NOT catch, deliberately: the @handle inside a profile h1
+ * (an identifier is data — it keeps --font-mono through its own, more
+ * specific rule).
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.vm-form h1,
+.vm-form h2,
+.vm-form h3,
+[data-add-business] h2,
+[data-add-business] h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}

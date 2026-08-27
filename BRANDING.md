@@ -160,50 +160,78 @@ signal. **Scarcity is what makes it legible.** When in doubt, use ink.
 
 ## 4. Typography
 
-**Two faces, and the split is words vs. figures.**
+**Three roles: titles, prose, figures.**
 
 ```css
-/* Words: headings, body, labels, buttons, nav, bios, breadcrumbs */
+/* Titles — the ONLY proportional face on the site */
+--font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Roboto, "Helvetica Neue", Arial, sans-serif;
+
+/* Prose: body, labels, buttons, nav, bios, breadcrumbs */
 --font-sans: "Inconsolata", "Inconsolata Fallback", sans-serif;
 
-/* Figures: every number, code and identifier on the site */
+/* Figures: every number, code and identifier */
 --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
              "Liberation Mono", monospace;
 ```
 
-Both are monospaced, so the page holds one register — the terminal/ledger
-register this product lives in. But they are **not the same face**, and
-that difference is the whole point: a figure should read as a quantity
-lifted out of the prose around it, not as more prose.
+Two of the three are monospaced, which is the register this product
+lives in. The third exists because a page set entirely in fixed-width
+type has **no hierarchy**: a heading and the sentence under it differ by
+size alone, and the result reads as terminal output rather than as a
+designed page. One proportional face at the top of each section is the
+contrast that makes everything else read as deliberate.
+
+Two traps, both of which have already happened here:
+
+🚨 **`--font-sans` is not proportional.** Inconsolata is a *monospaced*
+typeface. It is the prose face, not the sans — the variable name is a
+leftover and it has already misled a reader of this document into
+believing titles had a proportional face to fall back on. If you want
+non-monospaced, that is `--font-display` and nothing else.
 
 🚨 **Inconsolata must never lead `--font-mono`.** It did for a day. Every
-number on the site rendered in the text face, the two stacks were one
-stack wearing two names, and nothing looked broken — which is why it
-survived a review. If you are changing these variables, check a figure
-and a sentence side by side, not the variable declarations.
+number rendered in the prose face, the two stacks were one stack wearing
+two names, and nothing looked broken — which is why it survived review.
+Check a figure and a sentence side by side, not the declarations.
 
-### 4.1 Words — Inconsolata
+### 4.1 The three faces in practice
 
-The face TrustMRR sets its whole page in, and the reason a founder who
-has seen that page recognises this one as the same kind of object. It is
-the one deliberate web font here; everything else is native.
+**Titles — `--font-display`.** Every `h1`–`h6`, everywhere: profile
+names, section headings, the leaderboard, settings, and the
+add-business dialog. A flow whose titles do not match the rest of the
+site reads as a bug, not as emphasis. The rule sits **last in
+globals.css** because `.vm-form h1` and the dialog's own heading rules
+set `font-family` earlier at equal or higher specificity.
 
-Everything that is language takes it: headings, body, help text,
-buttons, nav, badges, breadcrumbs, bios, and the LABEL half of every
-data row (`REVENUE (30D)` is a label; `$164K` is not).
+⚠️ Tailwind's preflight resets headings to `font-weight: inherit`, so a
+heading that does not name a weight renders at **400** — which looks
+like thin body copy in a proportional face. Every heading states its own
+weight:
 
 | Role | Size | Weight | Tracking |
 |---|---|---|---|
 | Page title (`h1`) | 1.6rem | 700 | −0.02em |
 | Section (`h2`) | 1.05rem | 650 | −0.01em |
-| Body | 0.95rem | 400 | 0 |
-| Label | 0.875rem | 550 | 0 |
-| Help / meta | 0.8125rem | 400 | 0 |
-| Badge | 0.75rem | 550 | +0.01em |
+| Dialog title | 1.25rem | 700 | −0.02em |
+| Dialog section (`h3`) | 0.95rem | 650 | −0.01em |
+
+**Prose — `--font-sans` (Inconsolata).** Body, help text, buttons, nav,
+badges, breadcrumbs, bios, and the LABEL half of every data row
+(`REVENUE (30D)` is a label; `$164K` is not).
+
+| Role | Size | Weight |
+|---|---|---|
+| Body | 0.95rem | 400 |
+| Label | 0.875rem | 550 |
+| Help / meta | 0.8125rem | 400 |
+| Badge | 0.75rem | 550 |
 
 Line-height **1.55 for prose**, **1.35 for data rows**. Prose caps at
 **62ch** — a mono runs wider per character than a sans, so that cap does
 more work here than it would elsewhere.
+
+**Figures — `--font-mono`.** See §4.3.
 
 ### 4.2 The fallback face
 
