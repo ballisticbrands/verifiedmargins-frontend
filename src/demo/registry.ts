@@ -55,8 +55,9 @@ export const DEMOS: Record<string, Demo> = {
     kind: "profile",
     build: pureZookeepergame,
     pill: "✓ Verified margins",
-    /* No display_name on this profile, so the booking dialog addresses them by
-       handle — which is what the page shows too. */
-    consultation: { price: "$150", minutes: 45, name: "Pure_Zookeepergame_2" },
+    /* The display name, not the handle — it is what the page shows, and a
+       booking dialog that addresses you by a different name than the profile
+       above it reads as a different person. */
+    consultation: { price: "$150", minutes: 45, name: "boringfixesguy" },
   },
 };

@@ -80,7 +80,7 @@ const DAILY = build();
 export function pureZookeepergame(months: number, currency: string) {
   return {
     username: "Pure_Zookeepergame_2",
-    display_name: null,
+    display_name: "boringfixesguy",
     bio: "This is the bio of Pure_Zookeepergame_2",
     avatar_url: null,
     website_url: null,
