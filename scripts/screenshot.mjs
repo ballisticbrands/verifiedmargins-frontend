@@ -296,8 +296,11 @@ const PAGES = [
     steps: [{ click: "[data-nav-cta]" }, { select: ["[data-method-select]", "call"] }] },
   { route: "/leaderboard", auth: false, name: "add-business-sellerboard",
     steps: [{ click: "[data-nav-cta]" }, { select: ["[data-method-select]", "sellerboard"] }] },
+  /* The ONLY way into the claim step now: signed out, clicking Connect. The
+     primary button cannot get you there — it is disabled until Amazon's OAuth
+     has actually completed, which is the point. */
   { route: "/leaderboard", auth: false, name: "add-business-claim",
-    steps: [{ click: "[data-nav-cta]" }, { fill: ["input[type=number]", "24"] }, { click: "[data-primary]" }] },
+    steps: [{ click: "[data-nav-cta]" }, { click: "[data-connect] button" }] },
   { route: "/leaderboard", auth: true, name: "add-business-signed-in", click: "[data-nav-cta]" },
   /* Regression: a SIGNED-IN seller clicking Connect must reach Amazon, not the
      claim step. useSession has three states and reading "not authenticated" as

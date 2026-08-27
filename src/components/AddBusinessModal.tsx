@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  updateProfile,
   ApiError,
   GoogleSignInButton,
   Turnstile,
@@ -119,13 +118,13 @@ const METHODS: {
 
 /** The wizard's steps.
  *
- * `details` always runs. `claim` and `identity` are for signed-OUT visitors
- * only — someone already signed in has answered both, and asking again is the
- * kind of form that makes a person close the tab. A returning visitor who
- * signs in at `claim` is finished there: `identity` exists to fill in a
- * profile that does not exist yet, so it must not re-ask someone who has one.
+ * `details` always runs; `claim` is for signed-OUT visitors only. There is no
+ * third step: a claimed profile is editable in place on the seller's own page
+ * (the x.com model — see PublicProfile.tsx), so asking for a bio and handles
+ * inside a modal would be a second, worse editor for fields they are about to
+ * be looking at anyway.
  */
-type Step = "details" | "claim" | "identity";
+type Step = "details" | "claim";
 
 export function AddBusinessModal({ onClose }: { onClose: () => void }) {
   const { status } = useSession();
@@ -135,19 +134,11 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
   const [businessType, setBusinessType] = useState<BusinessType>("amazon_fba");
   const [method, setMethod] = useState<Method>("connect");
   const [marginPct, setMarginPct] = useState("");
-  const [anonymous, setAnonymous] = useState(false);
-  const [xHandle, setXHandle] = useState("");
-  const [redditHandle, setRedditHandle] = useState("");
-  const [linkedinHandle, setLinkedinHandle] = useState("");
   /* 🚧 The 6-digit code is UI only — nothing sends one. See
      FEATURE_VM_2026-08-28_email-six-digit-code in the sellerconnect repo's
      skills/feature-dev/draft/. Kept in state so the shape is right for
      whoever wires it. */
   const [code, setCode] = useState("");
-  /* The profile the claim step resolved. Held so `identity` knows what to
-     write to and where to land afterwards, without a second round trip. */
-  const [claimed, setClaimed] = useState<{ id: string; username: string } | null>(null);
-  const [saving, setSaving] = useState(false);
   /* Lifted out of ConnectSellerCentral: the footer's enablement depends on it,
      and "Add your business" must not be pressable for a business that was
      never actually verified. */
@@ -199,8 +190,7 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
       if (method === "connect") return connected && marginValid;
       return false;
     }
-    if (step === "claim") return emailValid && !magic.pending;
-    return !saving; // identity: every field on it is optional
+    return emailValid && !magic.pending; // claim
   })();
 
   const navigate = useNavigate();
@@ -215,10 +205,7 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
     try {
       localStorage.setItem(
         "vm.addBusiness.draft",
-        JSON.stringify({
-          businessType, method, marginPct, anonymous,
-          xHandle, redditHandle, linkedinHandle,
-        }),
+        JSON.stringify({ businessType, method, marginPct }),
       );
     } catch {
       /* a private window costs the draft, not the signup */
@@ -243,40 +230,6 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
     navigate(username ? `/${username}` : "/profile");
   }
 
-  /** Step 3 commits before it closes.
-   *
-   * Per-step persistence: someone who fills this in and then closes the tab
-   * has still said it. The User and Profile already exist by now — the brand
-   * declares `autoCreateProfile`, so the claim step created both — which is
-   * why this is an update rather than a create.
-   *
-   * A failed save still closes the flow and still lands them on their page:
-   * these fields are all optional and editable there, so blocking the exit on
-   * them would be the worse trade.
-   */
-  async function saveIdentityAndFinish() {
-    if (!claimed) return finish();
-    setSaving(true);
-    try {
-      await updateProfile(claimed.id, {
-        socials: {
-          ...(xHandle.trim() ? { x: xHandle.trim() } : {}),
-          ...(redditHandle.trim() ? { reddit: redditHandle.trim() } : {}),
-          ...(linkedinHandle.trim() ? { linkedin: linkedinHandle.trim() } : {}),
-        },
-        /* "Stay anonymous" means the NAME does not appear; the handle still
-           does. Google sign-in is the path that supplies a name at all, so
-           this is the field it has to suppress. */
-        ...(anonymous ? { display_name: null } : {}),
-      });
-    } catch {
-      /* optional fields, editable on the profile itself — see above */
-    } finally {
-      setSaving(false);
-      finish(claimed.username);
-    }
-  }
-
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!canAdvance) return;
@@ -292,17 +245,14 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
       return;
     }
 
-    if (step === "claim") {
+    {
       /* The real work: this CREATES the account when the address is new, and
          the backend answers identically either way — so neither this code nor
          a bot can tell a new visitor from a returning one. That is also why
          the next step cannot be chosen here; see the effect below, which
          advances once a session actually exists. */
       void magic.onSubmit(e);
-      return;
     }
-
-    void saveIdentityAndFinish();
   }
 
   /* Where a returning visitor and a brand-new one part company.
@@ -333,24 +283,16 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
           // They came to connect; a session was only ever the prerequisite.
           setResumeConnect(false);
           setStep("details");
-        } else if (first) finish(first.username);
-        else setStep("identity");
+          return;
+        }
+        /* Straight to their own page, new seller or returning. The brand
+           declares autoCreateProfile, so claiming created a Profile — a brand
+           new one is empty, and empty is fine: that page IS the editor. */
+        finish(first?.username);
       })
       .catch(() => {
-        if (!cancelled) setStep("identity");
-      })
-      .then(async () => {
-        /* The identity step needs a profile id to write to. autoCreateProfile
-           means one exists by now; re-reading is cheaper than threading it
-           through the branch above. */
-        if (cancelled) return;
-        try {
-          const mine = await listProfiles();
-          const first = mine[0];
-          if (!cancelled && first) setClaimed({ id: first.id, username: first.username });
-        } catch {
-          /* identity will fall back to /profile */
-        }
+        /* Cannot tell which profile is theirs — the resolver route can. */
+        if (!cancelled) finish();
       });
     return () => {
       cancelled = true;
@@ -579,72 +521,6 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
           </section>
         ) : null}
 
-        {step === "identity" ? (
-          <section data-add-business-section="">
-            <p data-add-business-pitch="">
-              All optional. You can change any of it later from your profile.
-            </p>
-
-            {/* A switch, not a checkbox: this reads as a setting with
-                consequences, and the tooltip states them rather than leaving
-                "anonymous" to be guessed at. */}
-            <div data-switch-row="">
-              <button
-                type="button"
-                role="switch"
-                aria-checked={anonymous}
-                onClick={() => setAnonymous((v) => !v)}
-                data-switch=""
-              >
-                <span data-switch-thumb="" aria-hidden="true" />
-              </button>
-              <span data-switch-label="">
-                Stay anonymous
-                <span data-tip="" tabIndex={0} aria-label="What staying anonymous means">
-                  ?
-                  <span role="tooltip" data-tip-body="">
-                    Your name will NOT appear. Your handle will appear. You can still add a bio
-                    and social links.
-                  </span>
-                </span>
-              </span>
-            </div>
-
-            <label data-field="">
-              <span>X handle (optional)</span>
-              <input
-                type="text"
-                placeholder="@yourhandle"
-                value={xHandle}
-                onChange={(e) => setXHandle(e.target.value)}
-                autoComplete="off"
-              />
-            </label>
-
-            <label data-field="">
-              <span>Reddit handle (optional)</span>
-              <input
-                type="text"
-                placeholder="u/yourhandle"
-                value={redditHandle}
-                onChange={(e) => setRedditHandle(e.target.value)}
-                autoComplete="off"
-              />
-            </label>
-
-            <label data-field="">
-              <span>LinkedIn handle (optional)</span>
-              <input
-                type="text"
-                placeholder="in/yourname"
-                value={linkedinHandle}
-                onChange={(e) => setLinkedinHandle(e.target.value)}
-                autoComplete="off"
-              />
-            </label>
-          </section>
-        ) : null}
-
         <p data-add-business-terms="">
           <small>
             By adding your business, you agree to our <Link to="/tos">Terms of Service</Link>.
@@ -662,11 +538,7 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
               : magic.pending
                 ? "Sending…"
                 : "Claim business"
-            : step === "identity"
-              ? saving
-                ? "Saving…"
-                : "Finish"
-              : signedIn
+            : signedIn
                 ? "Add another business"
                 : "Add your business"}
         </button>
