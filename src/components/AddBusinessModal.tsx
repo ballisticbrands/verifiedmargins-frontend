@@ -469,7 +469,6 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
               {method === "connect" ? (
                 <>
                   <ConnectSellerCentral
-                    signedIn={signedIn}
                     onConnected={() => setConnected(true)}
                     onNeedsAccount={() => {
                       setResumeConnect(true);
@@ -512,7 +511,9 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
         {step === "claim" ? (
           <section data-add-business-section="">
             <p data-add-business-pitch="">
-              Your business is ready. Claim it so it&rsquo;s yours to edit, publish and unpublish.
+              {resumeConnect
+                ? "Amazon needs an account to connect to. Claim yours and we'll take you straight back to connect."
+                : "Your business is ready. Claim it so it's yours to edit, publish and unpublish."}
             </p>
 
             {magic.sent ? (
@@ -689,11 +690,9 @@ type Phase = "idle" | "waiting" | "linking" | "linked";
  * instead of at 08:30 UTC.
  */
 function ConnectSellerCentral({
-  signedIn,
   onConnected,
   onNeedsAccount,
 }: {
-  signedIn: boolean;
   onConnected: () => void;
   /** Signed out. `POST /connect/start` 401s without a session AND signs the
    *  OAuth state with the user id — that signed state IS the ownership
@@ -702,6 +701,11 @@ function ConnectSellerCentral({
   onNeedsAccount: () => void;
 }) {
   const brand = useBrand();
+  const { status } = useSession();
+  /* begin() reads the session AFTER an await, where the captured `status`
+     would be the stale one from the render that started it. */
+  const statusRef = useRef(status);
+  statusRef.current = status;
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
   const cancelPoll = useRef<(() => void) | null>(null);
@@ -779,6 +783,15 @@ function ConnectSellerCentral({
     const res = await startConnection("amazon-selling-partner");
     if (res.error || !res.authorization_url) {
       setPhase("idle");
+      /* By now /me has resolved. If it says anonymous, the failure was the
+         401 that POST /connect/start returns without a session — which is a
+         detour to claim, not an error to read. Deciding from the settled
+         session rather than by matching the message keeps this working if
+         the backend ever rewords it. */
+      if (statusRef.current === "anonymous") {
+        onNeedsAccount();
+        return;
+      }
       setError(res.error ?? "We couldn't start the connection. Please try again.");
       return;
     }
@@ -807,21 +820,25 @@ function ConnectSellerCentral({
 
   return (
     <div data-connect="">
-      {/* Never disabled for being signed out — that left the primary action of
-          this screen dead with nothing on the page explaining how to revive it,
-          because "Who are you?" moved to its own step. Signed out, it takes you
-          to claim and returns here. */}
+      {/* 🚨 Detour ONLY when definitively anonymous.
+          `useSession` has THREE states, and reading "not authenticated" as
+          "signed out" makes the third one — loading — behave like the second.
+          A signed-in seller who clicked before /me came back got bounced to
+          the claim step instead of Amazon, which is what this button did on
+          first ship. Optimistically start the connection whenever the answer
+          is not yet no; the server is the authority, and begin() below routes
+          to claim if it turns out there is no session after all. */}
       <button
         type="button"
-        onClick={() => (signedIn ? void begin() : onNeedsAccount())}
+        onClick={() => (status === "anonymous" ? onNeedsAccount() : void begin())}
         disabled={phase !== "idle"}
       >
         {phase === "idle" ? "Connect Seller Central" : "Waiting for Amazon…"}
       </button>
-      {!signedIn ? (
+      {status === "anonymous" ? (
         <p data-field-note="">
           Amazon needs an account to connect to — this takes you to claim yours first, then comes
-          straight back.
+          straight back here.
         </p>
       ) : null}
       {error ? (

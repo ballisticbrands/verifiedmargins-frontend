@@ -299,6 +299,11 @@ const PAGES = [
   { route: "/leaderboard", auth: false, name: "add-business-claim",
     steps: [{ click: "[data-nav-cta]" }, { fill: ["input[type=number]", "24"] }, { click: "[data-primary]" }] },
   { route: "/leaderboard", auth: true, name: "add-business-signed-in", click: "[data-nav-cta]" },
+  /* Regression: a SIGNED-IN seller clicking Connect must reach Amazon, not the
+     claim step. useSession has three states and reading "not authenticated" as
+     "signed out" sent authenticated users to claim while /me was in flight. */
+  { route: "/leaderboard", auth: true, name: "add-business-connect-signedin",
+    steps: [{ click: "[data-nav-cta]" }, { click: "[data-connect] button" }] },
 ];
 
 const browser = await puppeteer.launch({
