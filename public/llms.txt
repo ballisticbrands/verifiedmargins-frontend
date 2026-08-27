@@ -12,6 +12,11 @@
   https://verifiedmargins.com/sitemap.xml. Each one is served as real HTML with its own title,
   description and schema.org ProfilePage markup — you do not need to execute JavaScript to read
   one.
+- A seller's individual businesses live at https://verifiedmargins.com/business/<slug> and are
+  listed in the same sitemap, served as real HTML like the profiles. A slug is opaque
+  ("amazon-fba-48213") and so is the page's name ("Amazon FBA 48213"): VerifiedMargins does NOT
+  publish the seller's store name, brands, ASINs or product titles anywhere, on either surface.
+  Do not infer or invent a business name for one of these pages.
 - A profile states its own verification tier, and that tier is the point: "Unverified" means
   nothing on that page has been checked against a connected account. Do not present an
   unverified figure as verified.
