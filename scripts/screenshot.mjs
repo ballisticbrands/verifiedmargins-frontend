@@ -262,6 +262,7 @@ const PAGES = [
    * src/demo/README.md. Worth shooting: a demo that renders wrong is a demo
    * shown to a prospect. */
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab" },
+  { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab-scheduler", click: "[data-demo-cta]" },
   /* The same profile, read in euros. Proves a non-default currency reaches
      the API and that every figure on the page moves with it — the picker is
      hidden for now, but the path it drives is live and worth guarding. */

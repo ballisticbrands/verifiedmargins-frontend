@@ -1,10 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { PublicProfilePage, useBrand } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { useCurrency } from "@/currency";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DEMOS } from "@/demo/registry";
+import { ConsultationModal } from "@/demo/ConsultationModal";
 
 /**
  * /demo/<slug> — a real app page, rendered against fixture data.
@@ -55,6 +56,7 @@ export function DemoProfile() {
   const brand = useBrand();
   const { currency } = useCurrency();
   const demo = DEMOS[slug];
+  const [booking, setBooking] = useState(false);
 
   /* Synchronous, in the body — see the header note on effect ordering. */
   const armed = useRef(false);
@@ -101,7 +103,7 @@ export function DemoProfile() {
         <strong>Demo</strong>
         <span>Illustrative figures — not a verified profile.</span>
       </div>
-      <div className="vm-form vm-profile">
+      <div className="vm-form vm-profile vm-demo">
         <PublicProfilePage
           username={slug}
           owner={null}
@@ -115,9 +117,27 @@ export function DemoProfile() {
               ]}
             />
           }
-          actions={<Link to="/leaderboard">Back to leaderboard →</Link>}
+          actions={
+            <>
+              {/* The actions slot is the host's, by design — so a demo can add
+                  a control the shared page knows nothing about without forking
+                  it. */}
+              <button type="button" data-demo-cta="" onClick={() => setBooking(true)}>
+                Paid consultation — $200
+              </button>
+              <Link to="/leaderboard">Back to leaderboard →</Link>
+            </>
+          }
         />
       </div>
+      {booking ? (
+        <ConsultationModal
+          name="Afrasiab Khan"
+          priceLabel="$200"
+          minutes={45}
+          onClose={() => setBooking(false)}
+        />
+      ) : null}
     </Shell>
   );
 }

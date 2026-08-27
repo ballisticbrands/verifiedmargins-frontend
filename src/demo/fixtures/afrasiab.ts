@@ -59,8 +59,12 @@ export function afrasiab(months: number, currency: string) {
   return {
     username: "afrasiab",
     display_name: "Afrasiab Khan",
-    bio: "this is a placeholder",
-    avatar_url: null,
+    bio:
+      "$480M Sales in A Year Alone - Founder @ extremebranding.co.uk - Branding & Scaling Amazon Brands to New Heights with a Blend of SEO and Smart PPC strategies",
+    /* Served locally: the LinkedIn CDN URL this came from carries an expiry
+     token (e=…) and blocks hotlinking, so linking it directly would 404 on
+     someone else's machine and again once the token lapsed. */
+    avatar_url: "/demo/afrasiab.jpg",
     website_url: null,
     socials: {
       reddit: "http://reddit.com/u/Smart-Presence",
