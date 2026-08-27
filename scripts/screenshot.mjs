@@ -216,6 +216,10 @@ const LEADERBOARD = {
 };
 
 const ROUTES = [
+  /* Amazon's consent URL. It points back at this stub server so a popup that
+     DOES open lands on something local — the flow under test is what the
+     dialog does before the popup, not what Amazon renders in it. */
+  [/\/v1\/connect\/[^/]+\/start/, { authorization_url: `http://127.0.0.1:${port}/oauth-consent-stub` }],
   [/\/v1\/public\/leaderboard/, LEADERBOARD],
   [/\/v1\/public\/profiles\/e%2F|\/v1\/public\/profiles\/8x2k9/, ESTIMATED],
   [/\/v1\/public\/profiles\/quietseller/, MARGIN_ONLY],
@@ -308,6 +312,16 @@ const PAGES = [
      has actually completed, which is the point. */
   { route: "/leaderboard", auth: false, name: "add-business-claim",
     steps: [{ click: "[data-nav-cta]" }, { click: "[data-connect] button" }] },
+  /* And back out of it. A signed-out seller clicks Connect, is detoured to
+     claim, signs in — and must land on AMAZON, not on step 1 with the same
+     button waiting to be pressed a second time. The panel is `data-armed`
+     here because a popup fired from the return trip is not a user gesture and
+     every browser blocks it; the state holds the consent URL so one tap
+     opens it. If this shot ever shows "Claim your business" again, the
+     detour has stopped coming back. */
+  { route: "/leaderboard", auth: false, name: "add-business-connect-resumed",
+    steps: [{ click: "[data-nav-cta]" }, { click: "[data-connect] button" },
+            { blockPopups: true }, { signIn: true }, { scrollTo: "[data-connect]" }] },
   { route: "/leaderboard", auth: true, name: "add-business-signed-in", click: "[data-nav-cta]" },
   /* Regression: a SIGNED-IN seller clicking Connect must reach Amazon, not the
      claim step. useSession has three states and reading "not authenticated" as
@@ -343,33 +357,40 @@ for (const { route, auth, name, click, storage, steps } of PAGES) {
   await page.emulateMediaFeatures([
     { name: "prefers-color-scheme", value: light ? "light" : "dark" },
   ]);
-  await page.setRequestInterception(true);
-  page.on("request", (r) => {
-    const u = r.url();
-    if (u.includes("api.getdragonbot.com")) {
-      if (r.method() === "OPTIONS") return r.respond({ status: 204, headers: CORS });
-      if (/auth\/me/.test(u)) {
-        return auth
-          ? r.respond({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify(USER) })
-          : r.respond({ status: 401, contentType: "application/json", headers: CORS, body: "{}" });
+  /* Mutable, because one shot needs the session to CHANGE mid-page: a
+     signed-out visitor who signs in somewhere else. `auth` is still the
+     starting value for every other shot. */
+  let authed = Boolean(auth);
+  async function wire(p) {
+    await p.setRequestInterception(true);
+    p.on("request", (r) => {
+      const u = r.url();
+      if (u.includes("api.getdragonbot.com")) {
+        if (r.method() === "OPTIONS") return r.respond({ status: 204, headers: CORS });
+        if (/auth\/me/.test(u)) {
+          return authed
+            ? r.respond({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify(USER) })
+            : r.respond({ status: 401, contentType: "application/json", headers: CORS, body: "{}" });
+        }
+        for (const [re, body] of ROUTES) {
+          if (re.test(u))
+            return r.respond({
+              status: 200,
+              contentType: "application/json",
+              headers: CORS,
+              body: JSON.stringify(inCurrency(body, u)),
+            });
+        }
+        return r.respond({ status: 200, contentType: "application/json", headers: CORS, body: "{}" });
       }
-      for (const [re, body] of ROUTES) {
-        if (re.test(u))
-          return r.respond({
-            status: 200,
-            contentType: "application/json",
-            headers: CORS,
-            body: JSON.stringify(inCurrency(body, u)),
-          });
+      // Never let a screenshot run fire real analytics.
+      if (/googletagmanager|clarity\.ms|connect\.facebook|google-analytics/.test(u)) {
+        return r.abort().catch(() => {});
       }
-      return r.respond({ status: 200, contentType: "application/json", headers: CORS, body: "{}" });
-    }
-    // Never let a screenshot run fire real analytics.
-    if (/googletagmanager|clarity\.ms|connect\.facebook|google-analytics/.test(u)) {
-      return r.abort().catch(() => {});
-    }
-    r.continue().catch(() => {});
-  });
+      r.continue().catch(() => {});
+    });
+  }
+  await wire(page);
   if (auth) await page.evaluateOnNewDocument(() => localStorage.setItem("dragonbot_session", "stub"));
   /* Seeded preferences, read at boot. The currency shot goes through storage
      rather than through the top bar's <select> because that control is hidden
@@ -404,6 +425,37 @@ for (const { route, auth, name, click, storage, steps } of PAGES) {
           el.dispatchEvent(new Event("input", { bubbles: true }));
         }, value)
         .catch(() => console.warn(`  (no ${sel} to fill)`));
+    } else if (st.blockPopups) {
+      /* 🚨 Headless Chrome has NO popup blocker, so a window.open fired
+         outside a user gesture succeeds here and fails on every real
+         browser — the opposite of the situation worth a picture. A blocker
+         returns null, so returning null IS the simulation. */
+      await page.evaluate(() => {
+        window.open = () => null;
+      });
+    } else if (st.scrollTo) {
+      /* The dialog body scrolls independently of the page, so a control below
+         its fold is absent from a fullPage shot. */
+      await page
+        .$eval(st.scrollTo, (el) => el.scrollIntoView({ block: "center" }))
+        .catch(() => console.warn(`  (no ${st.scrollTo} to scroll to)`));
+    } else if (st.signIn) {
+      /* Sign in the way this product actually signs people in: IN ANOTHER
+         TAB. The emailed link opens /magic?token=… wherever the mail app
+         sends it, that page writes the session to localStorage and navigates
+         itself onward, and the tab holding the half-finished wizard is never
+         told — it only ever hears the `storage` event. Setting the key from
+         inside `page` would prove nothing: storage events do not fire in the
+         document that made the change. */
+      authed = true;
+      const other = await context.newPage();
+      await wire(other);
+      await other.goto(`http://127.0.0.1:${port}/login`, { waitUntil: "domcontentloaded", timeout: 45_000 });
+      await other.evaluate(() => localStorage.setItem("dragonbot_session", "stub"));
+      await other.close();
+      // /me, then listProfiles, then POST /connect/start — three round trips
+      // before the panel can settle.
+      await new Promise((r) => setTimeout(r, 1_500));
     }
     await new Promise((r) => setTimeout(r, 220));
   }

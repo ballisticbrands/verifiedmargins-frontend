@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   ApiError,
   GoogleSignInButton,
+  SESSION_KEY,
   Turnstile,
   fetchConnectionOptions,
+  getSessionToken,
   linkConnection,
   listProfiles,
   openOAuthPopup,
@@ -128,7 +130,7 @@ const METHODS: {
 type Step = "details" | "claim";
 
 export function AddBusinessModal({ onClose }: { onClose: () => void }) {
-  const { status } = useSession();
+  const { status, refresh } = useSession();
   const signedIn = status === "authenticated";
 
   const [step, setStep] = useState<Step>("details");
@@ -153,6 +155,16 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
      session. They came here to connect, so claiming returns them to `details`
      to finish that — not onward to `identity`. */
   const [resumeConnect, setResumeConnect] = useState(false);
+  /* Bumped when that return trip lands. Handed to ConnectSellerCentral, which
+     fires Amazon's OAuth on sight of a non-zero value.
+
+     🚨 Returning to `details` is NOT the fix on its own, and shipping only
+     that is the bug this counter exists to close: someone who clicked
+     "Connect Seller Central", was detoured through the claim step and then
+     dropped back on step 1 has to find and press the SAME button a second
+     time to get what they asked for the first time. From their side the click
+     did nothing. So the wizard presses it for them. */
+  const [autoConnect, setAutoConnect] = useState(0);
 
   const ref = useRef<HTMLDialogElement>(null);
   const magic = useMagicLinkForm();
@@ -169,6 +181,36 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
     el.addEventListener("close", handle);
     return () => el.removeEventListener("close", handle);
   }, [onClose]);
+
+  /* `refresh` is a fresh closure every render, so the listener below reads it
+     through a ref — as a dependency it would re-bind on every keystroke. */
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
+  /* The sign-in that finishes the claim step usually happens in ANOTHER TAB.
+   *
+   * The emailed link opens `/magic?token=…` wherever the mail app sends it,
+   * that page redeems the token and writes the session to localStorage, and
+   * then navigates itself to the dashboard. This tab — the one holding the
+   * half-finished wizard — is never told. `useSession` reads /me once on
+   * mount, so without this the modal sits on "Check your email" forever and
+   * the return trip below can never run.
+   *
+   * A `storage` event fires only in the OTHER documents of an origin, which
+   * is exactly the case that needs it, and only when the value actually
+   * changed — so this is a listener, not a poll. Scoped to the session key so
+   * an unrelated write (the currency preference, the draft stash) doesn't
+   * trigger a round trip.
+   */
+  useEffect(() => {
+    if (signedIn) return;
+    const onStorage = (e: StorageEvent) => {
+      // `key` is null when the other tab called clear(); nothing to adopt.
+      if (e.key && e.key !== SESSION_KEY) return;
+      if (getSessionToken()) refreshRef.current();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [signedIn]);
 
   const chosen = METHODS.find((m) => m.value === method)!;
 
@@ -288,8 +330,10 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
         const first = mine[0];
         if (resumeConnect) {
           // They came to connect; a session was only ever the prerequisite.
+          // Back to `details` AND straight on to Amazon — see `autoConnect`.
           setResumeConnect(false);
           setStep("details");
+          setAutoConnect((n) => n + 1);
           return;
         }
         /* Straight to their own page, new seller or returning. The brand
@@ -414,6 +458,7 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
               {method === "connect" ? (
                 <>
                   <ConnectSellerCentral
+                    autoStart={autoConnect}
                     onConnected={(slug) => {
                       setConnected(true);
                       // Null for a flow that connected nothing — `finish`
@@ -496,8 +541,14 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
               <>
                 {/* Google first: one click, and it lands them signed in
                     without an inbox round-trip. Renders nothing when
-                    VITE_GOOGLE_CLIENT_ID is unset. */}
-                <GoogleSignInButton onSuccess={() => {}} onError={() => {}} />
+                    VITE_GOOGLE_CLIENT_ID is unset.
+
+                    🚨 `onSuccess` MUST refresh the session. The button stores
+                    the token itself but nothing re-reads /me, so an empty
+                    handler here left a seller signed in at the backend and
+                    still `anonymous` to this dialog — the claim step just sat
+                    there, and the return trip below never fired. */}
+                <GoogleSignInButton onSuccess={() => refresh()} onError={() => {}} />
                 {config.googleClientId ? <p data-or="">or</p> : null}
 
                 <label data-field="">
@@ -557,7 +608,9 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
 
 // ─── method A: connect (the real one) ────────────────────────────────
 
-type Phase = "idle" | "waiting" | "linking" | "linked";
+/** `armed` is the blocked-popup state: we HAVE Amazon's consent URL and the
+ *  browser refused to open it for us. See `begin`. */
+type Phase = "idle" | "waiting" | "armed" | "linking" | "linked";
 
 /**
  * Amazon's OAuth, run from inside the dialog.
@@ -570,9 +623,14 @@ type Phase = "idle" | "waiting" | "linking" | "linked";
  * instead of at 08:30 UTC.
  */
 function ConnectSellerCentral({
+  autoStart,
   onConnected,
   onNeedsAccount,
 }: {
+  /** Non-zero once the claim step has handed back a session that this panel
+   *  asked for. Fires the consent flow without a second click — the seller
+   *  already made that click, before the detour. */
+  autoStart: number;
   /** Called with the new business's public slug when we could resolve it —
    *  the wizard lands on /business/<slug> rather than on the profile. */
   onConnected: (slug?: string) => void;
@@ -590,6 +648,11 @@ function ConnectSellerCentral({
   statusRef.current = status;
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
+  /* Amazon's consent URL, held only while `phase === "armed"`. Keeping it is
+     what makes the recovery click a bare synchronous window.open — see
+     `openConsent`. The backend signs this state for 30 minutes, so a URL
+     parked here is good for far longer than anyone will stare at the panel. */
+  const [authUrl, setAuthUrl] = useState<string | null>(null);
   const cancelPoll = useRef<(() => void) | null>(null);
 
   const stopPolling = () => {
@@ -675,7 +738,26 @@ function ConnectSellerCentral({
     return () => window.removeEventListener("message", onMessage);
   }, [brand.oauthMessageType, finish]);
 
-  async function begin() {
+  /** Try to put Amazon on screen. `false` means the browser said no. */
+  const openConsent = useCallback(
+    (url: string) => {
+      const popup = openOAuthPopup(url, `${brand.id}-spapi-verify`);
+      if (!popup) return false;
+      setAuthUrl(null);
+      setError(null);
+      setPhase("waiting");
+      // Closing Amazon's consent screen sends no message at all, so without
+      // this the panel waits forever.
+      cancelPoll.current = pollUntilClosed(popup, () => {
+        cancelPoll.current = null;
+        setPhase((p) => (p === "waiting" ? "idle" : p));
+      });
+      return true;
+    },
+    [brand.id],
+  );
+
+  const begin = useCallback(async () => {
     setError(null);
     setPhase("waiting");
     const res = await startConnection("amazon-selling-partner");
@@ -693,19 +775,25 @@ function ConnectSellerCentral({
       setError(res.error ?? "We couldn't start the connection. Please try again.");
       return;
     }
-    const popup = openOAuthPopup(res.authorization_url, `${brand.id}-spapi-verify`);
-    if (!popup) {
-      setPhase("idle");
-      setError("Your browser blocked the Amazon window. Allow popups for this site and try again.");
-      return;
-    }
-    // Closing Amazon's consent screen sends no message at all, so without
-    // this the panel waits forever.
-    cancelPoll.current = pollUntilClosed(popup, () => {
-      cancelPoll.current = null;
-      setPhase((p) => (p === "waiting" ? "idle" : p));
-    });
-  }
+    if (openConsent(res.authorization_url)) return;
+    /* 🚨 Blocked — and on the auto-fired path that is the EXPECTED outcome,
+       not the exception: every browser refuses window.open outside a user
+       gesture, and returning from the claim step is not one. So a blocked
+       popup is not an error message, it is a state: hold the consent URL and
+       show one loud button. That click opens it with no await in front of it,
+       which is the one form of window.open a popup blocker cannot touch. */
+    setAuthUrl(res.authorization_url);
+    setPhase("armed");
+  }, [onNeedsAccount, openConsent]);
+
+  /* The whole point of the detour: they clicked Connect BEFORE the claim
+     step, so nobody should have to click it again after it. */
+  const beginRef = useRef(begin);
+  beginRef.current = begin;
+  useEffect(() => {
+    if (!autoStart) return;
+    void beginRef.current();
+  }, [autoStart]);
 
   if (phase === "linked") {
     return (
@@ -716,8 +804,10 @@ function ConnectSellerCentral({
     );
   }
 
+  const armed = phase === "armed";
+
   return (
-    <div data-connect="">
+    <div data-connect="" data-armed={armed ? "" : undefined}>
       {/* 🚨 Detour ONLY when definitively anonymous.
           `useSession` has THREE states, and reading "not authenticated" as
           "signed out" makes the third one — loading — behave like the second.
@@ -728,11 +818,35 @@ function ConnectSellerCentral({
           to claim if it turns out there is no session after all. */}
       <button
         type="button"
-        onClick={() => (status === "anonymous" ? onNeedsAccount() : void begin())}
-        disabled={phase !== "idle"}
+        onClick={() => {
+          /* Armed: nothing may be awaited here. The consent URL is already in
+             hand precisely so this handler can reach window.open inside the
+             click that triggered it. */
+          if (armed) {
+            if (authUrl && !openConsent(authUrl)) {
+              setError(
+                "Your browser is still blocking the Amazon window. Allow popups for this site, then try again.",
+              );
+            }
+            return;
+          }
+          if (status === "anonymous") return onNeedsAccount();
+          void begin();
+        }}
+        disabled={phase === "waiting" || phase === "linking"}
       >
-        {phase === "idle" ? "Connect Seller Central" : "Waiting for Amazon…"}
+        {armed
+          ? "Continue to Amazon"
+          : phase === "idle"
+            ? "Connect Seller Central"
+            : "Waiting for Amazon…"}
       </button>
+      {armed ? (
+        <p data-field-note="" role="status">
+          You&rsquo;re signed in — this is the Amazon consent screen you asked for. Your browser
+          only opens it on a tap.
+        </p>
+      ) : null}
       {status === "anonymous" ? (
         <p data-field-note="">
           Amazon needs an account to connect to — this takes you to claim yours first, then comes

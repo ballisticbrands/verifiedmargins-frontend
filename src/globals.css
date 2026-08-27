@@ -1566,6 +1566,28 @@ dialog[data-add-business]::backdrop {
 }
 [data-add-business] [data-connect] [data-field-note] { margin: 0.4rem 0 0; }
 
+/* The blocked-popup state. The seller already asked for Amazon once, and the
+   browser refused to open it without a tap — so this button is not one more
+   option on the form, it is the only thing left to do, and it has to read
+   that way or the flow dead-ends while looking finished. Bigger, ringed, and
+   the note under it stops being muted small print. */
+[data-add-business] [data-connect][data-armed] {
+  padding: 0.7rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+[data-add-business] [data-connect][data-armed] button {
+  padding: 0.65rem 0.8rem;
+  font-size: 0.9375rem;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+[data-add-business] [data-connect][data-armed] [data-field-note] {
+  margin-top: 0.55rem;
+  font-size: 0.8125rem;
+  color: var(--foreground);
+}
+
 [data-add-business] [data-toggle] {
   display: flex;
   align-items: flex-start;
