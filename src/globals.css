@@ -1812,3 +1812,23 @@ dialog[data-add-business]::backdrop {
 /* The portalled CTA sits in the socials column, so it matches their width
    rather than hugging its text. */
 [data-profile-actions-row] [data-demo-cta] { width: 100%; margin-top: 0.15rem; }
+
+/* ─── Number entry is data ────────────────────────────────────────────
+ *
+ * A figure being TYPED is still a figure. Number inputs — the blended cost
+ * percentage in settings, the profit margin in the onboarding dialog — were
+ * inheriting the text face, so a value read as one font while it was being
+ * entered and another once it appeared on the page.
+ *
+ * 🚨 LAST IN THE FILE ON PURPOSE. Both `.vm-form` and the dialog set
+ * `font: inherit` on their controls, which resets font-family to the text
+ * face at the same specificity as this rule — so source order is the only
+ * thing deciding it. Moving this block up silently reverts it.
+ */
+input[type="number"],
+.vm-form input[type="number"],
+[data-add-business] input[type="number"] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}

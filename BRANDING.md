@@ -160,52 +160,52 @@ signal. **Scarcity is what makes it legible.** When in doubt, use ink.
 
 ## 4. Typography
 
-**One family: Inconsolata.** Interface and figures alike — headings, bios,
-buttons, nav, revenue, margins, handles. The entire page is set in a
-monospace.
+**Two faces, and the split is words vs. figures.**
 
 ```css
---font-sans: "Inconsolata", "Inconsolata Fallback", ui-monospace,
-             SFMono-Regular, Menlo, Consolas, monospace;
---font-mono: /* the same stack — see 4.3 */
+/* Words: headings, body, labels, buttons, nav, bios, breadcrumbs */
+--font-sans: "Inconsolata", "Inconsolata Fallback", sans-serif;
+
+/* Figures: every number, code and identifier on the site */
+--font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+             "Liberation Mono", monospace;
 ```
 
-### 4.1 Why one mono, for everything
+Both are monospaced, so the page holds one register — the terminal/ledger
+register this product lives in. But they are **not the same face**, and
+that difference is the whole point: a figure should read as a quantity
+lifted out of the prose around it, not as more prose.
 
-The subject of this site is numbers. Setting the words around them in a
-proportional sans and the numbers in a mono says the numbers are a
-special inset inside a marketing page; setting the whole page in the
-register of numbers says the page **is** the numbers. That is the
-difference between a site that reports margins and a site that reads
-like a terminal someone is running their business from.
+🚨 **Inconsolata must never lead `--font-mono`.** It did for a day. Every
+number on the site rendered in the text face, the two stacks were one
+stack wearing two names, and nothing looked broken — which is why it
+survived a review. If you are changing these variables, check a figure
+and a sentence side by side, not the variable declarations.
 
-It is also, precisely, what TrustMRR does — the reference we borrowed
-the profile layout from sets its whole page in Inconsolata. Matching the
-register matters more than matching the layout did: a founder who has
-seen that page recognises this one as the same kind of object.
+### 4.1 Words — Inconsolata
 
-And it retires a problem: the sans/mono boundary had to be adjudicated
-case by case ("is a SKU count prose or data?"). There is no boundary now.
+The face TrustMRR sets its whole page in, and the reason a founder who
+has seen that page recognises this one as the same kind of object. It is
+the one deliberate web font here; everything else is native.
 
-### 4.2 What this cost, honestly
+Everything that is language takes it: headings, body, help text,
+buttons, nav, badges, breadcrumbs, bios, and the LABEL half of every
+data row (`REVENUE (30D)` is a label; `$164K` is not).
 
-This **reverses** the "no web fonts, both stacks native" rule this
-document carried until 2026-08-27. That rule bought a zero-request,
-zero-shift page, and giving it up is a real cost:
+| Role | Size | Weight | Tracking |
+|---|---|---|---|
+| Page title (`h1`) | 1.6rem | 700 | −0.02em |
+| Section (`h2`) | 1.05rem | 650 | −0.01em |
+| Body | 0.95rem | 400 | 0 |
+| Label | 0.875rem | 550 | 0 |
+| Help / meta | 0.8125rem | 400 | 0 |
+| Badge | 0.75rem | 550 | +0.01em |
 
-- **One blocking request** to fonts.googleapis.com + fonts.gstatic.com,
-  preconnected in `index.html`. It is a third-party dependency on the
-  critical path of a page whose entire job is to load fast for a
-  stranger who clicked a link in a DM.
-- **A swap.** `display=swap` means the fallback paints first.
+Line-height **1.55 for prose**, **1.35 for data rows**. Prose caps at
+**62ch** — a mono runs wider per character than a sans, so that cap does
+more work here than it would elsewhere.
 
-The shift is bought back rather than accepted (4.3). If the request ever
-proves costly — a slow region, a Google Fonts outage, a privacy
-objection — **self-host the woff2 subset** rather than reverting to a
-system stack. The typeface is now part of the identity; the delivery
-mechanism is not.
-
-### 4.3 The fallback face
+### 4.2 The fallback face
 
 ```css
 @font-face {
@@ -218,37 +218,37 @@ mechanism is not.
 }
 ```
 
-Local Arial, re-cut to Inconsolata's exact metrics, so the moment the
-real face swaps in **not one line reflows**. Without it a profile
-visibly jumps a beat after paint — on the page a stranger judges us by,
-in the first second they see it. Do not remove this to "simplify."
+Local Arial re-cut to Inconsolata's exact metrics, so when the real face
+swaps in **not one line reflows**. Without it a profile visibly jumps a
+beat after paint — on the page a stranger judges us by, in the first
+second they see it. Do not remove this to "simplify".
 
-Both `--font-sans` and `--font-mono` survive as separate variables even
-though they now resolve to the same stack. That is deliberate: it keeps
-one seam through which a display face could be reintroduced for headings
-alone, without touching a single figure.
+Inconsolata is one blocking request to fonts.googleapis.com +
+fonts.gstatic.com, preconnected in `index.html`. That is a real cost on
+the critical path of a page people open from a DM. If it ever proves too
+expensive — a slow region, an outage, a privacy objection — **self-host
+the woff2 subset**. The typeface is part of the identity; the delivery
+mechanism is not.
 
-### 4.4 Scale
+### 4.3 Figures — the platform's own mono
 
-| Role | Size | Weight | Tracking |
-|---|---|---|---|
-| Page title (`h1`) | 1.6rem | 700 | −0.02em |
-| Section (`h2`) | 1.05rem | 650 | −0.01em |
-| Body | 0.95rem | 400 | 0 |
-| Label | 0.875rem | 550 | 0 |
-| Help / meta | 0.8125rem | 400 | 0 |
-| Badge | 0.75rem | 550 | +0.01em |
+Everything that is a quantity, a code or an identifier:
 
-Line-height **1.55 for prose**, **1.35 for data rows**. Prose is capped
-at **62ch** — help text at full page width is the fastest way to make a
-dense layout unreadable. A mono runs wider per character than a sans, so
-that cap does more work now than it did.
+- revenue, profit, COGS, fees, ad spend
+- margin %, ROI, TACOS
+- units, orders, SKU count, brand count
+- currency codes (`USD`), market codes (`US · CA`), dates, the FX stamp
+- chart axis ticks and tooltip figures
+- the `@handle`, and estimated profiles' opaque ids (`/e/8x2k9`) — an
+  identifier is a token, not a name
+- **number inputs.** A figure being typed is still a figure.
 
-### 4.5 Numbers
+Always with `font-variant-numeric: tabular-nums` and `"tnum" 1`: digits
+share one advance width, so columns align and a changing value never
+reflows its own row.
 
-Tabular figures are no longer something we switch on for a subset of the
-page — they are what the page is made of. Digits share one advance
-width, so columns align and a changing value never reflows its own row.
+It does **not** apply to headings, bios, help text, buttons, badges, or
+a number that appears inside a sentence ("Eight years, two people").
 
 **Writing numbers**
 
@@ -260,10 +260,6 @@ width, so columns align and a changing value never reflows its own row.
   error. A thin margin is not an error.
 - Every headline figure carries its basis in `--muted-foreground`
   beneath it: *"12 months to Jul 2026 · verified"*.
-
-Identifiers — the `@handle`, an estimated profile's opaque id
-(`/e/8x2k9`) — read as tokens rather than names. That is where the
-X/Reddit register comes from, and it now comes for free.
 
 ---
 
