@@ -287,6 +287,11 @@ const PAGES = [
      you?", a signed-in seller does not. It is the one flow this product has,
      so both are worth a picture. */
   { route: "/leaderboard", auth: false, name: "add-business", click: "[data-nav-cta]" },
+  /* The wizard's later steps. Each needs the one before it completed, so the
+     click list is cumulative — a step that only renders after a valid margin
+     cannot be shot any other way. */
+  { route: "/leaderboard", auth: false, name: "add-business-claim",
+    steps: [{ click: "[data-nav-cta]" }, { fill: ["input[type=number]", "24"] }, { click: "[data-primary]" }] },
   { route: "/leaderboard", auth: true, name: "add-business-signed-in", click: "[data-nav-cta]" },
 ];
 
@@ -294,7 +299,7 @@ const browser = await puppeteer.launch({
   executablePath: chromePath(), headless: "new", args: ["--no-sandbox", "--disable-dev-shm-usage"],
 });
 
-for (const { route, auth, name, click, storage } of PAGES) {
+for (const { route, auth, name, click, storage, steps } of PAGES) {
   /* A FRESH context per shot, not just a fresh page.
    *
    * Pages in one browser share an origin's localStorage, so the currency
@@ -360,6 +365,24 @@ for (const { route, auth, name, click, storage } of PAGES) {
 
   await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: "networkidle2", timeout: 45_000 });
   await new Promise((r) => setTimeout(r, 2_000));
+  /* `steps` runs clicks and fills IN ORDER — a wizard step that only appears
+     after a valid field cannot be reached by clicks alone. `click` stays for
+     the single-click cases that predate this. */
+  for (const st of steps ?? []) {
+    if (st.click) {
+      await page.click(st.click).catch(() => console.warn(`  (no ${st.click} to click)`));
+    } else if (st.fill) {
+      const [sel, value] = st.fill;
+      await page
+        .$eval(sel, (el, v) => {
+          const setter = Object.getOwnPropertyDescriptor(el.constructor.prototype, "value")?.set;
+          setter?.call(el, v);
+          el.dispatchEvent(new Event("input", { bubbles: true }));
+        }, value)
+        .catch(() => console.warn(`  (no ${sel} to fill)`));
+    }
+    await new Promise((r) => setTimeout(r, 220));
+  }
   for (const sel of [click].flat().filter(Boolean)) {
     await page.click(sel).catch(() => console.warn(`  (no ${sel} to click)`));
     await new Promise((r) => setTimeout(r, 350));
