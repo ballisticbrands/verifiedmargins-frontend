@@ -17,6 +17,7 @@ import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
 import { Terms } from "@/pages/Terms";
 import { Support } from "@/pages/Support";
+import { useAddBusiness } from "@/AddBusiness";
 
 export default function App() {
   const location = useLocation();
@@ -132,7 +133,11 @@ export default function App() {
       <Route path="/feed" element={<ComingSoon title="Feed" />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/how-verification-works" element={<ComingSoon title="How verification works" />} />
-      <Route path="/verify" element={<ComingSoon title="Verify your business" />} />
+      {/* The old "Verify your business" destination. The nav item is a button
+          now (it opens the flow in place), but this path is in the sitemap,
+          the reserved-username list and any link already shared — so it keeps
+          resolving, and does the same thing the button does. */}
+      <Route path="/verify" element={<OpenAddBusiness />} />
       <Route path="/:username" element={<PublicProfile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -150,6 +155,21 @@ function RootRedirect() {
   return <Navigate to="/leaderboard" replace />;
 }
 
+
+/**
+ * /verify: open the flow, then get out of the way.
+ *
+ * There is no page here to look at — the dialog is the page — so this lands
+ * the visitor on the leaderboard with it open, rather than on a blank screen
+ * that would be behind the dialog when they close it.
+ */
+function OpenAddBusiness() {
+  const { open } = useAddBusiness();
+  useEffect(() => {
+    open();
+  }, [open]);
+  return <Navigate to="/leaderboard" replace />;
+}
 
 /** 🚧 Placeholder for a nav destination that has no page yet. Says so
  *  plainly: a blank screen reads as a bug, and a 404 on a link we put in our

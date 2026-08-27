@@ -2,6 +2,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signOut, useBrand, useSession } from "@ballisticbrands/frontend-shared";
 import { Logo } from "@/components/Logo";
 import { CURRENCIES, SHOW_CURRENCY_PICKER, useCurrency } from "@/currency";
+import { useAddBusiness } from "@/AddBusiness";
+import { AddBusinessModal } from "@/components/AddBusinessModal";
 import {
   DashboardIcon,
   FeedIcon,
@@ -42,6 +44,7 @@ export function Shell({
   const { status } = useSession();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const addBusiness = useAddBusiness();
 
   /* Where "Profile" points: at /profile, a literal, always.
    *
@@ -106,9 +109,17 @@ export function Shell({
           <NavLink to="/how-verification-works" current={pathname} icon={<HowItWorksIcon />}>
             How verification works
           </NavLink>
-          <NavLink to="/verify" current={pathname} icon={<VerifyIcon />}>
-            Verify your business
-          </NavLink>
+
+          {/* The one call to action on the site, and a BUTTON rather than a
+              nav item: it opens the flow over whatever page convinced them,
+              instead of navigating away from it. Its label is the only thing
+              that changes with a session — the flow behind it is the same
+              one, minus the "who are you?" section for people who already
+              told us. */}
+          <button type="button" onClick={addBusiness.open} data-nav-cta="">
+            <VerifyIcon />
+            <span>{status === "authenticated" ? "Add another business" : "Add your business"}</span>
+          </button>
         </nav>
 
         {status === "authenticated" ? (
@@ -147,6 +158,8 @@ export function Shell({
           <a href="https://verifiedmargins.com/support/">Support</a>
         </footer>
       </div>
+
+      {addBusiness.isOpen ? <AddBusinessModal onClose={addBusiness.close} /> : null}
     </div>
   );
 }

@@ -395,6 +395,39 @@ ever competes with the profile header for attention, it is wrong.
 
 ---
 
+### 7.2 "Add your business" — the one call to action
+
+The rail ends in a **button**, not a link: `Add your business` signed out,
+`Add another business` signed in. It is the only filled, accent-coloured
+control in the navigation, and there is exactly one of it on the site.
+
+It opens a dialog rather than navigating. What makes someone want to add
+their business is a profile or a leaderboard they are looking at, and
+sending them to a signup page is where they reconsider — the flow opens
+on top of the thing that convinced them. `/verify` still resolves (it is
+in the sitemap and the reserved-username list) and does the same thing.
+
+Shape of the dialog: a fixed header, a scrolling body, and a **footer
+that does not move**. On a phone this form is taller than the screen,
+and an action button that scrolls away is one the reader has to go
+looking for at the moment they had decided to press it. The footer
+button is **disabled by default** — that is the first state most readers
+see, so it has to look deliberately unavailable rather than broken.
+
+Two things about the copy that are brand rules, not wording:
+
+- **The weakest method says so.** "Business analytics screenshot" is
+  labelled *Poor verification* at the moment someone picks it, not in
+  small print afterwards. A reader deciding whether to believe a profile
+  is the entire product; a method chooser that flatters every option is
+  how that gets sold off a click at a time.
+- **The live pill pulses because it is a live claim.** `342 visitors
+  today` with a pulsing `--verified` dot. 🚧 The number is a constant
+  today. If it ever stops being live, drop the dot — a heartbeat on a
+  hardcoded figure is a lie told in CSS.
+
+---
+
 ## 8. Motion
 
 Almost none. Fades and 120–160ms colour transitions on hover/press;

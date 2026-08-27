@@ -262,6 +262,11 @@ const PAGES = [
      the API and that every figure on the page moves with it — the picker is
      hidden for now, but the path it drives is live and worth guarding. */
   { route: "/acme", auth: false, name: "profile-eur", storage: ["vm.currency", "EUR"] },
+  /* The onboarding dialog, in both its shapes: a stranger gets "Who are
+     you?", a signed-in seller does not. It is the one flow this product has,
+     so both are worth a picture. */
+  { route: "/leaderboard", auth: false, name: "add-business", click: "[data-nav-cta]" },
+  { route: "/leaderboard", auth: true, name: "add-business-signed-in", click: "[data-nav-cta]" },
 ];
 
 const browser = await puppeteer.launch({
@@ -269,7 +274,15 @@ const browser = await puppeteer.launch({
 });
 
 for (const { route, auth, name, click, storage } of PAGES) {
-  const page = await browser.newPage();
+  /* A FRESH context per shot, not just a fresh page.
+   *
+   * Pages in one browser share an origin's localStorage, so the currency
+   * seeded for the EUR shot followed every page opened after it — the
+   * leaderboard quietly rendered in euros, and the screenshot looked like a
+   * bug in the leaderboard. A seeded preference must not outlive the shot
+   * that asked for it. */
+  const context = await browser.createBrowserContext();
+  const page = await context.newPage();
   await page.setViewport(
     mobile
       ? { width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true }
@@ -335,6 +348,7 @@ for (const { route, auth, name, click, storage } of PAGES) {
   await page.screenshot({ path: file, fullPage: true });
   console.log(`  ${route} → ${file}`);
   await page.close();
+  await context.close();
 }
 
 await browser.close();
