@@ -105,6 +105,21 @@ const MONTHS = [
   profit: marginPct === null ? null : Math.round(revenue * (marginPct / 100)),
 }));
 
+/* 30 days for the chart. The backend converts these to the display currency
+   and returns one row per DAY — the chart plots them directly, so a fixture
+   without `daily` exercises only the monthly fallback. Deterministic, and
+   with two zero days so the "a quiet day is a point, not a gap" behaviour is
+   visible rather than merely asserted. */
+const DAYS = Array.from({ length: 30 }, (_, i) => {
+  const d = new Date(Date.UTC(2026, 6, 12 + i));
+  const date = d.toISOString().slice(0, 10);
+  if (i === 11 || i === 12) return { date, revenue: 0, units: 0, orders: 0, profit: 0 };
+  const wobble = [1, 0.82, 0.91, 1.14, 1.06, 0.88, 0.74][d.getUTCDay()];
+  const revenue = Math.round(7700 * wobble * (1 + i * 0.012));
+  return { date, revenue, units: Math.round(revenue / 44), orders: Math.round(revenue / 51),
+           profit: Math.round(revenue * 0.32) };
+});
+
 function publicProfile(over = {}) {
   return {
     username: "acme", display_name: "Acme Brands", bio: "Private-label kitchen gear. Eight years, two people.",
@@ -139,6 +154,7 @@ function publicProfile(over = {}) {
           margin_pct: 24.0, verification: { tier: "self_reported", label: "Self-reported" } },
       ],
       last_30d: { revenue: 231000, profit: 74000, units: 5240, margin_pct: 32.0 },
+      daily: DAYS,
       series: MONTHS, margin_series: MONTHS.map((m) => ({
         month: m.month,
         margin_pct: m.profit === null ? null : (m.profit / m.revenue) * 100,
