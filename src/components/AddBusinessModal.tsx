@@ -317,11 +317,7 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
       <form id="add-business-form" onSubmit={submit} data-add-business-scroll="">
         <header data-add-business-head="">
           <h2 id="add-business-title">
-            {step === "details"
-              ? "Add your business"
-              : step === "claim"
-                ? "Claim your business"
-                : "Last step — who are you?"}
+            {step === "details" ? "Add your business" : "Claim your business"}
           </h2>
           {/* 🚧 Placeholder count. The dot pulses because "today" is a live
               claim; if the number ever stops being live, drop the dot. */}
