@@ -786,6 +786,41 @@ a, button, [role="button"] {
   font-size: 0.9375rem;
   color: var(--foreground);
 }
+/* ─── The card is a LINK to that business's own page ──────────────────
+ *
+ * /business/<slug>, shipped by FEATURE_VM_2026-08-28_business-detail-page
+ * with nothing pointing at it until now. Two decisions worth keeping:
+ *
+ *   1. THE ANCHOR IS SMALL, THE TARGET IS THE WHOLE CARD. The <a> wraps
+ *      only the (blurred) name, and a stretched ::after makes the card
+ *      clickable. Wrapping the whole <article> in an <a> instead would
+ *      make the link's accessible name the entire card — platform, three
+ *      figures and a badge — which is unusable in a link list.
+ *   2. THE BLUR IS UNTOUCHED. The name inside stays blurred and
+ *      pointer-events: none; hit-testing falls through to the anchor that
+ *      contains it, and the overlay below covers the rest of the card.
+ */
+.vm-profile [data-business] { position: relative; }
+.vm-profile [data-business-link] {
+  color: inherit;
+  text-decoration: none;
+}
+.vm-profile [data-business-link]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+}
+.vm-profile [data-business]:has([data-business-link]:hover) {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+/* The focus ring is on the overlay, so a keyboard user sees the CARD
+   highlighted — the same thing a mouse user is about to click. */
+.vm-profile [data-business-link]:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .vm-profile [data-business-sub] {
   margin: 0.25rem 0 0;
   font-size: 0.8125rem;
