@@ -1662,11 +1662,13 @@ dialog[data-add-business]::backdrop {
    it can reach a real profile. These render features the product does not
    have; see src/demo/README.md. */
 
-/* "Verified margins" beside the name. Attached with ::after rather than by
-   editing the shared page: the header is rendered by frontend-shared, and a
-   demo must not fork it to add a pill. */
-.vm-demo [data-profile-identity] h1::after {
-  content: "✓ Verified margins";
+/* A pill beside the name. Attached with ::after rather than by editing the
+   shared page: the header comes from frontend-shared and a demo must not fork
+   it. Gated on [data-demo-pill] and its text comes from --demo-pill, so it
+   appears on the demos that asked for one and NOT on the ones that did not —
+   which is what scoping it to .vm-demo alone got wrong. */
+.vm-demo[data-demo-pill] [data-profile-identity] h1::after {
+  content: var(--demo-pill);
   display: inline-block;
   margin-left: 0.6rem;
   padding: 0.15rem 0.5rem;
@@ -1781,9 +1783,9 @@ dialog[data-add-business]::backdrop {
    revenue". This demo shows 12 cards but claims 142 — swap the text, keep the
    element's box so the header does not reflow. Proper fix is an optional
    `businesses_total` in the payload; see src/demo/README.md. */
-.vm-demo [data-verified-count] { visibility: hidden; position: relative; }
-.vm-demo [data-verified-count]::after {
-  content: "142 businesses with verified profits";
+.vm-demo[data-demo-count] [data-verified-count] { visibility: hidden; position: relative; }
+.vm-demo[data-demo-count] [data-verified-count]::after {
+  content: var(--demo-count);
   visibility: visible;
   position: absolute;
   inset: 0;

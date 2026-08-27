@@ -67,6 +67,7 @@ export const PUBLIC_PAGES = [
  * a line here — see src/demo/README.md. */
 export const DEMO_PAGES = [
   '/demo/afrasiab',
+  '/demo/Pure_Zookeepergame_2',
 ];
 
 export const APP_ROUTES = [

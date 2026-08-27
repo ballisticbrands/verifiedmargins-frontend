@@ -278,6 +278,7 @@ const PAGES = [
    * src/demo/README.md. Worth shooting: a demo that renders wrong is a demo
    * shown to a prospect. */
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab" },
+  { route: "/demo/Pure_Zookeepergame_2", auth: false, name: "demo-zookeeper" },
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab-scheduler", click: "[data-demo-cta]" },
   /* The same profile, read in euros. Proves a non-default currency reaches
      the API and that every figure on the page moves with it — the picker is

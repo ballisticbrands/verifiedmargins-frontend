@@ -5,7 +5,7 @@ import { PublicProfilePage, useBrand } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { useCurrency } from "@/currency";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { DEMOS } from "@/demo/registry";
+import { findDemo } from "@/demo/registry";
 import { ConsultationModal } from "@/demo/ConsultationModal";
 
 /**
@@ -56,7 +56,7 @@ export function DemoProfile() {
   const { slug = "" } = useParams();
   const brand = useBrand();
   const { currency } = useCurrency();
-  const demo = DEMOS[slug];
+  const demo = findDemo(slug);
   const [booking, setBooking] = useState(false);
   /* The CTA belongs UNDER the social buttons, which the shared page renders in
    * its own column ([data-profile-actions-row]) — a slot the host is not given.
@@ -123,7 +123,17 @@ export function DemoProfile() {
         <strong>Demo</strong>
         <span>Illustrative figures — not a verified profile.</span>
       </div>
-      <div className="vm-form vm-profile vm-demo">
+      <div
+        className="vm-form vm-profile vm-demo"
+        data-demo-pill={demo.pill ? "" : undefined}
+        data-demo-count={demo.countLabel ? "" : undefined}
+        style={
+          {
+            ...(demo.pill ? { "--demo-pill": JSON.stringify(demo.pill) } : {}),
+            ...(demo.countLabel ? { "--demo-count": JSON.stringify(demo.countLabel) } : {}),
+          } as React.CSSProperties
+        }
+      >
         <PublicProfilePage
           username={slug}
           owner={null}
@@ -140,19 +150,19 @@ export function DemoProfile() {
 
         />
       </div>
-      {actionsRow
+      {actionsRow && demo.consultation
         ? createPortal(
             <button type="button" data-demo-cta="" onClick={() => setBooking(true)}>
-              Paid consultation — $200
+              Paid consultation — {demo.consultation.price}
             </button>,
             actionsRow,
           )
         : null}
-      {booking ? (
+      {booking && demo.consultation ? (
         <ConsultationModal
-          name="Afrasiab Khan"
-          priceLabel="$200"
-          minutes={45}
+          name={demo.consultation!.name}
+          priceLabel={demo.consultation!.price}
+          minutes={demo.consultation!.minutes}
           onClose={() => setBooking(false)}
         />
       ) : null}
