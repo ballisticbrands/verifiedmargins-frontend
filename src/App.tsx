@@ -12,6 +12,7 @@ import { Leaderboard } from "@/pages/Leaderboard";
 import { Settings } from "@/pages/Settings";
 import { Shell } from "@/pages/Shell";
 import { PublicProfile } from "@/pages/PublicProfile";
+import { Business } from "@/pages/Business";
 import { DemoProfile } from "./pages/DemoProfile";
 import { ProfileRedirect } from "@/pages/ProfileRedirect";
 import { About } from "@/pages/About";
@@ -145,6 +146,17 @@ export default function App() {
           BEFORE /:username: "demo" is a path segment, not a handle, and the
           two-segment shape would otherwise fall through to the catch-all. */}
       <Route path="/demo/:slug" element={<DemoProfile />} />
+      {/* ONE business, rather than the seller's whole portfolio — the page the
+          add-business wizard lands on and the natural thing to share. Two
+          segments, so /:username could not shadow it either way, but the
+          ordering rule in this file is load-bearing and worth honouring.
+          "business" is in the backend's RESERVED_USERNAMES so nobody can
+          register the handle and sit one segment away from every business
+          page. Slugs are dynamic and unbounded, so postbuild-spa-routes.mjs
+          cannot stub them — scripts/build-businesses.mjs emits a real
+          index.html per published business instead, exactly as
+          build-profiles.mjs does for profiles. */}
+      <Route path="/business/:slug" element={<Business />} />
       <Route path="/:username" element={<PublicProfile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

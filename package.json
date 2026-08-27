@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/check-site-constants.mjs && tsc -b && vite build && node scripts/build-profiles.mjs && node scripts/postbuild-spa-routes.mjs && node scripts/generate-sitemap.mjs",
+    "build": "node scripts/check-site-constants.mjs && tsc -b && vite build && node scripts/build-profiles.mjs && node scripts/build-businesses.mjs && node scripts/postbuild-spa-routes.mjs && node scripts/generate-sitemap.mjs",
     "preview": "vite preview",
     "verify:events": "node scripts/verify-events.mjs",
     "test": "node scripts/test-meta-events.mjs",

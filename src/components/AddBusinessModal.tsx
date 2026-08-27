@@ -4,6 +4,7 @@ import {
   ApiError,
   GoogleSignInButton,
   Turnstile,
+  fetchConnectionOptions,
   linkConnection,
   listProfiles,
   openOAuthPopup,
@@ -143,6 +144,11 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
      and "Add your business" must not be pressable for a business that was
      never actually verified. */
   const [connected, setConnected] = useState(false);
+  /* The slug of the business they just connected, when we could resolve it.
+     Null through the whole flow for the methods that connect nothing (a video
+     call, SellerBoard), which is why `finish` still has its profile
+     fallbacks — this is a better landing, not the only one. */
+  const [businessSlug, setBusinessSlug] = useState<string | null>(null);
   /* Set when Connect sent a signed-out visitor to `claim` just to get a
      session. They came here to connect, so claiming returns them to `details`
      to finish that — not onward to `identity`. */
@@ -212,22 +218,23 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
     }
   }
 
-  /** Where a finished flow lands: the seller's own public page.
+  /** Where a finished flow lands, best destination first.
    *
-   * Prefers the handle we already resolved — a direct /:username push, which
-   * is the page they just earned. Falls back to /profile, the resolver route,
-   * when the flow finished without one (a signed-in seller adding a second
-   * business never visits the claim step, so never learns their handle here).
-   *
-   * 🚧 `/business/:slug` does not exist yet — no route, no page, no slug on
-   * the backend — so a business-scoped landing is not an option today. Brief:
-   * FEATURE_VM_2026-08-28_business-detail-page in the sellerconnect repo's
-   * skills/feature-dev/draft/.
+   * 1. `/business/<slug>` — the business they JUST added, which is the thing
+   *    they came here to make and the thing they will want to share. It can
+   *    say "not live yet" for the first few hours (the page resolves that
+   *    for its owner and only for its owner), which is still a truthful
+   *    answer about the business they created rather than a detour.
+   * 2. `/<username>` — their whole portfolio, when the flow connected
+   *    nothing (a video call, SellerBoard) but we resolved their handle.
+   * 3. `/profile` — the resolver route, when we know neither. A signed-in
+   *    seller adding a second business never visits the claim step, so never
+   *    learns their handle here.
    */
   function finish(username?: string) {
     stash();
     ref.current?.close();
-    navigate(username ? `/${username}` : "/profile");
+    navigate(businessSlug ? `/business/${businessSlug}` : username ? `/${username}` : "/profile");
   }
 
   function submit(e: React.FormEvent) {
@@ -407,7 +414,12 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
               {method === "connect" ? (
                 <>
                   <ConnectSellerCentral
-                    onConnected={() => setConnected(true)}
+                    onConnected={(slug) => {
+                      setConnected(true);
+                      // Null for a flow that connected nothing — `finish`
+                      // falls back to the profile in that case.
+                      setBusinessSlug(slug ?? null);
+                    }}
                     onNeedsAccount={() => {
                       setResumeConnect(true);
                       setStep("claim");
@@ -561,7 +573,9 @@ function ConnectSellerCentral({
   onConnected,
   onNeedsAccount,
 }: {
-  onConnected: () => void;
+  /** Called with the new business's public slug when we could resolve it —
+   *  the wizard lands on /business/<slug> rather than on the profile. */
+  onConnected: (slug?: string) => void;
   /** Signed out. `POST /connect/start` 401s without a session AND signs the
    *  OAuth state with the user id — that signed state IS the ownership
    *  binding, so this cannot be worked around client-side. The wizard detours
@@ -592,6 +606,7 @@ function ConnectSellerCentral({
       onConnected();
       return;
     }
+    let slug: string | undefined;
     try {
       // Their own profile — created on signup, so there is one.
       const mine = await listProfiles();
@@ -606,6 +621,21 @@ function ConnectSellerCentral({
               ? (err.body as { error_code?: string } | undefined)?.error_code
               : undefined;
           if (code !== "already_linked") throw err;
+        }
+        /* The new business's public address, so the wizard can land on the
+           page it just created. Read from the caller's OWN connection list
+           (owner-scoped by construction) rather than from the link response,
+           which the already_linked path above never produces. `slug` is on
+           the wire but not yet in the shared package's ConnectionOption type,
+           so it is widened here rather than republishing the package for one
+           optional field. Best-effort: without it we land on the profile. */
+        try {
+          const options = await fetchConnectionOptions(profileId);
+          slug = (options as Array<{ id: string; slug?: string }>).find(
+            (o) => o.id === connectionId,
+          )?.slug;
+        } catch {
+          /* the profile landing is a fine fallback */
         }
         // Best-effort: a failure here costs a wait, not the connection.
         try {
@@ -623,7 +653,7 @@ function ConnectSellerCentral({
        profile can still have failed above — that is recoverable in Settings,
        and refusing to let them finish over it would send them back through
        Amazon to create a second connection. */
-    onConnected();
+    onConnected(slug);
   }, [onConnected]);
 
   useEffect(() => {

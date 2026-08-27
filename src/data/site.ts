@@ -21,3 +21,12 @@ export const BRAND_NAME = "VerifiedMargins";
 export function profilePath(username: string): string {
   return `/${username}/`;
 }
+
+/** ONE business's public URL path — the share target for a single brand's
+ *  numbers, rather than the seller's whole portfolio. Trailing slash for the
+ *  same reason as `profilePath`: scripts/build-businesses.mjs writes these as
+ *  directories, so the unslashed form 301s.
+ *  🚨 Twin of the same function in site.mjs. */
+export function businessPath(slug: string): string {
+  return `/business/${slug}/`;
+}

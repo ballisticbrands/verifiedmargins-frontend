@@ -13,6 +13,13 @@ export const SITE = 'https://verifiedmargins.com';
 export const API_BASE = 'https://api.verifiedmargins.com';
 export const BRAND_NAME = 'VerifiedMargins';
 
+/* ONE business's public URL path. Twin of site.ts's businessPath — trailing
+ * slash, because scripts/build-businesses.mjs writes these as directories and
+ * the unslashed form 301s. */
+export function businessPath(slug) {
+  return `/business/${slug}/`;
+}
+
 /* The authenticated app's routes.
  *
  * 🚨 ONE list, read by scripts/postbuild-spa-routes.mjs (which writes their
