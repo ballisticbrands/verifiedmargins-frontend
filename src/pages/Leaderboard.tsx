@@ -67,7 +67,18 @@ function initials(name: string): string {
   return (parts[0]![0]! + parts[1]![0]!).slice(0, 2);
 }
 
-export function Leaderboard() {
+export function Leaderboard({
+  banner,
+}: {
+  /* A note rendered above the board, inside the content column. The only
+   * caller is the /demo/leaderboard page (src/pages/DemoLeaderboard.tsx),
+   * which has to mark its figures as illustrative and cannot wrap this
+   * component to do it — the Shell below is ours, so anything outside it
+   * lands beside the nav rail. A prop, rather than a fork of this page,
+   * because a forked demo drifts from the real one the first time either
+   * changes. Undefined everywhere else, which renders nothing. */
+  banner?: React.ReactNode;
+} = {}) {
   const brand = useBrand();
   const { currency } = useCurrency();
   const [mode, setMode] = useState<Mode>("founder");
@@ -103,6 +114,7 @@ export function Leaderboard() {
 
   return (
     <Shell width="profile">
+      {banner}
       <div className="vm-form vm-profile">
         <h1>Leaderboard</h1>
         <p>

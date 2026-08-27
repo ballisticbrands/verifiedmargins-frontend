@@ -280,6 +280,12 @@ const PAGES = [
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab" },
   { route: "/demo/Pure_Zookeepergame_2", auth: false, name: "demo-zookeeper" },
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab-scheduler", click: "[data-demo-cta]" },
+  { route: "/demo/leaderboard", auth: false, name: "demo-leaderboard" },
+  /* The second axis. Its rows are the SAME businesses rolled up differently,
+     so a shot of only "By founder" would not show whether the tab is wired to
+     anything — both boards look plausible on their own. */
+  { route: "/demo/leaderboard", auth: false, name: "demo-leaderboard-business",
+    steps: [{ click: "[data-tabs] button:nth-of-type(2)" }] },
   /* The same profile, read in euros. Proves a non-default currency reaches
      the API and that every figure on the page moves with it — the picker is
      hidden for now, but the path it drives is live and worth guarding. */

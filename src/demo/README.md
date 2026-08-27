@@ -2,20 +2,37 @@
 
 A demo renders a **real app page against fixture data**. The layout is never
 reimplemented here: `DemoProfile` mounts the same `PublicProfilePage` the
-public profile uses and answers the one request it makes. So a demo cannot
+public profile uses, `DemoLeaderboard` mounts the same `Leaderboard` that `/`
+serves, and each answers the one request its page makes. So a demo cannot
 drift from production, and a change to the real page shows up in every demo
 for free.
 
 Demos may show features that do not exist yet. They are `noindex` and
 `Disallow`ed, and must stay that way.
 
+## Kinds
+
+`kind` in the registry picks which page renders the fixture, and
+`src/pages/Demo.tsx` is the only place that switches on it.
+
+| kind | page | fixture signature | endpoint answered |
+| --- | --- | --- | --- |
+| `profile` | `PublicProfilePage` | `(months, currency) => payload` | `/v1/public/profiles/:username` |
+| `leaderboard` | `Leaderboard` | `(mode, currency) => payload` | `/v1/public/leaderboard?by=&currency=` |
+
+A third kind is a case in `Demo.tsx` and a component beside it — not a branch
+inside an existing demo page.
+
 ## Adding one
 
-1. **Write the fixture** — `src/demo/fixtures/<slug>.ts`, exporting
-   `(months, currency) => payload`. The payload shape is exactly what
-   `GET /v1/public/profiles/:username` returns; see `PublicProfile` in
-   `@ballisticbrands/frontend-shared/dist/lib/profiles.d.ts`. Copy
-   `afrasiab.ts` as the worked example.
+1. **Write the fixture** — `src/demo/fixtures/<slug>.ts`. For a `profile`, the
+   payload shape is exactly what `GET /v1/public/profiles/:username` returns;
+   see `PublicProfile` in
+   `@ballisticbrands/frontend-shared/dist/lib/profiles.d.ts`, and copy
+   `afrasiab.ts` as the worked example. For a `leaderboard` there is **no
+   shared client to check against** — `src/pages/Leaderboard.tsx` calls
+   `apiFetch` and declares `Board`/`Entry` locally, so that interface is the
+   whole contract; copy `leaderboard.ts`.
 2. **Register it** — add a line to `DEMOS` in `src/demo/registry.ts`.
 3. **Give it a URL that answers 200** — add `'/demo/<slug>'` to `DEMO_PAGES`
    in `src/data/site.mjs`. That one list feeds `APP_ROUTES`, which gets the
@@ -23,17 +40,31 @@ Demos may show features that do not exist yet. They are `noindex` and
    sitemap. Skipping this step still works when clicked from inside the app,
    but a cold hit on the URL answers 404 — which is exactly what
    `postbuild-spa-routes.mjs` exists to prevent.
+4. **Shoot it** — add an entry to `PAGES` in `scripts/screenshot.mjs` and
+   look at the PNG. A demo that renders wrong is a demo shown to a prospect.
 
-That is the whole checklist. No route change is needed: `/demo/:slug` is
-already declared.
+No route change is needed: `/demo/:slug` is already declared.
+
+## The fetch seam
+
+`src/demo/harness.tsx` holds `useDemoFetch`, the banner and the noindex meta.
+Every demo kind shares them, because the lifecycle rules are subtle: the patch
+is installed **synchronously in the component body** (a parent's effect runs
+AFTER its children's, so a mount effect is already too late — the real page
+has sent its request), keyed by responder identity so a double-mount cannot
+leave a dangling override, and re-installed from the effect so StrictMode's
+simulated remount puts it back instead of tearing it down in dev.
 
 ## The demo banner
 
-`DemoProfile` renders a "Demo — illustrative figures" note above the page. It
-is the one deliberate deviation from the real layout, and it is there because
-the page is otherwise indistinguishable from a genuinely verified profile.
-Delete that block in `src/pages/DemoProfile.tsx` if a demo needs to look
-untouched.
+Every demo renders a "Demo — illustrative figures" note above the page. It is
+the one deliberate deviation from the real layout, and it is there because the
+page is otherwise indistinguishable from a genuinely verified one. Drop
+`<DemoBanner />` from a demo page if that demo needs to look untouched.
+
+`Leaderboard` takes it as a `banner` prop rather than being wrapped, because
+that page renders its own `Shell` — anything wrapped around it lands beside
+the nav rail instead of above the board.
 
 ## Two contracts the shared page enforces (learned the hard way)
 

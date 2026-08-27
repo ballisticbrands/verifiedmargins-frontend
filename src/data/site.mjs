@@ -75,6 +75,12 @@ export const PUBLIC_PAGES = [
 export const DEMO_PAGES = [
   '/demo/afrasiab',
   '/demo/Pure_Zookeepergame_2',
+  /* The front door with a board on it. NOT a duplicate of '/leaderboard' in
+   * PUBLIC_PAGES above: that one is the real page and is indexable on
+   * purpose, this one is the same page over invented figures and must carry
+   * the `Disallow:`. Two URLs, opposite crawl rules — which is exactly why
+   * demos live in their own list. */
+  '/demo/leaderboard',
 ];
 
 export const APP_ROUTES = [

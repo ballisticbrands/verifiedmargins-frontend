@@ -2,7 +2,7 @@
  *
  * A demo renders a REAL app page against fixture data, so it can never drift
  * from what production looks like — the layout is not reimplemented here, it
- * is the same component the public profile uses. See ./README.md to add one.
+ * is the same component the app uses. See ./README.md to add one.
  *
  * 🚧 Demos may show features that do not exist yet. They are noindex and
  * Disallow'd (site.mjs DEMO_PAGES → APP_ROUTES), and must stay that way.
@@ -10,14 +10,30 @@
 
 import { afrasiab } from "./fixtures/afrasiab";
 import { pureZookeepergame } from "./fixtures/pure-zookeepergame";
+import { leaderboard } from "./fixtures/leaderboard";
+
+/**
+ * `kind` picks WHICH page renders the fixture, and each kind's fixture answers
+ * a different endpoint with different arguments — so the two are one choice,
+ * not two. Modelling them as a union rather than as one struct with a `kind`
+ * flag is what stops a leaderboard demo from being handed a `consultation`
+ * button it has nowhere to put, or a profile builder from being called with a
+ * leaderboard's axis. src/pages/Demo.tsx switches on it.
+ */
+export type Demo = ProfileDemo | LeaderboardDemo;
 
 /** Builds the payload GET /v1/public/profiles/:username would return. */
-export type DemoBuilder = (months: number, currency: string) => unknown;
+export type ProfileBuilder = (months: number, currency: string) => unknown;
 
-export interface Demo {
-  /** Which app page to render the fixture through. */
+/** Builds the payload GET /v1/public/leaderboard?by=…&currency=… returns. */
+export type LeaderboardBuilder = (
+  mode: "founder" | "business",
+  currency: string,
+) => unknown;
+
+export interface ProfileDemo {
   kind: "profile";
-  build: DemoBuilder;
+  build: ProfileBuilder;
   /* Everything below is PER DEMO on purpose. These started scoped to
      `.vm-demo`, which meant the first demo's pill, its rewritten
      business-count and its consultation button all appeared on the second
@@ -32,6 +48,11 @@ export interface Demo {
   countLabel?: string;
   /** Adds a booking CTA beside the social buttons. */
   consultation?: { price: string; minutes: number; name: string };
+}
+
+export interface LeaderboardDemo {
+  kind: "leaderboard";
+  build: LeaderboardBuilder;
 }
 
 /** Case-insensitive: a handle carries its case ("Pure_Zookeepergame_2") but a
@@ -59,5 +80,13 @@ export const DEMOS: Record<string, Demo> = {
        booking dialog that addresses you by a different name than the profile
        above it reads as a different person. */
     consultation: { price: "$150", minutes: 45, name: "boringfixesguy" },
+  },
+  /* The front door with a populated board. `/leaderboard` against an empty or
+     three-row production database shows the layout but not the argument; this
+     shows what the page is FOR, and is the one link worth sending someone who
+     has never seen the product. */
+  leaderboard: {
+    kind: "leaderboard",
+    build: leaderboard,
   },
 };
