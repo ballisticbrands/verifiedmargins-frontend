@@ -340,37 +340,40 @@ Dense, not airy. This is a tool, and the reader is scanning.
 - Focus is always visible: 2px `--accent` outline, 1px offset. Never
   `outline: none`.
 
-### 7.1 The chrome: a left rail, then a bar over the content
+### 7.1 The chrome: a left rail, and a breadcrumb inside the header
 
 Reading order down the page:
 
 1. **Left rail** — the wordmark and the site's navigation, sticky.
-2. **Top bar** — heads the CONTENT column, beside the rail rather than
-   above it. Breadcrumb left; currency right when it is shown.
-3. **The page.**
+2. **The page.** On a profile that begins with the breadcrumb, on the
+   same line as the first action button, directly above the name and
+   picture.
 
-The bar does **not** span the viewport. A full-bleed row sat above the
-wordmark and read as browser chrome — something the host put there — not
-as part of this site. Nothing precedes our own logo.
+There is no bar across the top. Two versions of one were tried and both
+were wrong: full-bleed above everything, it sat over our own wordmark
+and read as browser chrome; boxed at the head of the content column, it
+was a filled, bordered object competing with the profile header
+immediately beneath it.
 
-It is **bordered on all four sides**, on `--muted`, at `--radius`. A
-lone bottom rule was the wrong instrument: at the top of a column whose
-sections are already separated by hairlines, it is indistinguishable
-from the profile's own first divider. A closed box is a different *kind*
-of thing, which is what it is.
+**Breadcrumbs are plain text** — no fill, no border, `--muted-foreground`
+at 0.8125rem. Orientation, not an object: the quietest thing on the page
+you can still read. The `›` separators are the exception, and carry
+`--foreground`; at this size a `--border`-coloured glyph is a colour
+chosen for 1px rules, and a separator you have to hunt for is not
+separating anything.
 
-The **breadcrumb is profile-pages-only.** A profile is the one page
-strangers arrive at cold, from a link, with no idea what site they are
-on; `VerifiedMargins › Founder › Acme Brands` answers that in one line
-and gives them two ways further in. Every other page was reached through
-our own navigation, which already says where they are — a breadcrumb
-there is furniture. The `›` separators carry `--foreground`: at 13px a
-`--border`-coloured glyph is a colour chosen for 1px rules, and a
-separator you have to look for is not separating anything.
+**Profile pages only.** A profile is the one page strangers arrive at
+cold, from a link, with no idea what site they are on;
+`VerifiedMargins › Founder › Acme Brands` answers that in one line and
+gives them two ways further in. Every other page was reached through our
+own navigation, which already says where they are — a breadcrumb there
+is furniture.
 
-**A bar with nothing in it does not render.** With the currency control
-standing down, a page that passes no crumbs would otherwise head its
-content with an empty box.
+The breadcrumb lives in the shared page's `breadcrumb` slot rather than
+in the shell, because the header owns the alignment: its left column
+stacks crumb over identity, and the actions column top-aligns with that
+column rather than with the avatar. That is what puts **Share on the
+breadcrumb's line**.
 
 #### The currency picker — built, wired, not shown
 

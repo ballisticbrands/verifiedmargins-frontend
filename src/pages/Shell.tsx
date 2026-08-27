@@ -26,22 +26,11 @@ import {
  * That is how an inherited parent brand shipped in the header of every page on
  * dragonrestock-frontend. When real branding lands, keep it a single node.
  */
-export interface Crumb {
-  label: string;
-  /** Omitted on the last crumb — you are already there. */
-  to?: string;
-}
-
 export function Shell({
   children,
   width = "narrow",
-  crumbs,
 }: {
   children: React.ReactNode;
-  /** Breadcrumb for the top bar. Profile pages only for now: they are the
-   *  only pages you can arrive at from outside with no idea what site you
-   *  are on, which is the whole job of a breadcrumb. */
-  crumbs?: Crumb[];
   /** `narrow` is an auth card. `wide` is for forms and dashboards — the
    *  settings page at auth-card width was a big part of why it was unusable.
    *  `profile` is wider still: a public profile is a page people land on
@@ -139,11 +128,12 @@ export function Shell({
       </aside>
 
       <div data-app-content="" className={max}>
-        {/* Top of the CONTENT, not of the window: the rail's wordmark and
-            navigation come first, both in the DOM and on the page. A bar
-            spanning the whole viewport sat above the logo and read as
-            browser chrome rather than as part of this site. */}
-        <TopBar crumbs={crumbs} />
+        {/* Site chrome — today, only the currency control, which is itself
+            standing down (SHOW_CURRENCY_PICKER), so this renders nothing.
+            The breadcrumb used to live here and does not any more: it
+            belongs beside the name it introduces, so it moved into the
+            profile header (components/Breadcrumbs.tsx). */}
+        <TopBar />
 
         <main>{children}</main>
 
@@ -162,47 +152,25 @@ export function Shell({
 }
 
 /**
- * The row above everything: where you are on the left, what currency you are
- * reading in on the right.
+ * Site chrome at the head of the content column.
  *
- * It heads the content column, beneath nothing and beside the rail. Bordered
- * on all four sides so it reads as its own object rather than as a rule drawn
- * across the top of the profile.
+ * Currently that is the currency control and nothing else — and it is hidden
+ * (SHOW_CURRENCY_PICKER), so today this renders nothing at all rather than an
+ * empty strip. Kept as the slot: the currency is a SITE-wide reader
+ * preference (the leaderboard reads it too), so it cannot live inside the
+ * profile header the way the breadcrumb now does.
  */
-function TopBar({ crumbs }: { crumbs?: Crumb[] }) {
+function TopBar() {
   const { currency, setCurrency } = useCurrency();
-
-  /* Nothing to say, so nothing to draw. With the currency control standing
-     down, a page that passes no crumbs — the leaderboard, settings, login —
-     would otherwise head its content with an empty bordered box. */
-  if (!crumbs?.length && !SHOW_CURRENCY_PICKER) return null;
+  if (!SHOW_CURRENCY_PICKER) return null;
 
   return (
     <div data-topbar="">
       <div data-topbar-inner="">
-        <nav data-crumbs="" aria-label="Breadcrumb">
-          {/* Nothing on pages that pass no crumbs — the element stays so the
-              currency control keeps its place on the right. */}
-          {(crumbs ?? []).map((c, i) => (
-            <span key={`${c.label}-${i}`} data-crumb="">
-              {i > 0 ? <span data-crumb-sep="" aria-hidden="true">›</span> : null}
-              {c.to ? (
-                <Link to={c.to}>{c.label}</Link>
-              ) : (
-                <span aria-current="page">{c.label}</span>
-              )}
-            </span>
-          ))}
-        </nav>
-
         {/* Every figure on this site is converted at render from the currency
             it was earned in, so the display currency is a reader preference,
             not a property of any profile. It lives here, once, and every
-            money page reads it.
-
-            🚧 Hidden for now (SHOW_CURRENCY_PICKER). The conversion path
-            stays live underneath — see the note in currency.tsx. */}
-        {SHOW_CURRENCY_PICKER ? (
+            money page reads it. */}
         <label data-currency-picker="">
           <span className="vm-visually-hidden">Display currency</span>
           <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
@@ -213,7 +181,6 @@ function TopBar({ crumbs }: { crumbs?: Crumb[] }) {
             ))}
           </select>
         </label>
-        ) : null}
       </div>
     </div>
   );

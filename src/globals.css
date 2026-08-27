@@ -863,6 +863,21 @@ a, button, [role="button"] {
   align-items: flex-start;
   gap: 1.1rem;
 }
+/* The left column stacks the breadcrumb over the identity, which is what
+   puts Share on the breadcrumb's line: the actions column top-aligns with
+   the top of THIS column, not with the avatar. */
+.vm-profile [data-profile-main] {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.vm-profile [data-profile-who] {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.1rem;
+}
 .vm-profile [data-profile-head] [data-avatar] {
   width: 5.5rem;
   height: 5.5rem;
@@ -898,10 +913,14 @@ a, button, [role="button"] {
   font-size: 0.75rem;
 }
 /* The label groups "Visit", the platform mark and "profile" as one phrase, so
-   the external-link mark can sit hard right without floating mid-sentence. */
+   the external-link mark can sit hard right without floating mid-sentence.
+   It takes the free space and centres inside it: left-aligned text under a
+   centred "Share" made the stack look like two different controls. */
 .vm-profile [data-social-label] {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  flex: 1;
   gap: 0.3rem;
   white-space: nowrap;
 }
@@ -955,34 +974,24 @@ a, button, [role="button"] {
  */
 /* ─── The top bar ─────────────────────────────────────────────────────
  *
- * Heads the CONTENT column — beneath nothing, beside the rail. It used to
- * span the viewport above everything, which put it over the wordmark and made
- * it read as browser chrome rather than as part of this site.
- *
- * Bordered on all four sides, not just underlined: at the top of a column
- * whose sections are already separated by hairlines, a lone bottom rule is
- * indistinguishable from the profile's own first divider. A closed box is a
- * different KIND of thing, which is what it is.
- *
- * Quiet all the same. Its two jobs are orientation and a preference; if it
- * competes with the profile header for attention, it is wrong.
+ * Site chrome at the head of the content column: today only the currency
+ * control, which is itself hidden. No fill and no border — it briefly had
+ * both, and a filled box directly above the profile header competed with the
+ * thing it was supposed to introduce.
  */
-[data-topbar] {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--muted);
-  margin-bottom: 1.5rem;
-}
-
 [data-topbar-inner] {
-  padding: 0.4rem 0.75rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: 1.9rem; /* holds the row's height on pages with no crumbs */
+  justify-content: flex-end;
+  margin-bottom: 1rem;
 }
 
+/* ─── Breadcrumbs ─────────────────────────────────────────────────────
+ *
+ * Plain text on the page background. They sit inside the profile header,
+ * directly above the name and picture, on the same line as the first action
+ * button — see components/Breadcrumbs.tsx.
+ */
 [data-crumbs] {
   display: flex;
   flex-wrap: wrap;
@@ -1330,10 +1339,7 @@ a, button, [role="button"] {
     padding-left: 3.1rem; /* clears the rank + avatar columns */
   }
 
-  /* The crumb trail truncates rather than wrapping the currency control onto
-     a second line. */
-  [data-topbar] { margin-bottom: 1rem; }
-  [data-topbar-inner] { padding: 0.35rem 0.6rem; }
+  /* The crumb trail truncates rather than wrapping to a second line. */
   [data-crumbs] { font-size: 0.75rem; flex-wrap: nowrap; overflow: hidden; }
   [data-crumb] { min-width: 0; }
   [data-crumb] > a,

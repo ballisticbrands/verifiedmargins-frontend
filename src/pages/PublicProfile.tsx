@@ -8,6 +8,7 @@ import {
 } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { useCurrency } from "@/currency";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 /**
  * A seller profile at verifiedmargins.com/<username>.
@@ -86,24 +87,31 @@ export function PublicProfile() {
    * first and swapping it for the owner's would cost a second fetch, and on
    * an UNPUBLISHED profile it would flash "No profile here." at the person
    * who owns it — the public endpoint 404s that on purpose. */
-  const crumbs = [
-    { label: brand.displayName, to: "/" },
-    // "Founder" mirrors the leaderboard's own axis (By founder / By
-    // business) — the crumb is a real destination, not decoration.
-    { label: "Founder", to: "/leaderboard" },
-    { label: crumbName },
-  ];
+  /* Profile pages only. This is the one page people arrive at cold from a
+     link with no idea what site they are on; everywhere else was reached
+     through our own navigation, which already says. */
+  const breadcrumb = (
+    <Breadcrumbs
+      items={[
+        { label: brand.displayName, to: "/" },
+        // "Founder" mirrors the leaderboard's own axis (By founder / By
+        // business) — the crumb is a real destination, not decoration.
+        { label: "Founder", to: "/leaderboard" },
+        { label: crumbName },
+      ]}
+    />
+  );
 
   if (owner === undefined) {
     return (
-      <Shell width="profile" crumbs={crumbs}>
+      <Shell width="profile">
         <p>Loading…</p>
       </Shell>
     );
   }
 
   return (
-    <Shell width="profile" crumbs={crumbs}>
+    <Shell width="profile">
       <div className="vm-form vm-profile">
         <PublicProfilePage
           username={username}
@@ -120,6 +128,7 @@ export function PublicProfile() {
           // figure converts.
           defaultCurrency={currency}
           onLoaded={(p) => setCrumbName(p.display_name || `@${p.username}`)}
+          breadcrumb={breadcrumb}
         />
       </div>
     </Shell>
