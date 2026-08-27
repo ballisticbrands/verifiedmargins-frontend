@@ -52,15 +52,18 @@
 
   --danger: #b42318;           /* ERRORS ONLY. Never "a bad number". */
 
-  /* Type. ONE family — Inconsolata — for interface and figures alike. A site
-     whose entire subject is numbers is set in the register of numbers; the
-     tabular grid that makes a margin column readable is simply the page's
-     own grid. Both var names survive so a display face could be swapped back
-     into --font-sans alone without touching the figures. */
-  --font-sans: "Inconsolata", "Inconsolata Fallback", ui-monospace,
-    SFMono-Regular, Menlo, Consolas, monospace;
-  --font-mono: "Inconsolata", "Inconsolata Fallback", ui-monospace,
-    SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  /* Type. TWO faces, and the split is words vs. figures.
+     Words are Inconsolata; figures are the platform's own monospace. Both
+     are monospaced, so the page keeps one register — but they are not the
+     SAME face, and that difference is the point: a figure should read as a
+     quantity lifted out of the prose around it, not as more prose. See
+     BRANDING.md §4.
+     🚨 Inconsolata must NOT lead --font-mono. It did for a day, which made
+     every number render in the text face and quietly collapsed the two
+     stacks back into one. */
+  --font-sans: "Inconsolata", "Inconsolata Fallback", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
 
   --radius: 6px;               /* controls + cards */
   --radius-lg: 10px;           /* modals */
@@ -1788,12 +1791,14 @@ dialog[data-add-business]::backdrop {
 }
 
 /* The bio reads as prose, not as data — everything else on this page is mono
-   because it is figures. */
-/* The bio is a bare <p> directly under main[data-noindex] — NOT inside
+   because it is figures. Scoped to .vm-profile so it covers EVERY profile;
+   demo pages carry .vm-demo alongside it and inherit this too.
+
+   The bio is a bare <p> directly under main[data-noindex] — NOT inside
    [data-profile-head], which is what an earlier selector here assumed and why
    it silently matched nothing. Every other direct-child <p> of main carries a
    data-* attribute, so excluding those isolates the bio. */
-.vm-demo main > p:not([data-fx-note]):not([data-window-note]):not([data-chart-label]) {
+.vm-profile main > p:not([data-fx-note]):not([data-window-note]):not([data-chart-label]) {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 0.95rem;
   line-height: 1.5;
