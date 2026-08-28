@@ -1997,3 +1997,61 @@ h6,
   font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
+
+/* ── Leaderboard, profit variant ─────────────────────────────────────────
+   Only [data-variant="profit"] — the real board is untouched. */
+
+[data-board][data-variant="profit"] {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+[data-board][data-variant="profit"] > li { position: relative; }
+
+/* Top three read as a podium. Rank alone makes 1st and 11th look alike, and
+   the whole point of a gamified board is that the top is worth reaching. */
+[data-board][data-variant="profit"] > li:nth-child(-n + 3) [data-board-rank] {
+  font-weight: 700;
+  color: var(--foreground);
+}
+[data-board][data-variant="profit"] > li:nth-child(1) [data-board-rank] { color: #b7791f; }
+[data-board][data-variant="profit"] > li:nth-child(2) [data-board-rank] { color: #8a8f98; }
+[data-board][data-variant="profit"] > li:nth-child(3) [data-board-rank] { color: #a0672b; }
+
+/* Movement and change share one palette. Semantic, and deliberately NOT the
+   verification accent: green here means "up", not "verified", and one colour
+   carrying two meanings on the same page teaches the reader nothing. */
+[data-board-move],
+[data-board-change] {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+[data-board-move][data-dir="up"],
+[data-board-change][data-dir="up"] { color: #15803d; }
+[data-board-move][data-dir="down"],
+[data-board-change][data-dir="down"] { color: #b91c1c; }
+[data-board-move][data-dir="flat"],
+[data-board-change][data-dir="flat"] { color: var(--muted-foreground); }
+
+:root:not([data-theme="light"]) [data-board-move][data-dir="up"],
+:root:not([data-theme="light"]) [data-board-change][data-dir="up"] { color: #4ade80; }
+:root:not([data-theme="light"]) [data-board-move][data-dir="down"],
+:root:not([data-theme="light"]) [data-board-change][data-dir="down"] { color: #f87171; }
+:root[data-theme="dark"] [data-board-move][data-dir="up"],
+:root[data-theme="dark"] [data-board-change][data-dir="up"] { color: #4ade80; }
+:root[data-theme="dark"] [data-board-move][data-dir="down"],
+:root[data-theme="dark"] [data-board-change][data-dir="down"] { color: #f87171; }
+
+[data-board-move] {
+  display: inline-block;
+  min-width: 2.1rem;
+  text-align: left;
+}
+[data-board][data-variant="profit"] [data-board-figures] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}

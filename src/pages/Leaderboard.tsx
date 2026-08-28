@@ -31,6 +31,14 @@ interface Entry {
   revenue: number | null;
   currency: string;
   verification: { tier: string; label: string };
+  /* Present only on the profit variant. Optional rather than required so the
+     real board's payload — which has none of them — still satisfies this
+     interface, and so a missing one renders as absent instead of NaN. */
+  profit?: number | null;
+  /** Change in profit vs the previous 30 days, as a percentage. */
+  profit_change_pct?: number | null;
+  /** Positions gained (+) or lost (−) over the last 30 days. 0 = held. */
+  rank_delta?: number | null;
 }
 
 interface Board {
@@ -67,8 +75,37 @@ function initials(name: string): string {
   return (parts[0]![0]! + parts[1]![0]!).slice(0, 2);
 }
 
+/** Positions gained or lost over the last 30 days.
+ *
+ * A held position renders a dash rather than "0": zero is a quantity and this
+ * is the absence of one. Colour is never the only carrier — the arrow and the
+ * number say it too, so it survives a red/green colour deficiency. */
+function Movement({ delta }: { delta: number }) {
+  const dir = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+  return (
+    <span data-board-move="" data-dir={dir} aria-label={
+      delta === 0 ? "Position held" : `${Math.abs(delta)} places ${delta > 0 ? "up" : "down"}`
+    }>
+      {delta === 0 ? "—" : `${delta > 0 ? "▲" : "▼"}${Math.abs(delta)}`}
+    </span>
+  );
+}
+
+/** Profit change vs the previous 30 days. */
+function Change({ pct }: { pct: number | null }) {
+  if (pct === null) return null;
+  const dir = pct > 0 ? "up" : pct < 0 ? "down" : "flat";
+  return (
+    <span data-board-change="" data-dir={dir}>
+      {pct > 0 ? "+" : ""}
+      {pct.toFixed(1)}%
+    </span>
+  );
+}
+
 export function Leaderboard({
   banner,
+  variant = "margin",
 }: {
   /* A note rendered above the board, inside the content column. The only
    * caller is the /demo/leaderboard page (src/pages/DemoLeaderboard.tsx),
@@ -78,6 +115,18 @@ export function Leaderboard({
    * because a forked demo drifts from the real one the first time either
    * changes. Undefined everywhere else, which renders nothing. */
   banner?: React.ReactNode;
+  /**
+   * `margin` — the real board. Ranks by margin, shows revenue as context.
+   *
+   * `profit` — a gamified alternative currently only rendered by
+   * /demo/leaderboard: ranks by profit, drops the margin column, and adds
+   * 30-day movement. A prop rather than a forked page, so the demo cannot
+   * drift from the real one; and a variant rather than a rewrite, because
+   * ranking by profit contradicts the header note above — profit is a size
+   * measure, which is what every other seller leaderboard already is. Worth
+   * deciding deliberately before this becomes the default.
+   */
+  variant?: "margin" | "profit";
 } = {}) {
   const brand = useBrand();
   const { currency } = useCurrency();
@@ -118,8 +167,17 @@ export function Leaderboard({
       <div className="vm-form vm-profile">
         <h1>Leaderboard</h1>
         <p>
-          Ranked by margin over the last {board?.window_months ?? 12} months — not by size.
-          Only sellers who chose to publish their margin appear here.
+          {variant === "profit" ? (
+            <>
+              Ranked by profit over the last {board?.window_months ?? 12} months, with the
+              change over the last 30 days. Only sellers who chose to publish appear here.
+            </>
+          ) : (
+            <>
+              Ranked by margin over the last {board?.window_months ?? 12} months — not by size.
+              Only sellers who chose to publish their margin appear here.
+            </>
+          )}
         </p>
 
         <div data-tabs="" role="tablist" aria-label="Leaderboard view">
@@ -154,10 +212,11 @@ export function Leaderboard({
         ) : null}
 
         {board && board.entries.length > 0 ? (
-          <ol data-board="">
+          <ol data-board="" data-variant={variant}>
             {board.entries.map((e) => (
               <li key={`${e.username}-${e.business?.label ?? ""}-${e.business?.markets.join(",") ?? ""}`}>
                 <span data-board-rank="">{e.rank}</span>
+                {variant === "profit" ? <Movement delta={e.rank_delta ?? 0} /> : null}
                 <span className="vm-avatar" aria-hidden="true">
                   {e.avatar_url ? <img src={e.avatar_url} alt="" /> : initials(e.display_name ?? e.username)}
                 </span>
@@ -180,8 +239,21 @@ export function Leaderboard({
                   </span>
                 </span>
                 <span data-board-figures="">
-                  <b data-metric="">{e.margin_pct.toFixed(1)}%</b>
-                  <span data-board-revenue="">{money(e.revenue, e.currency)}</span>
+                  {variant === "profit" ? (
+                    <>
+                      {/* Profit leads; margin is deliberately absent on this
+                          variant. Revenue stays as the size context that makes
+                          a profit figure readable. */}
+                      <b data-metric="">{money(e.profit ?? null, e.currency)}</b>
+                      <Change pct={e.profit_change_pct ?? null} />
+                      <span data-board-revenue="">{money(e.revenue, e.currency)}</span>
+                    </>
+                  ) : (
+                    <>
+                      <b data-metric="">{e.margin_pct.toFixed(1)}%</b>
+                      <span data-board-revenue="">{money(e.revenue, e.currency)}</span>
+                    </>
+                  )}
                 </span>
               </li>
             ))}

@@ -79,8 +79,8 @@ const SELLERS: Seller[] = [
     ],
   },
   {
-    username: "hbrandt",
-    display_name: "Hana Brandt",
+    username: "brandtgoods",
+    display_name: "Owen Brandt",
     businesses: [
       { label: "Amazon FBA", markets: ["US"], seller_type: "private_label",
         revenue: 96_400, margin_pct: 48.3, tier: "verified_margin" },
@@ -129,8 +129,8 @@ const SELLERS: Seller[] = [
     ],
   },
   {
-    username: "dropship_dana",
-    display_name: "Dana Whitlock",
+    username: "dropship_dom",
+    display_name: "Dom Whitlock",
     businesses: [
       { label: "Amazon FBM", markets: ["US"], seller_type: "dropshipper",
         revenue: 305_000, margin_pct: 15.7, tier: "verified_margin" },
@@ -158,8 +158,8 @@ const SELLERS: Seller[] = [
     ],
   },
   {
-    username: "aoifegal",
-    display_name: "Aoife Gallagher",
+    username: "pallet_to_prime",
+    display_name: null,
     businesses: [
       { label: "Amazon FBA", markets: ["UK", "IE"], seller_type: "private_label",
         revenue: 512_000, margin_pct: 36.8, tier: "verified_margin" },
@@ -212,8 +212,8 @@ const SELLERS: Seller[] = [
     ],
   },
   {
-    username: "handmade_hollis",
-    display_name: "Hollis Ferry",
+    username: "handmade_hal",
+    display_name: "Hal Ferry",
     businesses: [
       { label: "Amazon FBM", markets: ["US"], seller_type: "private_label",
         revenue: null, margin_pct: 39.5, tier: "verified_margin" },
@@ -296,14 +296,41 @@ function businessRows(): Row[] {
 }
 
 /** Builds the payload GET /v1/public/leaderboard?by=…&currency=… returns. */
+/** Deterministic pseudo-random in [0,1) from a string.
+ *
+ *  Movement has to be arbitrary-looking but STABLE: a board that reshuffles
+ *  its arrows between two screenshots cannot be reviewed, and Math.random
+ *  would do exactly that. */
+function hashUnit(key: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < key.length; i++) {
+    h ^= key.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return ((h >>> 0) % 10_000) / 10_000;
+}
+
+/** Profit from the two figures a row actually carries. `null` when revenue is
+ *  private — the profit is not unknown-but-small, it is unknowable, and a 0
+ *  would rank them last as though it were measured. */
+function profitOf(r: { revenue: number | null; margin_pct: number }): number | null {
+  return r.revenue === null ? null : (r.revenue * r.margin_pct) / 100;
+}
+
 export function leaderboard(mode: "founder" | "business", currency: string) {
   const rate = RATES[currency];
   const code = rate ? currency : "USD";
   const rows = (mode === "business" ? businessRows() : founderRows())
-    /* Margin, descending — the ranking, and the reason this page exists.
-       Ties broken by revenue so the order is total and cannot drift between
-       two runs of the same fixture. */
-    .sort((a, b) => b.margin_pct - a.margin_pct || (b.revenue ?? 0) - (a.revenue ?? 0));
+    /* PROFIT, descending — this fixture feeds the gamified variant, which
+       ranks by profit rather than margin. A row that publishes margin but
+       keeps revenue private has no computable profit and sorts last: it is
+       genuinely unrankable here, and inventing a position for it would be the
+       one dishonesty this page cannot afford.
+       Ties broken by revenue so the order is total. */
+    .sort(
+      (a, b) =>
+        (profitOf(b) ?? -1) - (profitOf(a) ?? -1) || (b.revenue ?? 0) - (a.revenue ?? 0),
+    );
 
   return {
     mode,
@@ -318,13 +345,40 @@ export function leaderboard(mode: "founder" | "business", currency: string) {
       revenue: r.revenue === null ? null : Math.round(r.revenue * (rate ?? 1)),
       currency: code,
       verification: { tier: r.tier, label: TIER_LABEL[r.tier] },
+      profit: profitOf(r) === null ? null : Math.round(profitOf(r)! * (rate ?? 1)),
+      /* Change over the previous 30 days. Skewed positive but not uniformly —
+         a board where everyone is up reads as fake, and a real one has a
+         bottom half that is flat or falling. */
+      /* Null when profit is — a change in an unknowable number is not a
+         smaller unknown, it is meaningless, and rendering "+6.2%" beside a
+         "—" invites the reader to believe one of the two. */
+      profit_change_pct:
+        profitOf(r) === null
+          ? null
+          : Number(
+              (hashUnit(`${r.username}|${r.business?.markets.join("") ?? ""}|chg`) * 46 - 15).toFixed(
+                1,
+              ),
+            ),
+      /* Positions moved in the same window. Roughly a third hold, which is
+         what makes the movers read as movement rather than noise. */
+      rank_delta: (() => {
+        const u = hashUnit(`${r.username}|${r.business?.markets.join("") ?? ""}|mov`);
+        if (u < 0.34) return 0;
+        const size = 1 + Math.floor(u * 5) % 4;
+        return u < 0.67 ? size : -size;
+      })(),
     })),
     /* The board only ever lists sellers who PUBLISHED the ranked number, so a
        short board has to read as "people are private", not as "this product
        is empty". The count is what makes that difference visible. */
+    /* Says PROFIT, because that is what this variant ranks. Two rows here
+       publish a margin but not a revenue, so their profit is unknowable and
+       they sort last showing "—" — they are listed rather than hidden, which
+       is the honest shape: present, unrankable, and visibly so. */
     note:
       mode === "business"
-        ? "31 more businesses keep their margin private and are not ranked."
-        : "24 more founders keep their margin private and are not ranked.",
+        ? "31 more businesses keep their figures private and are not ranked."
+        : "24 more founders keep their figures private and are not ranked.",
   };
 }

@@ -31,5 +31,5 @@ export function DemoLeaderboard({ slug, demo }: { slug: string; demo: Leaderboar
   /* The banner goes through a prop rather than around the page, because
      Leaderboard renders its own Shell: wrapping it here would put the note
      outside the content column, above the nav rail. */
-  return <Leaderboard banner={<DemoBanner />} />;
+  return <Leaderboard variant="profit" banner={<DemoBanner />} />;
 }
