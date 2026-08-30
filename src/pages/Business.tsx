@@ -411,19 +411,25 @@ export function Business() {
             ) : null}
           </section>
 
-          <section>
-            {/* No "Brands sold" row. A business page is ONE business, and its
-                brand count was a number with nothing to compare against —
-                unlike on a founder profile, where it summarises an estate. */}
-            <dl>
-              {p.metrics.category ? (
+          {/* No "Brands sold" row. A business page is ONE business, and its
+              brand count was a figure with nothing to compare against — unlike
+              on a founder profile, where it summarises an estate.
+
+              🚨 The whole SECTION is conditional, not just the row inside it.
+              Category is the only entry left, so a business without one was
+              rendering an empty <section> — which still carries its top rule
+              and 2.5rem of margin, and read on the live page as a band of
+              dead space between the chart and the notes. */}
+          {p.metrics.category ? (
+            <section>
+              <dl>
                 <div>
                   <dt>Category</dt>
                   <dd data-metric="">{p.metrics.category}</dd>
                 </div>
-              ) : null}
-            </dl>
-          </section>
+              </dl>
+            </section>
+          ) : null}
 
           {/* The backend's own caveats, verbatim. It is the only thing that
               knows why a figure is missing, and paraphrasing them here would
