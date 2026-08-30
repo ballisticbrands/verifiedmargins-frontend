@@ -48,8 +48,20 @@ import { useCurrency } from "@/currency";
 interface BusinessPayload {
   slug: string;
   name: string;
+  /** `Connection.provider` — where the numbers came from. */
   platform: string;
+  /** What the business IS ("Amazon FBA"), from `Connection.type`. Never a
+   *  label for the provider: a business transcribed from a broker listing is
+   *  an Amazon FBA business whose figures are self-reported, and the second
+   *  half of that sentence is what `verification` says. */
   label: string;
+  /** The public page these figures were transcribed off, or null when they
+   *  came from a connected Amazon account.
+   *
+   *  🚨 RENDER IT WHENEVER IT IS PRESENT. An unclaimed business publishes
+   *  figures only BECAUSE it cites this, so a page showing the numbers with
+   *  the citation dropped would be asserting them on nobody's authority. */
+  source: { link: string; name: string; retrieved_at: string | null; note: string | null } | null;
   seller_type: string | null;
   markets: string[];
   verification: { tier: string; label: string };
@@ -284,6 +296,24 @@ export function Business() {
                   rest of their portfolio lives. */}
               One business of <Link to={`/${p.profile.username}`}>{owner}</Link>
             </p>
+            {/* 🚨 The citation, next to the badge rather than buried in the
+                notes at the bottom. A reader deciding how much to trust the
+                tiles must be able to see where they came from without
+                scrolling past them, and it is the only claim of provenance
+                this page has: `verification` says "Self-reported", and this
+                says by whom, where, and when we read it.
+
+                rel="nofollow" — we are citing a for-sale listing, not
+                endorsing it, and these pages exist in volume. */}
+            {p.source ? (
+              <p data-business-source="">
+                Source:{" "}
+                <a href={p.source.link} target="_blank" rel="nofollow noopener noreferrer">
+                  {p.source.name}
+                </a>
+                {p.source.retrieved_at ? ` · read ${p.source.retrieved_at}` : null}
+              </p>
+            ) : null}
           </header>
 
           <section data-profile-dashboard="">

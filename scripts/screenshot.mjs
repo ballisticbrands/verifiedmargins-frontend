@@ -149,7 +149,11 @@ function publicProfile(over = {}) {
           seller_type: "private_label",
           last_30d: { revenue: 41000, profit: 11800, margin_pct: 28.8 }, revenue: 402000,
           margin_pct: 29.1, verification: { tier: "verified_revenue", label: "Verified revenue" } },
-        { platform: "manual", label: "Self-reported", markets: [], seller_type: "wholesaler",
+        // A transcribed business: labelled by TYPE ("Amazon FBA" — it is one),
+        // with the evidence carried by the badge and the source beside it.
+        { platform: "manual", label: "Amazon FBA", markets: [], seller_type: "wholesaler",
+          source: { link: "https://empireflippers.com/listing/91071/", name: "Empire Flippers",
+                    retrieved_at: "2026-08-30", note: null },
           last_30d: { revenue: 26000, profit: 6200, margin_pct: 23.8 }, revenue: 300000,
           margin_pct: 24.0, verification: { tier: "self_reported", label: "Self-reported" } },
       ],

@@ -694,9 +694,15 @@ function ConnectSellerCentral({
            optional field. Best-effort: without it we land on the profile. */
         try {
           const options = await fetchConnectionOptions(profileId);
-          slug = (options as Array<{ id: string; slug?: string }>).find(
-            (o) => o.id === connectionId,
-          )?.slug;
+          // `slug` is NULLABLE on the wire — a connection with no public page
+          // (an ads account) carries null — and the destination chain above
+          // reads "no slug" as "land on the profile instead". Normalised to
+          // undefined here rather than smuggled through as a null that the
+          // widened type says cannot happen.
+          slug =
+            (options as Array<{ id: string; slug?: string | null }>).find(
+              (o) => o.id === connectionId,
+            )?.slug ?? undefined;
         } catch {
           /* the profile landing is a fine fallback */
         }

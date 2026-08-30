@@ -904,6 +904,24 @@ a, button, [role="button"] {
   color: var(--muted-foreground);
 }
 
+/* Where a transcribed business's figures came from — in the header, beside
+   the verification badge.
+   Quiet but NOT hidden. An unclaimed business may publish its numbers only
+   because it cites this, so the citation belongs with the figures rather than
+   filed at the bottom of the page. Set to the weight of a byline; the link
+   stays underlined so it reads as somewhere to go and check. */
+.vm-profile [data-business-source] {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+.vm-profile [data-business-source] a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.vm-profile [data-business-source] a:hover { color: var(--foreground); }
+
 
 /* ─── Profile header ──────────────────────────────────────────────────
  *
