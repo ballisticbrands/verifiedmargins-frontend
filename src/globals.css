@@ -1504,6 +1504,32 @@ a, button, [role="button"] {
   text-align: right;
 }
 .vm-profile [data-board] .vm-avatar { width: 2.25rem; height: 2.25rem; font-size: 0.8rem; }
+/* A business row carries the platform mark where a founder row carries a
+   face. 🚨 A LIGHT SURFACE in both themes — the Amazon "a" is near-black and
+   disappears on the dark theme's muted grey. Same rule as the business page's
+   own header mark. */
+.vm-profile [data-board] [data-board-mark] {
+  background: #ffffff;
+  padding: 0.3rem;
+}
+.vm-profile [data-board] [data-board-mark] img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* "By @handle" — the founder, under the business named above. It is the only
+   route from a business row to the person running it, so it has to look like
+   a link on hover rather than like the plain handle it sits in. */
+.vm-profile [data-board-byline] {
+  color: inherit;
+  font-family: var(--font-mono);
+  text-decoration: none;
+}
+.vm-profile [data-board-byline]:hover {
+  color: var(--foreground);
+  text-decoration: underline;
+}
 .vm-profile [data-board-who] { flex: 1; min-width: 0; display: block; }
 .vm-profile [data-board-name] {
   display: block;

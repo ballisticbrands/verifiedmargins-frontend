@@ -297,7 +297,18 @@ export function leaderboard(mode: "founder" | "business", _currency: string) {
       username: r.username,
       display_name: r.display_name,
       avatar_url: null,
-      business: r.business ? { ...r.business, slug: null } : null,
+      business: r.business
+        ? {
+            ...r.business,
+            slug: null,
+            /* The derived name a real payload carries: "Amazon FBA 48213".
+               Deterministic from the handle and the markets so the demo does
+               not reshuffle its own names between renders. */
+            name: `${r.business.label} ${String(
+              Math.floor(hashUnit(`${r.username}|${r.business.markets.join("")}|name`) * 100000),
+            ).padStart(5, "0")}`,
+          }
+        : null,
       /* Founder rows only, matching the real payload — and here it is the real
          count off their own profile rather than a hash: these founders have
          pages you can click through to and count the cards on. */

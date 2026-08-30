@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ApiError, apiFetch, useBrand,
+import { AMAZON_MARK_SRC, ApiError, apiFetch, useBrand,
   verificationBadgeState,
   VERIFICATION_GLYPH,
   VERIFICATION_TIP,
@@ -41,6 +41,9 @@ interface Entry {
   display_name: string | null;
   avatar_url: string | null;
   business: {
+    /** "Amazon FBA 08873" — derived from the slug, the same string the
+     *  business page puts in its own <h1>. Null when it has no slug. */
+    name: string | null;
     label: string;
     markets: string[];
     seller_type: string | null;
@@ -305,13 +308,25 @@ export function Leaderboard({
                     which is not the same as placing last. */}
                 <span data-board-rank="">{e.rank ?? "—"}</span>
                 {variant === "profit" ? <Movement delta={e.rank_delta} /> : null}
-                <span className="vm-avatar" aria-hidden="true">
-                  {e.avatar_url ? (
-                    <img src={e.avatar_url} alt="" />
-                  ) : (
-                    initials(e.display_name ?? e.username ?? e.business?.label ?? "?")
-                  )}
-                </span>
+                {/* A BUSINESS ROW SHOWS THE BUSINESS, not the person behind
+                    it: the platform mark, exactly as the business's own page
+                    and its card on a profile do. A founder row still shows the
+                    founder's face. Using the founder's photo on a business row
+                    made four rows of one seller's estate look like four
+                    photographs of the same man. */}
+                {e.business ? (
+                  <span className="vm-avatar" data-board-mark="" aria-hidden="true">
+                    <img src={AMAZON_MARK_SRC} alt="" width={26} height={26} />
+                  </span>
+                ) : (
+                  <span className="vm-avatar" aria-hidden="true">
+                    {e.avatar_url ? (
+                      <img src={e.avatar_url} alt="" />
+                    ) : (
+                      initials(e.display_name ?? e.username ?? "?")
+                    )}
+                  </span>
+                )}
                 <span data-board-who="">
                   {/* The name and its badge on ONE line. The badge sat out at
                       the right edge, beside the figures, which read as another
@@ -324,16 +339,24 @@ export function Leaderboard({
                       when it has neither it is plain text — never a link to
                       "/" or to "/null". */}
                   <span data-board-nameline="">
-                    {e.username ? (
+                    {e.business ? (
+                      // A BUSINESS NAMES ITSELF and links to its own page.
+                      // The founder is named on the line below — putting the
+                      // person's name here made four rows of one seller's
+                      // estate read as four entries for the same seller.
+                      e.business.slug ? (
+                        <Link to={`/business/${e.business.slug}`} data-board-name="">
+                          {e.business.name ?? e.business.label}
+                        </Link>
+                      ) : (
+                        <span data-board-name="">{e.business.name ?? e.business.label}</span>
+                      )
+                    ) : e.username ? (
                       <Link to={profileHref(e.username)} data-board-name="">
                         {e.display_name ?? e.username}
                       </Link>
-                    ) : e.business?.slug ? (
-                      <Link to={`/business/${e.business.slug}`} data-board-name="">
-                        {e.business.label}
-                      </Link>
                     ) : (
-                      <span data-board-name="">{e.business?.label ?? "—"}</span>
+                      <span data-board-name="">—</span>
                     )}
                     {/* The shared helpers rather than the shared COMPONENT:
                         a board badge carries `data-board-badge` for its own
@@ -343,7 +366,25 @@ export function Leaderboard({
                     <BoardBadge verification={e.verification} />
                   </span>
                   <span data-board-sub="">
-                    {e.username ? <span className="vm-handle">@{e.username}</span> : null}
+                    {/* "By @handle" — the founder, under the business that is
+                        named above. The handle is a LINK to their profile: the
+                        row's own link goes to the business now, so without
+                        this there is no way from a business row to the person
+                        running it. On a FOUNDER row the name above is already
+                        their link, so the handle stays plain text — "By" would
+                        be naming them twice. */}
+                    {e.username ? (
+                      e.business ? (
+                        <>
+                          By{" "}
+                          <Link to={profileHref(e.username)} data-board-byline="">
+                            @{e.username}
+                          </Link>
+                        </>
+                      ) : (
+                        <span className="vm-handle">@{e.username}</span>
+                      )
+                    ) : null}
                     {/* What the figure beside it is the total OF. A founder's
                         profit is an aggregate, and an aggregate with no
                         denominator invites reading it as one business's. */}
