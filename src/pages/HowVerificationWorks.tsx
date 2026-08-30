@@ -243,7 +243,7 @@ const COMPARISON: {
   {
     row: (
       <>
-        Upgrade to <span className="whitespace-nowrap">✓ Verified margins</span>
+        Upgrade to <Badge tier="verified_margin" label="Verified margins" />
       </>
     ),
     cells: [

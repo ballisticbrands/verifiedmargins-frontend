@@ -541,6 +541,13 @@ select.bg-white {
   line-height: 1.6;
   white-space: nowrap;
   vertical-align: 0.08rem;
+  /* 🚨 A badge carries its own typography wherever it is dropped. It now sits
+     inside a table row-header and inside an UPPERCASE <dt> on the mobile
+     comparison cards, and without this the pill rendered "VERIFIED MARGINS" —
+     the label is a proper noun for a verification tier, not a styled string
+     the container gets to re-case. */
+  text-transform: none;
+  font-style: normal;
 }
 .vm-badge[data-state="verified"],
 .vm-profile [data-badge][data-state="verified"] {
