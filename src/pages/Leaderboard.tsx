@@ -257,21 +257,36 @@ export function Leaderboard({
                   )}
                 </span>
                 <span data-board-who="">
-                  {/* 🚨 An ORPHAN has no founder and therefore no profile to
+                  {/* The name and its badge on ONE line. The badge sat out at
+                      the right edge, beside the figures, which read as another
+                      metric — it is not one. It qualifies the NAME: what was
+                      checked about this seller. Next to the thing it is about
+                      is where it says that.
+
+                      🚨 An ORPHAN has no founder and therefore no profile to
                       link to. It links to its own business page instead, and
                       when it has neither it is plain text — never a link to
                       "/" or to "/null". */}
-                  {e.username ? (
-                    <Link to={`/${e.username}`} data-board-name="">
-                      {e.display_name ?? e.username}
-                    </Link>
-                  ) : e.business?.slug ? (
-                    <Link to={`/business/${e.business.slug}`} data-board-name="">
-                      {e.business.label}
-                    </Link>
-                  ) : (
-                    <span data-board-name="">{e.business?.label ?? "—"}</span>
-                  )}
+                  <span data-board-nameline="">
+                    {e.username ? (
+                      <Link to={`/${e.username}`} data-board-name="">
+                        {e.display_name ?? e.username}
+                      </Link>
+                    ) : e.business?.slug ? (
+                      <Link to={`/business/${e.business.slug}`} data-board-name="">
+                        {e.business.label}
+                      </Link>
+                    ) : (
+                      <span data-board-name="">{e.business?.label ?? "—"}</span>
+                    )}
+                    <span
+                      data-badge=""
+                      data-state={badgeState(e.verification.tier)}
+                      data-board-badge=""
+                    >
+                      {BADGE_GLYPH[badgeState(e.verification.tier)]} {e.verification.label}
+                    </span>
+                  </span>
                   <span data-board-sub="">
                     {e.username ? <span className="vm-handle">@{e.username}</span> : null}
                     {e.business ? (
@@ -285,16 +300,6 @@ export function Leaderboard({
                       </>
                     ) : null}
                   </span>
-                </span>
-                {/* The badge belongs on the board, not only on the profile:
-                    a ranking of numbers with no indication of what was checked
-                    invites reading a modelled margin as a verified one. */}
-                <span
-                  data-badge=""
-                  data-state={badgeState(e.verification.tier)}
-                  data-board-badge=""
-                >
-                  {BADGE_GLYPH[badgeState(e.verification.tier)]} {e.verification.label}
                 </span>
                 <span data-board-figures="">
                   {variant === "profit" ? (

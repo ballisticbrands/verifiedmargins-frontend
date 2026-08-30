@@ -1483,22 +1483,39 @@ a, button, [role="button"] {
   font-size: 0.75rem;
   color: var(--muted-foreground);
 }
-/* The verification badge, in the row rather than only on the profile.
-   A ranking of numbers with no indication of WHAT was checked invites reading
-   a modelled margin as a verified one, which is the single misreading this
-   product cannot afford. Shrunk to row scale — it is context beside a figure,
-   not the headline it is on a profile — and it keeps the shared
-   [data-state] palette so all three badge sites stay one design.
-   Hidden below the phone breakpoint, where the row has no horizontal room and
-   the figures must win. */
+/* Name and badge on one line, the badge sized to sit inside it.
+   It qualifies the NAME — what was checked about this seller — so it belongs
+   beside the name rather than out at the right edge among the figures, where
+   it read as another metric. A ranking of numbers with no indication of what
+   was checked invites reading a modelled margin as a verified one, which is
+   the single misreading this product cannot afford.
+   Same [data-state] palette as the profile and the business page, so all
+   three badge sites stay one design. */
+.vm-profile [data-board-nameline] {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+/* The name truncates before the badge does: a clipped badge is unreadable,
+   while a clipped name is still a name. */
+.vm-profile [data-board-nameline] [data-board-name] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .vm-profile [data-board-badge] {
   flex-shrink: 0;
   font-size: 0.6875rem;
-  padding: 0.15rem 0.45rem;
+  padding: 0.1rem 0.4rem;
   white-space: nowrap;
 }
+/* On a phone the row has no horizontal room, and the figures must win.
+   The badge drops to the sub-line rather than disappearing — what was checked
+   is not something to hide on a small screen. */
 @media (max-width: 34rem) {
-  .vm-profile [data-board-badge] { display: none; }
+  .vm-profile [data-board-nameline] { flex-wrap: wrap; gap: 0.25rem; }
+  .vm-profile [data-board-badge] { font-size: 0.625rem; }
 }
 
 /* An entry we list but cannot rank: a verified business whose costs are not
