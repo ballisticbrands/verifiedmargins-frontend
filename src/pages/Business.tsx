@@ -55,20 +55,19 @@ interface BusinessPayload {
    *  an Amazon FBA business whose figures are self-reported, and the second
    *  half of that sentence is what `verification` says. */
   label: string;
-  /** The public page these figures were transcribed off, or null when they
-   *  came from a connected Amazon account.
-   *
-   *  🚨 RENDER IT WHENEVER IT IS PRESENT. An unclaimed business publishes
-   *  figures only BECAUSE it cites this, so a page showing the numbers with
-   *  the citation dropped would be asserting them on nobody's authority. */
-  source: { link: string; name: string; retrieved_at: string | null; note: string | null } | null;
+  /* 🚨 NO `source` FIELD, and none is expected. A business transcribed off a
+   * public listing keeps that URL server-side on `Connection.info` — the page
+   * names no source. Nothing here should ever start rendering one. */
   seller_type: string | null;
   markets: string[];
   verification: { tier: string; label: string };
   claimed: boolean;
   noindex: boolean;
   window: { months: number; from: string; through: string; includes_partial_month: boolean };
-  profile: { username: string; display_name: string | null; avatar_url: string | null };
+  /** The seller behind this business, or `null` for an ORPHAN — one nobody
+   *  has claimed. Every read of it below is guarded; an orphan renders with
+   *  no founder rather than with a link to a profile that does not exist. */
+  profile: { username: string; display_name: string | null; avatar_url: string | null } | null;
   metrics: {
     display: {
       currency: string;
@@ -261,7 +260,11 @@ export function Business() {
   const sub = [p.label, p.seller_type ? SELLER_TYPE_LABEL[p.seller_type] : null]
     .filter(Boolean)
     .join(" · ");
-  const owner = p.profile.display_name || `@${p.profile.username}`;
+  /* `profile` is null for an ORPHAN — a business with no founder behind it.
+     Every use of it below is guarded, and the guard is the feature: an orphan
+     must render as a business nobody has claimed, never as a broken link to a
+     profile that does not exist. */
+  const owner = p.profile ? p.profile.display_name || `@${p.profile.username}` : null;
 
   return (
     <Shell width="profile">
@@ -269,7 +272,9 @@ export function Business() {
         <Breadcrumbs
           items={[
             { label: brand.displayName, to: "/" },
-            { label: owner, to: `/${p.profile.username}` },
+            // The seller's crumb is dropped entirely for an orphan rather
+            // than rendered empty — there is no one to name and nowhere to go.
+            ...(p.profile && owner ? [{ label: owner, to: `/${p.profile.username}` }] : []),
             { label: p.name },
           ]}
         />
@@ -291,27 +296,18 @@ export function Business() {
                 {p.verification.label}
               </span>
             </p>
-            <p>
-              {/* The business belongs to a seller, and the profile is where the
-                  rest of their portfolio lives. */}
-              One business of <Link to={`/${p.profile.username}`}>{owner}</Link>
-            </p>
-            {/* 🚨 The citation, next to the badge rather than buried in the
-                notes at the bottom. A reader deciding how much to trust the
-                tiles must be able to see where they came from without
-                scrolling past them, and it is the only claim of provenance
-                this page has: `verification` says "Self-reported", and this
-                says by whom, where, and when we read it.
+            {/* The business belongs to a seller, and the profile is where the
+                rest of their portfolio lives — when there IS one. An orphan
+                has no founder, so it says nothing here rather than linking
+                somewhere empty.
 
-                rel="nofollow" — we are citing a for-sale listing, not
-                endorsing it, and these pages exist in volume. */}
-            {p.source ? (
-              <p data-business-source="">
-                Source:{" "}
-                <a href={p.source.link} target="_blank" rel="nofollow noopener noreferrer">
-                  {p.source.name}
-                </a>
-                {p.source.retrieved_at ? ` · read ${p.source.retrieved_at}` : null}
+                🚨 There is deliberately NO source line. A transcribed
+                business's listing URL is not on the payload at all (the
+                backend withholds it), so there is nothing here to render even
+                by accident. */}
+            {p.profile && owner ? (
+              <p>
+                One business of <Link to={`/${p.profile.username}`}>{owner}</Link>
               </p>
             ) : null}
           </header>

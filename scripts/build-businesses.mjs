@@ -101,12 +101,18 @@ for (const { slug } of list) {
    * exactly the same reason. Never reach for anything else to title this
    * page; the backend's own privacy test is what keeps the payload clean. */
   const name = b.name;
-  const owner = b.profile?.display_name || `@${b.profile?.username ?? ''}`;
+  /* `b.profile` is null for an ORPHAN — a business no one has claimed. The
+   * description below must not then read "one business of @" with an empty
+   * handle, which is what the old unconditional fallback produced. */
+  const owner = b.profile ? b.profile.display_name || `@${b.profile.username}` : null;
   const tier = b.verification?.label ?? 'Unverified';
   const margin = b.metrics?.margin_pct != null ? `${b.metrics.margin_pct.toFixed(1)}% margin. ` : '';
   const title = `${name} — ${BRAND_NAME}`;
-  const description =
-    `${name}, one business of ${owner} on ${BRAND_NAME}. ${margin}${tier}.`.trim().slice(0, 300);
+  const description = (
+    owner
+      ? `${name}, one business of ${owner} on ${BRAND_NAME}. ${margin}${tier}.`
+      : `${name} on ${BRAND_NAME}. ${margin}${tier}.`
+  ).trim().slice(0, 300);
 
   const head = [
     `<meta name="description" content="${esc(description)}" />`,
