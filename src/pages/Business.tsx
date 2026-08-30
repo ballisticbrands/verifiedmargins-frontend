@@ -131,42 +131,6 @@ function percent(n: number | null): string {
   return n === null ? "—" : `${n.toFixed(1)}%`;
 }
 
-/**
- * The headline money tile: PROFIT when we can compute it, revenue otherwise.
- *
- * Profit is the figure this product exists to publish. Revenue is the one
- * every seller quotes and the one that flatters — "$1.8M/yr" says nothing
- * about whether the business makes money, which is the question a reader is
- * actually asking. So when costs cover the window and a profit figure is
- * therefore real, it takes the headline slot and revenue steps aside.
- *
- * 🚨 The condition is `profit !== null`, and that null is load-bearing: the
- * backend returns it only when COGS covers EVERY month in the window
- * (public-profile.ts rule 4). A partial-coverage profit would be revenue
- * minus nine months of costs, which is a flattering number wearing the honest
- * one's label — so where the backend withholds it, this falls back to revenue
- * rather than computing anything of its own.
- */
-function headlineMoney(args: {
-  period: string;
-  revenue: number | null;
-  profit: number | null;
-  currency: string;
-}): { label: string; value: string; hint: string | undefined } {
-  if (args.profit !== null) {
-    return {
-      label: `Profit (${args.period})`,
-      value: money(args.profit, args.currency),
-      hint: undefined,
-    };
-  }
-  return {
-    label: `Revenue (${args.period})`,
-    value: money(args.revenue, args.currency),
-    hint: args.revenue === null ? "This seller keeps revenue private." : undefined,
-  };
-}
-
 function fetchBusiness(slug: string, currency: string): Promise<BusinessPayload> {
   // auth: false — a public page must render for a signed-out visitor, and
   // sending a stale bearer is the easiest way to make it LOOK like it works
@@ -313,18 +277,7 @@ export function Business() {
      must render as a business nobody has claimed, never as a broken link to a
      profile that does not exist. */
   const owner = p.profile ? p.profile.display_name || `@${p.profile.username}` : null;
-  const headline30 = headlineMoney({
-    period: "30d",
-    revenue: last30?.revenue ?? null,
-    profit: last30?.profit ?? null,
-    currency: displayCurrency,
-  });
-  const headlineWindow = headlineMoney({
-    period: `${p.window.months}m`,
-    revenue: d?.revenue ?? null,
-    profit: d?.profit ?? null,
-    currency: displayCurrency,
-  });
+
 
   return (
     <Shell width="profile">
@@ -375,26 +328,32 @@ export function Business() {
 
           <section data-profile-dashboard="">
             <div data-tiles="">
-              {/* 🚨 NO `emphasis` here. It sets `text-3xl` where every other
-                  tile is `text-xl`, and a headline figure twice the size of
-                  the one beside it reads as a different KIND of number rather
-                  than as one of a set. */}
-              <StatTile label={headline30.label} value={headline30.value} hint={headline30.hint} />
+              {/* FOUR CARDS, all on the same 30-day period, and the same four
+                  the founder profile shows — a reader moving between the two
+                  pages should not have to re-learn what a tile means.
+
+                  🚨 NO `emphasis` on any of them. It sets `text-3xl` where the
+                  rest are `text-xl`, and a figure twice the size of the one
+                  beside it reads as a different KIND of number rather than as
+                  one of a set. */}
               <StatTile
-                label="Margin (30d)"
+                label="Profit (30d)"
+                value={money(last30?.profit ?? null, displayCurrency)}
+                hint={p.metrics.margin_note ?? undefined}
+              />
+              <StatTile
+                label="Revenue (30d)"
+                value={money(last30?.revenue ?? null, displayCurrency)}
+                hint={last30?.revenue == null ? "This seller keeps revenue private." : undefined}
+              />
+              <StatTile
+                label="Margin"
                 value={percent(last30?.margin_pct ?? null)}
                 hint={p.metrics.margin_note ?? undefined}
               />
-              <StatTile
-                label={headlineWindow.label}
-                value={headlineWindow.value}
-                hint={headlineWindow.hint}
-              />
-              <StatTile
-                label={`Margin (${p.window.months}m)`}
-                value={percent(p.metrics.margin_pct)}
-                hint={p.metrics.margin_note ?? undefined}
-              />
+              <StatTile label="SKUs" value={
+                p.metrics.sku_count === null ? "—" : p.metrics.sku_count.toLocaleString()
+              } />
             </div>
 
             {trend.length > 0 ? (
@@ -410,12 +369,6 @@ export function Business() {
 
           <section>
             <dl>
-              {p.metrics.sku_count !== null ? (
-                <div>
-                  <dt>SKUs</dt>
-                  <dd data-metric="">{p.metrics.sku_count}</dd>
-                </div>
-              ) : null}
               {p.metrics.brand_count !== null ? (
                 <div>
                   <dt>{p.metrics.brands_label}</dt>

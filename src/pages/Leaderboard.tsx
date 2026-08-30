@@ -22,31 +22,48 @@ import { useCurrency } from "@/currency";
 type Mode = "founder" | "business";
 
 interface Entry {
-  rank: number;
-  username: string;
+  /** Null for a verified business with no costs on file: it has not placed,
+   *  which is a different thing from placing last. */
+  rank: number | null;
+  /** Null for an ORPHAN — a business with no founder behind it. */
+  username: string | null;
   display_name: string | null;
   avatar_url: string | null;
-  business: { label: string; markets: string[]; seller_type: string | null } | null;
-  margin_pct: number;
+  business: {
+    label: string;
+    markets: string[];
+    seller_type: string | null;
+    slug: string | null;
+  } | null;
+  margin_pct: number | null;
   revenue: number | null;
   currency: string;
   verification: { tier: string; label: string };
-  /* Present only on the profit variant. Optional rather than required so the
-     real board's payload — which has none of them — still satisfies this
-     interface, and so a missing one renders as absent instead of NaN. */
-  profit?: number | null;
+  /** The ranking figure: profit over the last 30 days. */
+  profit: number | null;
   /** Change in profit vs the previous 30 days, as a percentage. */
-  profit_change_pct?: number | null;
-  /** Positions gained (+) or lost (−) over the last 30 days. 0 = held. */
-  rank_delta?: number | null;
+  profit_change_pct: number | null;
+  /** Positions gained (+) or lost (−) since the previous 30 days. Null for an
+   *  entry that did not place then — a newcomer has not moved. */
+  rank_delta: number | null;
 }
 
 interface Board {
   mode: Mode;
-  window_months: number;
+  window_days: number;
   entries: Entry[];
   note: string | null;
 }
+
+/** Which rung of the verification ladder a tier sits on. Twin of `badgeState`
+ *  in Business.tsx and of VerificationBadge in the shared package — all three
+ *  render the same ladder and must not drift. */
+function badgeState(tier: string): "verified" | "partial" | "estimated" {
+  if (tier === "verified_margin") return "verified";
+  if (tier === "verified_revenue") return "partial";
+  return "estimated";
+}
+const BADGE_GLYPH = { verified: "\u2713", partial: "\u25D1", estimated: "\u25CB" } as const;
 
 const SELLER_TYPE_LABEL: Record<string, string> = {
   private_label: "Private label",
@@ -80,13 +97,25 @@ function initials(name: string): string {
  * A held position renders a dash rather than "0": zero is a quantity and this
  * is the absence of one. Colour is never the only carrier — the arrow and the
  * number say it too, so it survives a red/green colour deficiency. */
-function Movement({ delta }: { delta: number }) {
-  const dir = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+function Movement({ delta }: { delta: number | null }) {
+  // A newcomer (null) and a held position (0) both render a dash but mean
+  // different things, so only the held one says "held" to a screen reader.
+  // Colour is never the only carrier — the arrow and the number say it too,
+  // so it survives a red/green colour deficiency.
+  const dir = delta === null ? "new" : delta > 0 ? "up" : delta < 0 ? "down" : "flat";
   return (
-    <span data-board-move="" data-dir={dir} aria-label={
-      delta === 0 ? "Position held" : `${Math.abs(delta)} places ${delta > 0 ? "up" : "down"}`
-    }>
-      {delta === 0 ? "—" : `${delta > 0 ? "▲" : "▼"}${Math.abs(delta)}`}
+    <span
+      data-board-move=""
+      data-dir={dir}
+      aria-label={
+        delta === null
+          ? "New this period"
+          : delta === 0
+            ? "Position held"
+            : `${Math.abs(delta)} places ${delta > 0 ? "up" : "down"}`
+      }
+    >
+      {delta === null || delta === 0 ? "—" : `${delta > 0 ? "▲" : "▼"}${Math.abs(delta)}`}
     </span>
   );
 }
@@ -105,7 +134,7 @@ function Change({ pct }: { pct: number | null }) {
 
 export function Leaderboard({
   banner,
-  variant = "margin",
+  variant = "profit",
 }: {
   /* A note rendered above the board, inside the content column. The only
    * caller is the /demo/leaderboard page (src/pages/DemoLeaderboard.tsx),
@@ -168,14 +197,11 @@ export function Leaderboard({
         <h1>Leaderboard</h1>
         <p>
           {variant === "profit" ? (
-            <>
-              Ranked by profit over the last {board?.window_months ?? 12} months, with the
-              change over the last 30 days. Only sellers who chose to publish appear here.
-            </>
+            <>Ranked by profit over the last 30 days.</>
           ) : (
             <>
-              Ranked by margin over the last {board?.window_months ?? 12} months — not by size.
-              Only sellers who chose to publish their margin appear here.
+              Ranked by margin over the last 30 days — not by size. Only sellers who
+              chose to publish their margin appear here.
             </>
           )}
         </p>
@@ -206,7 +232,7 @@ export function Leaderboard({
 
         {board && board.entries.length === 0 ? (
           <p>
-            No margins to rank yet. <Link to="/verify">Verify your business</Link> to be
+            Nothing to rank yet. <Link to="/verify">Verify your business</Link> to be
             the first.
           </p>
         ) : null}
@@ -214,21 +240,43 @@ export function Leaderboard({
         {board && board.entries.length > 0 ? (
           <ol data-board="" data-variant={variant}>
             {board.entries.map((e) => (
-              <li key={`${e.username}-${e.business?.label ?? ""}-${e.business?.markets.join(",") ?? ""}`}>
-                <span data-board-rank="">{e.rank}</span>
-                {variant === "profit" ? <Movement delta={e.rank_delta ?? 0} /> : null}
+              <li
+                key={`${e.username ?? "orphan"}-${e.business?.slug ?? e.business?.label ?? ""}`}
+                data-unranked={e.rank === null ? "" : undefined}
+              >
+                {/* An entry with no rank shows a dash, not a number. It is a
+                    verified business we are listing, and it has not placed —
+                    which is not the same as placing last. */}
+                <span data-board-rank="">{e.rank ?? "—"}</span>
+                {variant === "profit" ? <Movement delta={e.rank_delta} /> : null}
                 <span className="vm-avatar" aria-hidden="true">
-                  {e.avatar_url ? <img src={e.avatar_url} alt="" /> : initials(e.display_name ?? e.username)}
+                  {e.avatar_url ? (
+                    <img src={e.avatar_url} alt="" />
+                  ) : (
+                    initials(e.display_name ?? e.username ?? e.business?.label ?? "?")
+                  )}
                 </span>
                 <span data-board-who="">
-                  <Link to={`/${e.username}`} data-board-name="">
-                    {e.display_name ?? e.username}
-                  </Link>
+                  {/* 🚨 An ORPHAN has no founder and therefore no profile to
+                      link to. It links to its own business page instead, and
+                      when it has neither it is plain text — never a link to
+                      "/" or to "/null". */}
+                  {e.username ? (
+                    <Link to={`/${e.username}`} data-board-name="">
+                      {e.display_name ?? e.username}
+                    </Link>
+                  ) : e.business?.slug ? (
+                    <Link to={`/business/${e.business.slug}`} data-board-name="">
+                      {e.business.label}
+                    </Link>
+                  ) : (
+                    <span data-board-name="">{e.business?.label ?? "—"}</span>
+                  )}
                   <span data-board-sub="">
-                    <span className="vm-handle">@{e.username}</span>
+                    {e.username ? <span className="vm-handle">@{e.username}</span> : null}
                     {e.business ? (
                       <>
-                        {" · "}
+                        {e.username ? " · " : ""}
                         {e.business.label}
                         {e.business.seller_type
                           ? ` · ${SELLER_TYPE_LABEL[e.business.seller_type] ?? e.business.seller_type}`
@@ -238,19 +286,30 @@ export function Leaderboard({
                     ) : null}
                   </span>
                 </span>
+                {/* The badge belongs on the board, not only on the profile:
+                    a ranking of numbers with no indication of what was checked
+                    invites reading a modelled margin as a verified one. */}
+                <span
+                  data-badge=""
+                  data-state={badgeState(e.verification.tier)}
+                  data-board-badge=""
+                >
+                  {BADGE_GLYPH[badgeState(e.verification.tier)]} {e.verification.label}
+                </span>
                 <span data-board-figures="">
                   {variant === "profit" ? (
                     <>
-                      {/* Profit leads; margin is deliberately absent on this
-                          variant. Revenue stays as the size context that makes
-                          a profit figure readable. */}
-                      <b data-metric="">{money(e.profit ?? null, e.currency)}</b>
-                      <Change pct={e.profit_change_pct ?? null} />
+                      {/* Profit leads; revenue stays as the size context that
+                          makes a profit figure readable. */}
+                      <b data-metric="">{money(e.profit, e.currency)}</b>
+                      <Change pct={e.profit_change_pct} />
                       <span data-board-revenue="">{money(e.revenue, e.currency)}</span>
                     </>
                   ) : (
                     <>
-                      <b data-metric="">{e.margin_pct.toFixed(1)}%</b>
+                      <b data-metric="">
+                        {e.margin_pct === null ? "—" : `${e.margin_pct.toFixed(1)}%`}
+                      </b>
                       <span data-board-revenue="">{money(e.revenue, e.currency)}</span>
                     </>
                   )}

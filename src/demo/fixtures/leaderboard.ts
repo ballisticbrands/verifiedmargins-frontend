@@ -334,13 +334,16 @@ export function leaderboard(mode: "founder" | "business", currency: string) {
 
   return {
     mode,
-    window_months: 12,
+    window_days: 30,
     entries: rows.map((r, i) => ({
-      rank: i + 1,
+      // The real board gives an unrankable entry `rank: null` and sorts it to
+      // the bottom; the fixture already sorts them last, so mirroring the null
+      // keeps the demo rendering the same shape the production payload does.
+      rank: profitOf(r) === null ? null : i + 1,
       username: r.username,
       display_name: r.display_name,
       avatar_url: null,
-      business: r.business,
+      business: r.business ? { ...r.business, slug: null } : null,
       margin_pct: r.margin_pct,
       revenue: r.revenue === null ? null : Math.round(r.revenue * (rate ?? 1)),
       currency: code,

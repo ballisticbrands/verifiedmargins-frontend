@@ -1022,10 +1022,36 @@ a, button, [role="button"] {
   border-radius: 50%;
   font-size: 1.5rem;
 }
+/* "2 businesses with ◑ Verified revenue · 1 business with ✓ Verified margins"
+   — one group per tier, each carrying the real badge rather than the word.
+   Wraps to its own line per group on a narrow screen: a badge broken across
+   two lines mid-pill is worse than a second row. */
 .vm-profile [data-verified-count] {
   margin: 0.3rem 0 0;
   font-size: 0.875rem;
   color: var(--muted-foreground);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.vm-profile [data-verified-group] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+/* A separator, not a bullet in a list — hidden from the accessibility tree so
+   a screen reader reads two facts rather than "middot". */
+.vm-profile [data-verified-sep] {
+  color: var(--border);
+  user-select: none;
+}
+/* Badges shrink to the line they sit on. Same palette as everywhere else —
+   the ladder must look identical on the header, the cards and the board. */
+.vm-profile [data-verified-count] [data-badge] {
+  font-size: 0.6875rem;
+  padding: 0.1rem 0.4rem;
 }
 
 /* Share and the outbound links STACK, and each names where it goes. A column
@@ -1457,6 +1483,29 @@ a, button, [role="button"] {
   font-size: 0.75rem;
   color: var(--muted-foreground);
 }
+/* The verification badge, in the row rather than only on the profile.
+   A ranking of numbers with no indication of WHAT was checked invites reading
+   a modelled margin as a verified one, which is the single misreading this
+   product cannot afford. Shrunk to row scale — it is context beside a figure,
+   not the headline it is on a profile — and it keeps the shared
+   [data-state] palette so all three badge sites stay one design.
+   Hidden below the phone breakpoint, where the row has no horizontal room and
+   the figures must win. */
+.vm-profile [data-board-badge] {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  padding: 0.15rem 0.45rem;
+  white-space: nowrap;
+}
+@media (max-width: 34rem) {
+  .vm-profile [data-board-badge] { display: none; }
+}
+
+/* An entry we list but cannot rank: a verified business whose costs are not
+   on file. Dimmed so the ranked table reads as the ranking, without hiding
+   the business — it is on the board precisely so it is not hidden. */
+.vm-profile [data-board] li[data-unranked] { opacity: 0.72; }
+
 .vm-profile [data-board-figures] {
   flex-shrink: 0;
   display: flex;
