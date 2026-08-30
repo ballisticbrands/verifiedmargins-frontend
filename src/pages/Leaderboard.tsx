@@ -154,6 +154,7 @@ function Change({ pct }: { pct: number | null }) {
 export function Leaderboard({
   banner,
   variant = "profit",
+  profileHref = (username) => `/${username}`,
 }: {
   /* A note rendered above the board, inside the content column. The only
    * caller is the /demo/leaderboard page (src/pages/DemoLeaderboard.tsx),
@@ -173,6 +174,19 @@ export function Leaderboard({
    * able to reverse without a rewrite. Nothing renders it today.
    */
   variant?: "margin" | "profit";
+  /**
+   * Where a row's name links to, given its handle. Defaults to the real
+   * public profile at `/<handle>`.
+   *
+   * 🎭 The /demo board overrides it to `/demo/<handle>`. Its rows ARE the demo
+   * profiles — same figures, read out of the same fixtures — but those handles
+   * belong to people who have not signed up, so `/<handle>` resolves to the
+   * public profile of a seller who does not exist and the board dead-ends on a
+   * "not found". A prop rather than a path check inside the row, because this
+   * page is also mounted at the real /leaderboard and must keep sending people
+   * to real profiles from there.
+   */
+  profileHref?: (username: string) => string;
 } = {}) {
   const brand = useBrand();
   const { currency } = useCurrency();
@@ -311,7 +325,7 @@ export function Leaderboard({
                       "/" or to "/null". */}
                   <span data-board-nameline="">
                     {e.username ? (
-                      <Link to={`/${e.username}`} data-board-name="">
+                      <Link to={profileHref(e.username)} data-board-name="">
                         {e.display_name ?? e.username}
                       </Link>
                     ) : e.business?.slug ? (

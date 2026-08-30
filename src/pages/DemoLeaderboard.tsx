@@ -30,6 +30,17 @@ export function DemoLeaderboard({ slug, demo }: { slug: string; demo: Leaderboar
 
   /* The banner goes through a prop rather than around the page, because
      Leaderboard renders its own Shell: wrapping it here would put the note
-     outside the content column, above the nav rail. */
-  return <Leaderboard variant="profit" banner={<DemoBanner />} />;
+     outside the content column, above the nav rail.
+
+     profileHref keeps the board inside the demo. Every row here is one of the
+     demo profiles, but their handles are real people who have not signed up —
+     the default `/<handle>` would send a prospect to a public profile that
+     does not exist, from a board built to show them theirs. */
+  return (
+    <Leaderboard
+      variant="profit"
+      banner={<DemoBanner />}
+      profileHref={(username) => `/demo/${username}`}
+    />
+  );
 }
