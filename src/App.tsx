@@ -20,6 +20,7 @@ import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
 import { Terms } from "@/pages/Terms";
 import { Support } from "@/pages/Support";
+import { HowVerificationWorks } from "@/pages/HowVerificationWorks";
 import { useAddBusiness } from "@/AddBusiness";
 
 export default function App() {
@@ -129,13 +130,18 @@ export default function App() {
       <Route path="/about" element={<About />} />
       <Route path="/tos" element={<Terms />} />
       <Route path="/support" element={<Support />} />
-      {/* 🚧 Placeholder routes. The navbar links here so the navigation can be
-          reviewed before the pages exist; a real page replaces each stub.
-          They are declared BEFORE /:username so a stub never gets mistaken
-          for a seller whose handle happens to be "feed". */}
+      {/* 🚧 Placeholder route. The navbar links here so the navigation can be
+          reviewed before the page exists; a real page replaces the stub. It is
+          declared BEFORE /:username so the stub never gets mistaken for a
+          seller whose handle happens to be "feed". */}
       <Route path="/feed" element={<ComingSoon title="Feed" />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
-      <Route path="/how-verification-works" element={<ComingSoon title="How verification works" />} />
+      {/* Public + indexable, like /about and /tos above — this is the page a
+          stranger reads before deciding whether any figure on this site means
+          anything, so it is in PUBLIC_PAGES (site.mjs) rather than APP_ROUTES,
+          and "how-verification-works" is already in the backend's
+          RESERVED_USERNAMES so the catch-all cannot shadow it. */}
+      <Route path="/how-verification-works" element={<HowVerificationWorks />} />
       {/* The old "Verify your business" destination. The nav item is a button
           now (it opens the flow in place), but this path is in the sitemap,
           the reserved-username list and any link already shared — so it keeps

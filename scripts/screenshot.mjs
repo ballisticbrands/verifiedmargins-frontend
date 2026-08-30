@@ -278,6 +278,10 @@ const PAGES = [
   { route: "/8x2k9", auth: false, name: "profile-estimated" },
   { route: "/quietseller", auth: false, name: "profile-margin-only" },
   { route: "/leaderboard", auth: false, name: "leaderboard" },
+  /* The trust page. Its badge specimens are copies of the profile's badge, so
+     a shot of it beside profile-verified is how a drift between the two gets
+     caught by looking rather than by a reader. */
+  { route: "/how-verification-works", auth: false, name: "how-verification-works" },
   /* 🎭 Demo pages render fixture data through the real components — see
    * src/demo/README.md. Worth shooting: a demo that renders wrong is a demo
    * shown to a prospect. */

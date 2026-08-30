@@ -65,6 +65,13 @@ export const PUBLIC_PAGES = [
    * (src/services/profiles/service.ts). Indexable on purpose: people search
    * for "<brand> support" before they think to look in the footer. */
   '/support',
+  /* The trust page: what each badge means and how it is earned. Indexable on
+   * purpose and the strongest reason of any page here to be — "is
+   * VerifiedMargins legit" and "how does X verify revenue" are queries someone
+   * types BEFORE they will click anything of ours, and this is the answer.
+   * Graduated out of APP_ROUTES (where it carried a Disallow) when it stopped
+   * being a "coming soon" stub. Already in the backend's RESERVED_USERNAMES. */
+  '/how-verification-works',
 ];
 
 /* 🎭 Demo pages (/demo/<slug>) — real components, fixture data, and often
@@ -106,9 +113,9 @@ export const APP_ROUTES = [
    * PUBLIC_PAGES on purpose: they need a 200 because the rail links to them
    * from every page and a 404 from our own navigation reads as a broken
    * site — but they must NOT be crawled while they say "not built yet".
-   * Move each to PUBLIC_PAGES when it becomes a real page. */
+   * Move each to PUBLIC_PAGES when it becomes a real page —
+   * /how-verification-works graduated that way. */
   '/feed',
-  '/how-verification-works',
   '/verify',
   /* The nav's "Profile" link. A resolver route, not a page — it reads the
    * signed-in user's profiles and redirects to their own /:username page (or
