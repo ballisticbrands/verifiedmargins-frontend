@@ -52,30 +52,32 @@
 
   --danger: #b42318;           /* ERRORS ONLY. Never "a bad number". */
 
-  /* Type. THREE roles: titles, prose, figures.
+  /* Type. TWO roles: words and figures.
 
-     Titles are PROPORTIONAL — the only face here that is not monospaced.
-     Everything else on this site is fixed-width, which is the register the
-     product lives in, but a page of nothing but monospace has no hierarchy:
-     a heading and the sentence beneath it differ only in size, so nothing
-     announces itself. A proportional title is the one contrast that makes
-     the rest read as deliberate rather than as terminal output.
+     Words are PROPORTIONAL — titles and prose alike. Figures are the
+     platform's own monospace, and they are the only fixed-width thing on
+     the site.
 
-     🚨 --font-display is the ONLY non-monospace stack in the file. If a
-     heading looks like its own body copy, this variable is not reaching it. */
+     🚨 THIS REPLACED A THREE-FACE MODEL in which prose was Inconsolata — a
+     MONOSPACED face, despite the variable name. Every sentence on the site
+     was fixed-width, which read as terminal output rather than as a designed
+     page and ran ~30% wider per character than it needed to. The mono is now
+     spent only where it earns its keep: on quantities. See BRANDING.md §4.
+
+     🚨 Figures keep their OWN stack rather than inheriting --font-sans.
+     tabular-nums on a proportional face aligns digits but gives nothing else
+     a fixed advance, and this product's entire surface is columns of
+     numbers. A figure should read as a quantity lifted out of the prose
+     around it, not as more prose. See BRANDING.md §4.3.
+
+     --font-display and --font-sans are the same stack today. They stay two
+     variables because the heading rule at the foot of this file is where a
+     real display face would land if one is ever commissioned; collapsing
+     them now would mean hunting down every heading later. */
   --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
-
-  /* Prose and figures: two monospaced faces, split words vs. numbers.
-     Words are Inconsolata; figures are the platform's own monospace. Both
-     are monospaced, so the page keeps one register — but they are not the
-     SAME face, and that difference is the point: a figure should read as a
-     quantity lifted out of the prose around it, not as more prose. See
-     BRANDING.md §4.
-     🚨 Inconsolata must NOT lead --font-mono. It did for a day, which made
-     every number render in the text face and quietly collapsed the two
-     stacks back into one. */
-  --font-sans: "Inconsolata", "Inconsolata Fallback", sans-serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 
@@ -83,22 +85,22 @@
   --radius-lg: 10px;           /* modals */
 }
 
-/* ─── The fallback face ───────────────────────────────────────────────
+/* ─── No web font ────────────────────────────────────────────────────
  *
- * Inconsolata arrives over the network; Arial is already here. These
- * overrides re-cut local Arial to Inconsolata's exact metrics, so the moment
- * the real face swaps in, not one line of the page reflows. Without this, a
- * profile visibly jumps a beat after paint — on the page a stranger judges
- * us by, in the first second they see it.
+ * Both faces are the platform's own now — system-ui for words, the system
+ * monospace for figures — so the site makes NO font request at all. That
+ * takes a blocking round trip to fonts.googleapis.com + fonts.gstatic.com
+ * off the critical path of a page people open from a DM.
+ *
+ * An `@font-face` for "Inconsolata Fallback" used to sit here, re-cutting
+ * local Arial to Inconsolata's exact metrics so that not one line reflowed
+ * when the real face swapped in. With no web font there is nothing to swap
+ * and nothing to reflow, so it went with it.
+ *
+ * 🚨 Restoring Inconsolata means restoring BOTH halves — the <link> in
+ * index.html AND that metric override — or every profile visibly jumps a
+ * beat after paint, on the page a stranger judges us by.
  */
-@font-face {
-  font-family: "Inconsolata Fallback";
-  src: local("Arial");
-  ascent-override: 76.59%;
-  descent-override: 16.94%;
-  line-gap-override: 0%;
-  size-adjust: 112.16%;
-}
 
 /* ─── One scheme, for now ─────────────────────────────────────────────
  *
@@ -123,6 +125,24 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* ─── Prose measure ──────────────────────────────────────────────────
+ *
+ * The long-form public pages — /about, /privacy, /tos, /support,
+ * /how-verification-works — run in the `wide` column (52rem), which is the
+ * right width for their tables and card grids and far too wide for their
+ * sentences. Unbroken, a paragraph there measures ~119ch, about double a
+ * readable line (BRANDING.md §4.1 caps prose at 70ch).
+ *
+ * 🚨 Scoped to the TEXT elements, not to the container. Capping the wrapper
+ * would drag the comparison table and the card grids in with it, and those
+ * are data views that want the full column.
+ */
+.vm-prose p,
+.vm-prose ul,
+.vm-prose ol {
+  max-width: 70ch;
 }
 
 /* ─── Shared <Input> dark-mode fix ────────────────────────────────────
@@ -212,7 +232,7 @@ select.bg-white {
 .vm-form p {
   margin: 0 0 0.75rem;
   color: var(--muted-foreground);
-  max-width: 62ch; /* long help text is unreadable at full page width */
+  max-width: 70ch; /* long help text is unreadable at full page width */
 }
 
 /* Labels sit on their own line above their control. In the original, label and
@@ -333,7 +353,7 @@ select.bg-white {
   margin-top: 0.35rem;
   font-size: 0.8125rem;
   color: var(--muted-foreground);
-  max-width: 62ch;
+  max-width: 70ch;
 }
 
 /* Connected accounts: the real account name, then a pill saying what kind of
@@ -1131,13 +1151,45 @@ a, button, [role="button"] {
   border: 0;
 }
 
+/* ── Site-wide anonymity notice ──────────────────────────────────────────
+   Rendered by <Shell>, so it appears on every page including public profiles.
+   Full-bleed on purpose: it sits outside [data-app-shell]'s 84rem column.
+
+   Uses the verified/green tint rather than a warning palette — this is
+   reassurance, not a caution. Green on tint is 6.0:1 (see --verified-tint). */
+[data-announcement] {
+  background: var(--verified-tint);
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 1.25rem;
+}
+[data-announcement] p {
+  margin: 0 auto;
+  max-width: 84rem;
+  color: var(--verified);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  text-align: center;
+}
+[data-announcement] strong {
+  font-weight: 700;
+}
+@media (max-width: 640px) {
+  [data-announcement] {
+    padding: 0.55rem 1rem;
+  }
+  [data-announcement] p {
+    font-size: 0.75rem;
+    text-align: left;
+  }
+}
+
 [data-app-shell] {
   display: flex;
   gap: 2.5rem;
   /* Wider than a reading column on purpose: this is a dashboard-shaped page
      — a rail, a row of stat tiles, a chart and a grid of business cards —
      and at 68rem the cards fell to two across on a laptop. The prose that
-     does need a measure caps itself (help text at 62ch), so widening the
+     does need a measure caps itself (help text at 70ch), so widening the
      shell costs readability nothing. */
   max-width: 84rem;
   margin: 0 auto;
@@ -2124,4 +2176,151 @@ h6,
   flex-direction: column;
   align-items: flex-end;
   gap: 0.1rem;
+}
+
+/* ─── The verification hero ───────────────────────────────────────────
+ *
+ * /how-verification-works, above the fold: a claim nobody can check beside a
+ * number anyone can. Two panels, deliberately the SAME size and weight — the
+ * argument is that these are indistinguishable until you ask where the figure
+ * came from, so making the left one visibly shabbier would answer the question
+ * the page is asking the reader to sit with.
+ *
+ * 🚨 COLOUR IS RATIONED HERE (BRANDING.md §3.1).
+ *   --verified appears exactly once, on the real badge, and must stay the
+ *   loudest mark on the page.
+ *   --danger appears exactly twice — the ✗ glyph and the word beside it. It is
+ *   legitimate because a fabricated claim is a falsehood rather than a bad
+ *   number (§4.3 forbids red for a thin margin, not for a lie), but as a panel
+ *   fill it would out-shout the green and switch the whole rule off.
+ *   The illustration itself is ink and grey. No third colour.
+ */
+.vm-hero {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+}
+@media (min-width: 700px) {
+  .vm-hero { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+}
+
+.vm-hero [data-hero-panel] {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+/* The verified panel earns a green hairline — the same signal the metrics
+   block on a profile uses (see [data-verification] above), so the vocabulary
+   is one vocabulary. The claimed panel gets the ordinary border: "unverified"
+   is the default state of the world, not an alarm. */
+.vm-hero [data-hero-panel][data-side="verified"] { border-color: var(--verified); }
+
+.vm-hero [data-hero-art] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 11.5rem;
+  margin-bottom: 0.85rem;
+  padding: 0.5rem;
+  background: var(--muted);
+  border-radius: var(--radius);
+}
+.vm-hero [data-hero-art] > svg { width: 100%; height: auto; }
+
+/* ── The claim, left ── */
+.vm-hero [data-hero-cash] rect { fill: var(--foreground); opacity: 0.14; }
+.vm-hero [data-hero-cash] text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--foreground);
+  opacity: 0.3;
+}
+.vm-hero [data-hero-car] { fill: var(--foreground); opacity: 0.16; }
+.vm-hero [data-hero-guru] { fill: var(--foreground); }
+.vm-hero [data-hero-guru] [data-limb] {
+  stroke: var(--foreground);
+  stroke-width: 13;
+  stroke-linecap: round;
+  fill: none;
+}
+/* Sunglasses: a bar of the panel's own background punched out of the
+   silhouette. Reads as shades instantly and, more usefully, keeps the figure
+   faceless — see the note in HowVerificationWorks.tsx. */
+.vm-hero [data-shades] { fill: var(--muted); }
+
+.vm-hero [data-hero-bubble] path {
+  fill: var(--background);
+  stroke: var(--foreground);
+  stroke-width: 2;
+}
+.vm-hero [data-hero-bubble] text {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 19px;
+  font-weight: 700;
+  fill: var(--foreground);
+}
+
+/* ── The verified panel, right ── */
+.vm-hero [data-hero-card] {
+  width: 100%;
+  padding: 0.85rem 0.9rem 0.7rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.vm-hero [data-hero-label] {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 550;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+/* A figure, so it takes the figures face and tabular digits (§4.3). */
+.vm-hero [data-hero-figure] {
+  margin: 0.1rem 0 0.5rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.vm-hero [data-hero-card] svg { display: block; width: 100%; height: auto; }
+.vm-hero [data-axis] { stroke: var(--border); stroke-width: 1.5; }
+.vm-hero [data-grid] { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 4; }
+/* Ink, NOT green. A revenue line is not a verification, and spending the
+   badge colour on a chart blunts the badge (BRANDING.md §3.1). */
+.vm-hero [data-series] {
+  fill: none;
+  stroke: var(--foreground);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.vm-hero [data-hero-axis-labels] {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.3rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+}
+
+/* ── The two verdicts ── */
+.vm-hero [data-hero-mark] {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+.vm-hero [data-hero-mark][data-state="false"] { color: var(--danger); }
+.vm-hero [data-hero-note] {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
 }

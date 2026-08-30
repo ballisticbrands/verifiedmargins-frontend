@@ -160,42 +160,57 @@ signal. **Scarcity is what makes it legible.** When in doubt, use ink.
 
 ## 4. Typography
 
-**Three roles: titles, prose, figures.**
+**Two roles: words and figures.**
 
 ```css
-/* Titles — the ONLY proportional face on the site */
+/* Words — titles AND prose. Proportional. */
 --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
                 Roboto, "Helvetica Neue", Arial, sans-serif;
+--font-sans:    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Roboto, "Helvetica Neue", Arial, sans-serif;
 
-/* Prose: body, labels, buttons, nav, bios, breadcrumbs */
---font-sans: "Inconsolata", "Inconsolata Fallback", sans-serif;
-
-/* Figures: every number, code and identifier */
+/* Figures: every number, code and identifier. The ONLY mono on the site. */
 --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
              "Liberation Mono", monospace;
 ```
 
-Two of the three are monospaced, which is the register this product
-lives in. The third exists because a page set entirely in fixed-width
-type has **no hierarchy**: a heading and the sentence under it differ by
-size alone, and the result reads as terminal output rather than as a
-designed page. One proportional face at the top of each section is the
-contrast that makes everything else read as deliberate.
+Everything a reader *reads* is proportional. Everything a reader
+*compares* is monospaced. That is the whole rule, and the split is
+words-vs-quantities, not heading-vs-body.
 
-Two traps, both of which have already happened here:
+**This replaced a three-face model**, and the history is worth keeping
+because the old model is still what most of this repo's comments were
+written against. Prose used to be **Inconsolata** — a monospaced face,
+despite living in a variable called `--font-sans`. Titles were the only
+proportional thing on the site. The intent was that a fixed-width page
+is the register a numbers product lives in; the effect was that every
+sentence read as terminal output and ran roughly 30% wider per character
+than it needed to, which is why the old measure had to be capped so hard
+(see below). The mono now retreats to where it earns its keep.
 
-🚨 **`--font-sans` is not proportional.** Inconsolata is a *monospaced*
-typeface. It is the prose face, not the sans — the variable name is a
-leftover and it has already misled a reader of this document into
-believing titles had a proportional face to fall back on. If you want
-non-monospaced, that is `--font-display` and nothing else.
+Two consequences, both deliberate:
 
-🚨 **Inconsolata must never lead `--font-mono`.** It did for a day. Every
-number rendered in the prose face, the two stacks were one stack wearing
-two names, and nothing looked broken — which is why it survived review.
-Check a figure and a sentence side by side, not the declarations.
+🚨 **There is no web font any more.** Inconsolata was one blocking
+request to fonts.googleapis.com + fonts.gstatic.com on the critical path
+of a page people open from a DM. Both faces are the platform's own now,
+so the site fetches nothing. The `@font-face` that re-cut local Arial to
+Inconsolata's metrics went with it — with nothing to swap in, there is
+nothing to reflow. **Restoring Inconsolata means restoring both halves**,
+the `<link>` and the metric override, or profiles jump a beat after paint.
 
-### 4.1 The three faces in practice
+🚨 **`--font-display` and `--font-sans` are the same stack today, and
+they stay two variables.** The heading rule at the foot of `globals.css`
+is where a real display face would land if one is ever commissioned.
+Collapsing them now means hunting down every heading later.
+
+🚨 **Figures do NOT inherit `--font-sans`.** `tabular-nums` on a
+proportional face aligns digits and nothing else; this product's whole
+surface is columns of numbers. A figure should read as a quantity lifted
+out of the prose around it. See §4.3 — it is unchanged, and it is now
+the only place a monospace appears.
+
+### 4.1 The two faces in practice
+
 
 **Titles — `--font-display`.** Every `h1`–`h6`, everywhere: profile
 names, section headings, the leaderboard, settings, and the
@@ -216,9 +231,11 @@ weight:
 | Dialog title | 1.25rem | 700 | −0.02em |
 | Dialog section (`h3`) | 0.95rem | 650 | −0.01em |
 
-**Prose — `--font-sans` (Inconsolata).** Body, help text, buttons, nav,
+**Prose — `--font-sans` (system-ui).** Body, help text, buttons, nav,
 badges, breadcrumbs, bios, and the LABEL half of every data row
-(`REVENUE (30D)` is a label; `$164K` is not).
+(`REVENUE (30D)` is a label; `$164K` is not). Same stack as the titles;
+they are told apart by size and weight, which is what the table above is
+for.
 
 | Role | Size | Weight |
 |---|---|---|
@@ -228,14 +245,27 @@ badges, breadcrumbs, bios, and the LABEL half of every data row
 | Badge | 0.75rem | 550 |
 
 Line-height **1.55 for prose**, **1.35 for data rows**. Prose caps at
-**62ch** — a mono runs wider per character than a sans, so that cap does
-more work here than it would elsewhere.
+**70ch**.
+
+⚠️ The cap was **62ch** while prose was monospaced, because a mono runs
+wider per character and needed a tighter character count to land on the
+same measure on screen. A proportional face reaches a comfortable line
+at a higher count. **The cap is not optional** — the content column is
+`52rem` (`.vm-col-wide`), which at body size is ~119ch of unbroken text
+if nothing stops it, roughly double a readable measure.
 
 **Figures — `--font-mono`.** See §4.3.
 
-### 4.2 The fallback face
+### 4.2 No web font
+
+The site fetches no typeface at all. Both faces are the platform's own,
+so there is no blocking request on the critical path and no swap after
+paint.
+
+This section used to specify a metric-matched fallback:
 
 ```css
+/* REMOVED with Inconsolata. Restore BOTH or neither. */
 @font-face {
   font-family: "Inconsolata Fallback";
   src: local("Arial");
@@ -246,17 +276,11 @@ more work here than it would elsewhere.
 }
 ```
 
-Local Arial re-cut to Inconsolata's exact metrics, so when the real face
-swaps in **not one line reflows**. Without it a profile visibly jumps a
-beat after paint — on the page a stranger judges us by, in the first
-second they see it. Do not remove this to "simplify".
-
-Inconsolata is one blocking request to fonts.googleapis.com +
-fonts.gstatic.com, preconnected in `index.html`. That is a real cost on
-the critical path of a page people open from a DM. If it ever proves too
-expensive — a slow region, an outage, a privacy objection — **self-host
-the woff2 subset**. The typeface is part of the identity; the delivery
-mechanism is not.
+Local Arial re-cut to Inconsolata's exact metrics, so that when the real
+face arrived **not one line reflowed**. It is kept here rather than
+deleted because it is the half everyone forgets: adding the `<link>`
+back without it is what makes a profile visibly jump a beat after paint,
+on the page a stranger judges us by.
 
 ### 4.3 Figures — the platform's own mono
 
@@ -360,7 +384,8 @@ Dense, not airy. This is a tool, and the reader is scanning.
 - **Cards are bordered surfaces**, never floating.
 - **Tables and metric rows over cards** wherever a list is comparable —
   a directory of businesses is a table, not a gallery.
-- Content column 62ch for prose; data views take the full width.
+- Content column 70ch for prose; data views take the full width. (62ch
+  while prose was monospaced — see §4.1.)
 - Focus is always visible: 2px `--accent` outline, 1px offset. Never
   `outline: none`.
 

@@ -50,6 +50,118 @@ import { useAddBusiness } from "@/AddBusiness";
 const CALENDLY_URL = "https://calendly.com/ggballas";
 
 /**
+ * The hero: a claim nobody can check, beside a number anyone can.
+ *
+ * 🚨 COLOUR DISCIPLINE, both directions (BRANDING.md §3, §3.1).
+ *
+ *   Green means VERIFIED and is not spent anywhere else, so the ✓ badge on the
+ *   right has to stay the loudest thing here. Nothing on this page may put a
+ *   second green next to it.
+ *
+ *   Red is ERRORS ONLY — §4.3 is explicit that a thin margin is not an error
+ *   and never renders red. A fabricated claim IS a falsehood rather than a bad
+ *   number, so red is honest here, but it is rationed to the ✗ mark and one
+ *   word. As a panel fill it would out-shout the green and turn the rule off.
+ *
+ * The left panel is a silhouette on purpose. A rendered face would be a person,
+ * and a person who resembles an identifiable real seller is a defamation
+ * problem on a page whose entire subject is who is lying about their numbers.
+ * No face, no name, no logo.
+ *
+ * The right panel is not a drawing of the product — the badge is the real
+ * `.vm-badge` and the figures are real `--font-mono`, so it cannot drift from
+ * what a profile actually renders. Same reason §2's specimens are real.
+ */
+function Hero() {
+  return (
+    <div className="vm-hero" data-hero="">
+      <div data-hero-panel="" data-side="claimed">
+        <div data-hero-art="">
+          {/* The claim. Silhouette, money, a rented-looking car, and a figure
+              with no basis under it — which is the entire point of the panel. */}
+          <svg viewBox="0 0 320 200" role="img" aria-label="A silhouetted figure celebrating amid flying banknotes beside a sports car, claiming fifty thousand dollars a month">
+            {/* Banknotes, low opacity so they read as texture, not as objects. */}
+            <g data-hero-cash="">
+              <g transform="rotate(-18 44 58)"><rect x="26" y="46" width="36" height="22" rx="3" /><text x="44" y="62" textAnchor="middle">$</text></g>
+              <g transform="rotate(14 268 76)"><rect x="250" y="64" width="36" height="22" rx="3" /><text x="268" y="80" textAnchor="middle">$</text></g>
+              <g transform="rotate(-9 72 128)"><rect x="54" y="116" width="36" height="22" rx="3" /><text x="72" y="132" textAnchor="middle">$</text></g>
+              <g transform="rotate(24 252 146)"><rect x="234" y="134" width="36" height="22" rx="3" /><text x="252" y="150" textAnchor="middle">$</text></g>
+            </g>
+
+            {/* The car, hinted rather than drawn — it is a prop in the claim,
+                not the subject. */}
+            <g data-hero-car="">
+              <path d="M18 178 q6-22 26-24 l16-14 q22-8 44 0 l18 14 q20 3 26 24 z" />
+              <circle cx="46" cy="178" r="9" />
+              <circle cx="114" cy="178" r="9" />
+            </g>
+
+            {/* The figure. Arms up, sunglasses, no face. */}
+            <g data-hero-guru="">
+              <path d="M160 88 L118 44" data-limb="" />
+              <path d="M160 88 L202 44" data-limb="" />
+              <path d="M154 140 L148 180" data-limb="" />
+              <path d="M170 140 L178 180" data-limb="" />
+              <path d="M141 84 h38 v46 a10 10 0 0 1 -10 10 h-18 a10 10 0 0 1 -10 -10 z" />
+              <circle cx="160" cy="54" r="19" />
+              <rect x="144" y="48" width="32" height="8" rx="4" data-shades="" />
+            </g>
+
+            {/* The claim itself, in the figures face — it IS a figure, and one
+                with nothing underneath it. */}
+            <g data-hero-bubble="">
+              <path d="M196 10 h112 a8 8 0 0 1 8 8 v30 a8 8 0 0 1 -8 8 h-96 l-14 12 v-12 h-2 a8 8 0 0 1 -8 -8 v-30 a8 8 0 0 1 8 -8 z" />
+              <text x="252" y="39" textAnchor="middle">$50K/mo</text>
+            </g>
+          </svg>
+        </div>
+
+        <p data-hero-mark="" data-state="false">
+          <span aria-hidden="true">{"✗"}</span> Unverifiable
+        </p>
+        <p data-hero-note="">
+          A screenshot and a claim. Nothing behind it can be checked by the
+          person reading it — which is every margin figure this industry
+          has ever been shown.
+        </p>
+      </div>
+
+      <div data-hero-panel="" data-side="verified">
+        <div data-hero-art="">
+          {/* The same kind of number, with its basis attached: a window, an
+              axis, and a source. */}
+          <div data-hero-card="">
+            <p data-hero-label="">REVENUE · LAST 12 MONTHS</p>
+            <p data-hero-figure="">$1.2M</p>
+            <svg viewBox="0 0 280 78" role="img" aria-label="Monthly revenue rising from August 2025 to July 2026, with a labelled axis">
+              <line x1="0" y1="62" x2="280" y2="62" data-axis="" />
+              <line x1="0" y1="34" x2="280" y2="34" data-grid="" />
+              <path
+                d="M4 56 L27 52 L50 55 L73 45 L96 48 L119 38 L142 41 L165 30 L188 33 L211 22 L234 26 L257 14"
+                data-series=""
+              />
+            </svg>
+            <p data-hero-axis-labels="">
+              <span>Aug 2025</span>
+              <span>Jul 2026</span>
+            </p>
+          </div>
+        </div>
+
+        <p data-hero-mark="">
+          <Badge tier="verified_margin" label="Verified margin" />
+        </p>
+        <p data-hero-note="">
+          The same kind of number, read from Amazon through their own API,
+          with the window it covers and the costs it was computed against
+          stated beside it.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/**
  * One badge, rendered exactly as a profile renders it.
  *
  * ⚠️ The conditional is `tier.startsWith("verified")`, copied from
@@ -210,7 +322,13 @@ export function HowVerificationWorks() {
     <Shell width="wide">
       <h1 className="mt-4 text-2xl font-bold tracking-tight">How verification works</h1>
 
-      <div className="mt-6 space-y-10 text-sm leading-relaxed">
+      {/* The argument in one look, before a word of it is made in prose. */}
+      <Hero />
+
+      {/* `vm-prose` caps sentences at 70ch (BRANDING.md §4.1). It hits the
+          text elements, not this wrapper — the table and the card grids below
+          are data views and want the whole 52rem column. */}
+      <div className="vm-prose mt-6 space-y-10 text-sm leading-relaxed">
         <section>
           <p>
             Everyone in this industry has seen a revenue figure in a screenshot, and nobody can check

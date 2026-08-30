@@ -13,6 +13,7 @@ import {
   SignOutIcon,
   VerifyIcon,
 } from "@/components/NavIcons";
+import { AnnouncementBar } from "@/components/AnnouncementBar";
 
 /**
  * Page chrome: header, content column, footer.
@@ -86,7 +87,11 @@ export function Shell({
        becomes a horizontal strip above the content (see globals.css) rather
        than a hamburger: four destinations fit on a line, and a menu that has
        to be opened hides the only navigation this product has. */
-    <div data-app-shell="">
+    <>
+      {/* Full-bleed: sits outside [data-app-shell]'s 84rem column so the
+          notice spans the viewport on every page, profiles included. */}
+      <AnnouncementBar />
+      <div data-app-shell="">
       <aside data-sidebar="">
         <Link to="/" data-sidebar-brand="">
           <Logo size={26} />
@@ -160,7 +165,8 @@ export function Shell({
       </div>
 
       {addBusiness.isOpen ? <AddBusinessModal onClose={addBusiness.close} /> : null}
-    </div>
+      </div>
+    </>
   );
 }
 
