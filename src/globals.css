@@ -1543,6 +1543,26 @@ a, button, [role="button"] {
   color: var(--muted-foreground);
 }
 
+/* A figure and the word for what it is, on one line.
+   Two stacked currency amounts with nothing between them are
+   indistinguishable, and a reader could take the larger one for the profit —
+   the opposite of what the board ranks on. The label is what makes the pair
+   readable, so it is never dropped responsively.
+   Baseline-aligned so the word sits on the number's baseline rather than
+   floating against its cap height, and NOT monospaced: the mono face is for
+   figures, and setting a word in it would make the label read as data. */
+.vm-profile [data-board-figure] {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+.vm-profile [data-board-unit] {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  letter-spacing: 0.01em;
+}
+
 
 /* Owner-only note ("your margin is hidden because…"). Set apart so the owner
    reads it as a message to them rather than as page copy. */

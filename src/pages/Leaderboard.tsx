@@ -344,21 +344,39 @@ export function Leaderboard({
                     ) : null}
                   </span>
                 </span>
+                {/* 🚨 EVERY FIGURE NAMES ITSELF. Two stacked currency amounts
+                    with nothing between them are indistinguishable — a reader
+                    could take the larger one for the profit, which is the
+                    exact opposite of what the board is ranking on. The label
+                    is what makes the pair readable, so it is not decoration
+                    and does not get dropped on a narrow screen. */}
                 <span data-board-figures="">
                   {variant === "profit" ? (
                     <>
                       {/* Profit leads; revenue stays as the size context that
                           makes a profit figure readable. */}
-                      <b data-metric="">{money(e.profit, e.currency)}</b>
+                      <span data-board-figure="">
+                        <b data-metric="">{money(e.profit, e.currency)}</b>
+                        <small data-board-unit="">profit</small>
+                      </span>
                       <Change pct={e.profit_change_pct} />
-                      <span data-board-revenue="">{money(e.revenue, e.currency)}</span>
+                      <span data-board-figure="">
+                        <span data-board-revenue="">{money(e.revenue, e.currency)}</span>
+                        <small data-board-unit="">revenue</small>
+                      </span>
                     </>
                   ) : (
                     <>
-                      <b data-metric="">
-                        {e.margin_pct === null ? "—" : `${e.margin_pct.toFixed(1)}%`}
-                      </b>
-                      <span data-board-revenue="">{money(e.revenue, e.currency)}</span>
+                      <span data-board-figure="">
+                        <b data-metric="">
+                          {e.margin_pct === null ? "—" : `${e.margin_pct.toFixed(1)}%`}
+                        </b>
+                        <small data-board-unit="">margin</small>
+                      </span>
+                      <span data-board-figure="">
+                        <span data-board-revenue="">{money(e.revenue, e.currency)}</span>
+                        <small data-board-unit="">revenue</small>
+                      </span>
                     </>
                   )}
                 </span>
