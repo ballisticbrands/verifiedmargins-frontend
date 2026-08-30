@@ -344,6 +344,9 @@ export function leaderboard(mode: "founder" | "business", currency: string) {
       display_name: r.display_name,
       avatar_url: null,
       business: r.business ? { ...r.business, slug: null } : null,
+      /* Founder rows only, matching the real payload. Deterministic from the
+         handle so the demo does not reshuffle between renders. */
+      business_count: r.business ? null : 1 + Math.floor(hashUnit(`${r.username}|biz`) * 4),
       margin_pct: r.margin_pct,
       revenue: r.revenue === null ? null : Math.round(r.revenue * (rate ?? 1)),
       currency: code,

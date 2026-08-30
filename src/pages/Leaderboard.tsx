@@ -42,6 +42,9 @@ interface Entry {
     seller_type: string | null;
     slug: string | null;
   } | null;
+  /** How many businesses a founder's figures are the total OF. Null on the
+   *  business board, where every row IS one business. */
+  business_count: number | null;
   margin_pct: number | null;
   revenue: number | null;
   currency: string;
@@ -319,6 +322,16 @@ export function Leaderboard({
                   </span>
                   <span data-board-sub="">
                     {e.username ? <span className="vm-handle">@{e.username}</span> : null}
+                    {/* What the figure beside it is the total OF. A founder's
+                        profit is an aggregate, and an aggregate with no
+                        denominator invites reading it as one business's. */}
+                    {e.business_count !== null ? (
+                      <>
+                        {e.username ? " · " : ""}
+                        {e.business_count}{" "}
+                        {e.business_count === 1 ? "business" : "businesses"}
+                      </>
+                    ) : null}
                     {e.business ? (
                       <>
                         {e.username ? " · " : ""}
