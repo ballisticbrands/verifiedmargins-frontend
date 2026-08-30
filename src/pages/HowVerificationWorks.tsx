@@ -91,18 +91,26 @@ function Hero() {
             {/* The car, hinted rather than drawn — it is a prop in the claim,
                 not the subject. */}
             <g data-hero-car="">
-              <path d="M18 178 q6-22 26-24 l16-14 q22-8 44 0 l18 14 q20 3 26 24 z" />
-              <circle cx="46" cy="178" r="9" />
-              <circle cx="114" cy="178" r="9" />
+              <path d="M6 180 v-10 q2-15 20-18 l18-16 q26-9 52 0 l18 16 q18 3 20 18 v10 z" />
+              {/* The cabin is punched out in the panel's own grey, which is
+                  what makes the shape read as a car rather than as a lump —
+                  the same trick as the sunglasses. */}
+              <path d="M50 152 l14-12 q22-7 44 0 l13 12 z" data-cutout="" />
+              <circle cx="40" cy="180" r="11" />
+              <circle cx="118" cy="180" r="11" />
+              <circle cx="40" cy="180" r="4.5" data-cutout="" />
+              <circle cx="118" cy="180" r="4.5" data-cutout="" />
             </g>
 
             {/* The figure. Arms up, sunglasses, no face. */}
             <g data-hero-guru="">
               <path d="M160 88 L118 44" data-limb="" />
               <path d="M160 88 L202 44" data-limb="" />
+              <circle cx="116" cy="42" r="8" />
+              <circle cx="204" cy="42" r="8" />
               <path d="M154 140 L148 180" data-limb="" />
               <path d="M170 140 L178 180" data-limb="" />
-              <path d="M141 84 h38 v46 a10 10 0 0 1 -10 10 h-18 a10 10 0 0 1 -10 -10 z" />
+              <path d="M141 80 q0-9 9-9 h20 q9 0 9 9 v50 a10 10 0 0 1 -10 10 h-18 a10 10 0 0 1 -10 -10 z" />
               <circle cx="160" cy="54" r="19" />
               <rect x="144" y="48" width="32" height="8" rx="4" data-shades="" />
             </g>

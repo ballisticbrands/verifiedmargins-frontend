@@ -2238,7 +2238,10 @@ h6,
   fill: var(--foreground);
   opacity: 0.3;
 }
-.vm-hero [data-hero-car] { fill: var(--foreground); opacity: 0.16; }
+.vm-hero [data-hero-car] { fill: var(--foreground); opacity: 0.22; }
+/* Punched back out to the panel ground, so the silhouette reads as a shape
+   with parts rather than as one lump. */
+.vm-hero [data-hero-car] [data-cutout] { fill: var(--muted); opacity: 1; }
 .vm-hero [data-hero-guru] { fill: var(--foreground); }
 .vm-hero [data-hero-guru] [data-limb] {
   stroke: var(--foreground);
