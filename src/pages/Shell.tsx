@@ -106,8 +106,21 @@ export function Shell({
             read as a broken site. */}
         <nav data-product-nav="" aria-label="Site">
           {/* Leaderboard first: it is what `/` serves and the reason a
-              stranger stays. Feed sits under it. */}
-          <NavLink to="/leaderboard" current={pathname} icon={<LeaderboardIcon />}>
+              stranger stays. Feed sits under it.
+
+              🎭 Inside /demo it points at the DEMO board. A demo profile is
+              built to be sent to one person, and the first thing they click is
+              the rail — landing them on the real `/leaderboard`, which is a
+              near-empty production board, ends the pitch on the emptiest page
+              the product has. Keyed on the path rather than threaded as a prop
+              because `Leaderboard` renders its own Shell (DemoLeaderboard
+              passes it a banner, not a wrapper), so there is nowhere to thread
+              it through for the demo board itself. */}
+          <NavLink
+            to={pathname.startsWith("/demo") ? "/demo/leaderboard" : "/leaderboard"}
+            current={pathname}
+            icon={<LeaderboardIcon />}
+          >
             Leaderboard
           </NavLink>
           <NavLink to="/feed" current={pathname} icon={<FeedIcon />}>Feed</NavLink>
