@@ -104,7 +104,11 @@ for (const { slug } of list) {
   /* `b.profile` is null for an ORPHAN — a business no one has claimed. The
    * description below must not then read "one business of @" with an empty
    * handle, which is what the old unconditional fallback produced. */
-  const owner = b.profile ? b.profile.display_name || `@${b.profile.username}` : null;
+  const owner = b.profile
+    ? b.profile.is_ghost
+      ? 'anonymous founder'
+      : b.profile.display_name || `@${b.profile.username}`
+    : null;
   const tier = b.verification?.label ?? 'Unverified';
   const margin = b.metrics?.margin_pct != null ? `${b.metrics.margin_pct.toFixed(1)}% margin. ` : '';
   const title = `${name} — ${BRAND_NAME}`;
@@ -190,12 +194,16 @@ for (const { slug } of list) {
     // The backend's own caveats, verbatim — it is the only thing that knows
     // why a figure is missing or flattering.
     ...(Array.isArray(b.notes) ? b.notes.map((n) => `<p>${esc(n)}</p>`) : []),
-    /* An orphan still names a founder — "one business of —" reads as missing
-       data rather than as the fact that nobody has claimed it. Plain text, no
-       link, matching the rendered page. */
+    /* An orphan still names a founder: its GHOST, at /af-<digits>. "One
+       business of" nothing reads as missing data rather than as "nobody has
+       claimed this". The link text matches the rendered page — "anonymous
+       founder", not the ghost's longer page title — so a crawler and a
+       reader see the same sentence. */
     b.profile?.username
-      ? `<p>One business of <a href="${SITE}/${esc(b.profile.username)}/">${esc(owner)}</a></p>`
-      : `<p>One business of <em>anonymous founder</em></p>`,
+      ? `<p>One business of <a href="${SITE}/${esc(b.profile.username)}/">${
+          b.profile.is_ghost ? '<em>anonymous founder</em>' : esc(owner)
+        }</a></p>`
+      : '',
     `<p><a href="${SITE}/">What is ${esc(BRAND_NAME)}?</a></p>`,
   ].filter(Boolean).join('\n        ');
 

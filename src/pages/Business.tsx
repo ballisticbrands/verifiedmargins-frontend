@@ -79,6 +79,10 @@ interface BusinessPayload {
     username: string;
     display_name: string | null;
     avatar_url: string | null;
+    /** True when this "founder" is a derived GHOST rather than a person — an
+     *  orphan's stand-in at /af-<digits>. Rendered differently, and flagged
+     *  by the backend so this never sniffs the `af-` prefix. */
+    is_ghost: boolean;
   } | null;
   metrics: {
     display: {
@@ -350,23 +354,28 @@ export function Business() {
                     🚨 There is deliberately NO source line. A transcribed
                     business's listing URL is not on the payload at all, so
                     there is nothing here to render even by accident. */}
-                  <p data-business-owner="">
-                    One business of{" "}
-                    {p.profile && owner ? (
-                      <Link to={`/${p.profile.username}`}>{owner}</Link>
-                    ) : (
-                      /* An ORPHAN still names a founder, because "one business
-                         of —" reads as missing data rather than as the fact it
-                         is: nobody has claimed this business.
+                  {/* An ORPHAN still names a founder, because "one business
+                      of" nothing reads as missing data rather than as the
+                      fact it is: nobody has claimed this business. Its
+                      founder is the GHOST — a derived second view of this
+                      same business at /af-<digits> — and it links there.
 
-                         🚨 PLAIN TEXT, NOT A LINK, deliberately. A derived
-                         ghost page does exist at /af-<digits>, but linking
-                         "anonymous founder" would offer a reader a person to
-                         go and read about when there is none — the page is a
-                         second view of THIS business, not a profile. */
-                      <span data-business-anon="">anonymous founder</span>
-                    )}
-                  </p>
+                      The link TEXT stays "anonymous founder" while the page
+                      it opens is titled "Anonymous founder 42360". They are
+                      the same thing said at two lengths; the digits would add
+                      nothing in a sentence that already sits under the
+                      business they belong to. */}
+                  {p.profile ? (
+                    <p data-business-owner="">
+                      One business of{" "}
+                      <Link
+                        to={`/${p.profile.username}`}
+                        {...(p.profile.is_ghost ? { "data-business-anon": "" } : {})}
+                      >
+                        {p.profile.is_ghost ? "anonymous founder" : owner}
+                      </Link>
+                    </p>
+                  ) : null}
                 </span>
               </span>
             </span>
