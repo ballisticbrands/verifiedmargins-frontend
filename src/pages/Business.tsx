@@ -350,12 +350,23 @@ export function Business() {
                     🚨 There is deliberately NO source line. A transcribed
                     business's listing URL is not on the payload at all, so
                     there is nothing here to render even by accident. */}
-                  {p.profile && owner ? (
-                    <p data-business-owner="">
-                      One business of{" "}
+                  <p data-business-owner="">
+                    One business of{" "}
+                    {p.profile && owner ? (
                       <Link to={`/${p.profile.username}`}>{owner}</Link>
-                    </p>
-                  ) : null}
+                    ) : (
+                      /* An ORPHAN still names a founder, because "one business
+                         of —" reads as missing data rather than as the fact it
+                         is: nobody has claimed this business.
+
+                         🚨 PLAIN TEXT, NOT A LINK, deliberately. A derived
+                         ghost page does exist at /af-<digits>, but linking
+                         "anonymous founder" would offer a reader a person to
+                         go and read about when there is none — the page is a
+                         second view of THIS business, not a profile. */
+                      <span data-business-anon="">anonymous founder</span>
+                    )}
+                  </p>
                 </span>
               </span>
             </span>

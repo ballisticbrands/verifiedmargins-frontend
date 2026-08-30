@@ -190,9 +190,12 @@ for (const { slug } of list) {
     // The backend's own caveats, verbatim — it is the only thing that knows
     // why a figure is missing or flattering.
     ...(Array.isArray(b.notes) ? b.notes.map((n) => `<p>${esc(n)}</p>`) : []),
+    /* An orphan still names a founder — "one business of —" reads as missing
+       data rather than as the fact that nobody has claimed it. Plain text, no
+       link, matching the rendered page. */
     b.profile?.username
       ? `<p>One business of <a href="${SITE}/${esc(b.profile.username)}/">${esc(owner)}</a></p>`
-      : '',
+      : `<p>One business of <em>anonymous founder</em></p>`,
     `<p><a href="${SITE}/">What is ${esc(BRAND_NAME)}?</a></p>`,
   ].filter(Boolean).join('\n        ');
 

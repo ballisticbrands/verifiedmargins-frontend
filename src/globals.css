@@ -1144,6 +1144,12 @@ a, button, [role="button"] {
   font-size: 0.875rem;
   color: var(--muted-foreground);
 }
+/* "anonymous founder" — a name, not a link. Italic so a reader can see at a
+   glance that it stands in for a person rather than naming one, and so it
+   does not read as a link that failed to render. */
+.vm-profile [data-business-anon] {
+  font-style: italic;
+}
 
 .vm-profile [data-share] {
   flex-shrink: 0;
