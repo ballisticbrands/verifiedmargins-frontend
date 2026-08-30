@@ -53,6 +53,36 @@ import { useAddBusiness } from "@/AddBusiness";
 const CALENDLY_URL = "https://calendly.com/ggballas";
 
 /**
+ * The window the hero's chart illustrates: the twelve COMPLETE months ending
+ * with last month. In August 2026 that is Aug 2025 → Jul 2026.
+ *
+ * 🚨 COMPUTED, NEVER WRITTEN DOWN. These were two hardcoded strings, which
+ * meant the one picture on the page arguing "this figure is current" would
+ * quietly start advertising a stale year — on the page whose entire subject is
+ * whether our numbers can be trusted. A wrong date here is not a cosmetic bug.
+ *
+ * The CURRENT month is deliberately excluded. A partial month is a shorter
+ * month, so including it would draw a cliff at the right edge of a chart whose
+ * whole job is to look like a healthy business — and it is the same
+ * complete-windows convention the real profile pages use.
+ *
+ * Runs in the browser on every render, so it cannot go stale in the build
+ * output: the static stub for this route is an empty shell and the page is
+ * client-rendered. `new Date(y, m - 1, 1)` handles the underflow — month −1 is
+ * December of the previous year — so no wrap-around arithmetic is needed here.
+ */
+function heroWindow(now: Date = new Date()) {
+  const end = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const start = new Date(end.getFullYear(), end.getMonth() - 11, 1);
+  /* en-US explicitly, not the visitor's locale: every other date on this site
+     is written this way, and a chart axis that changes shape by region is a
+     detail nobody asked for. */
+  const short = (d: Date) => d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  const long = (d: Date) => d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  return { start: short(start), end: short(end), startLong: long(start), endLong: long(end) };
+}
+
+/**
  * The hero: a claim nobody can check, beside a number anyone can.
  *
  * 🚨 COLOUR DISCIPLINE, both directions (BRANDING.md §3, §3.1).
@@ -76,6 +106,7 @@ const CALENDLY_URL = "https://calendly.com/ggballas";
  * what a profile actually renders. Same reason §2's specimens are real.
  */
 function Hero() {
+  const window12 = heroWindow();
   return (
     <div className="vm-hero" data-hero="">
       <div data-hero-panel="" data-side="claimed">
@@ -144,7 +175,11 @@ function Hero() {
           <div data-hero-card="">
             <p data-hero-label="">REVENUE · LAST 12 MONTHS</p>
             <p data-hero-figure="">$1.2M</p>
-            <svg viewBox="0 0 280 78" role="img" aria-label="Monthly revenue rising from August 2025 to July 2026, with a labelled axis">
+            <svg
+              viewBox="0 0 280 78"
+              role="img"
+              aria-label={`Monthly revenue rising from ${window12.startLong} to ${window12.endLong}, with a labelled axis`}
+            >
               <line x1="0" y1="62" x2="280" y2="62" data-axis="" />
               <line x1="0" y1="34" x2="280" y2="34" data-grid="" />
               <path
@@ -153,8 +188,8 @@ function Hero() {
               />
             </svg>
             <p data-hero-axis-labels="">
-              <span>Aug 2025</span>
-              <span>Jul 2026</span>
+              <span>{window12.start}</span>
+              <span>{window12.end}</span>
             </p>
           </div>
         </div>
