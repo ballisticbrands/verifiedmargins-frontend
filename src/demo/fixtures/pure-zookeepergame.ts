@@ -81,7 +81,9 @@ export function pureZookeepergame(months: number, currency: string) {
   return {
     username: "Pure_Zookeepergame_2",
     display_name: "boringfixesguy",
-    bio: "This is the bio of Pure_Zookeepergame_2",
+    /* Their own Reddit bio, verbatim. A demo whose whole pitch is "this page is
+       already yours" cannot carry a placeholder where the bio goes. */
+    bio: "Run Amazon listings, PPC, and compliance audits for sellers (mostly supplements/personal care). Most fixes are boring, not flashy. DMs open if you've got a specific problem.",
     avatar_url: null,
     website_url: null,
     socials: { reddit: "https://www.reddit.com/user/Pure_Zookeepergame_2/" },
