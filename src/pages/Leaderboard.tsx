@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ApiError, apiFetch, useBrand } from "@ballisticbrands/frontend-shared";
+import { ApiError, apiFetch, useBrand,
+  verificationBadgeState,
+  VERIFICATION_GLYPH,
+  VERIFICATION_TIP,
+} from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { useCurrency } from "@/currency";
 
@@ -65,15 +69,20 @@ interface Board {
   note: string | null;
 }
 
-/** Which rung of the verification ladder a tier sits on. Twin of `badgeState`
- *  in Business.tsx and of VerificationBadge in the shared package — all three
- *  render the same ladder and must not drift. */
-function badgeState(tier: string): "verified" | "partial" | "estimated" {
-  if (tier === "verified_margin") return "verified";
-  if (tier === "verified_revenue") return "partial";
-  return "estimated";
+/** A board row's badge: the shared ladder, plus the board's own sizing hook. */
+function BoardBadge({ verification }: { verification: { tier: string; label: string } }) {
+  const state = verificationBadgeState(verification.tier);
+  return (
+    <span
+      data-badge=""
+      data-state={state}
+      data-board-badge=""
+      data-tip={VERIFICATION_TIP[state]}
+    >
+      {VERIFICATION_GLYPH[state]} {verification.label}
+    </span>
+  );
 }
-const BADGE_GLYPH = { verified: "\u2713", partial: "\u25D1", estimated: "\u25CB" } as const;
 
 const SELLER_TYPE_LABEL: Record<string, string> = {
   private_label: "Private label",
@@ -312,13 +321,12 @@ export function Leaderboard({
                     ) : (
                       <span data-board-name="">{e.business?.label ?? "—"}</span>
                     )}
-                    <span
-                      data-badge=""
-                      data-state={badgeState(e.verification.tier)}
-                      data-board-badge=""
-                    >
-                      {BADGE_GLYPH[badgeState(e.verification.tier)]} {e.verification.label}
-                    </span>
+                    {/* The shared helpers rather than the shared COMPONENT:
+                        a board badge carries `data-board-badge` for its own
+                        sizing, and the component takes no pass-through attrs.
+                        The ladder itself — state, glyph, tooltip — still has
+                        exactly one definition, in the package. */}
+                    <BoardBadge verification={e.verification} />
                   </span>
                   <span data-board-sub="">
                     {e.username ? <span className="vm-handle">@{e.username}</span> : null}

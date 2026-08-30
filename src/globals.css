@@ -2515,3 +2515,62 @@ h2[data-heading-badges] {
   align-items: center;
   gap: 0.4rem;
 }
+
+/* ─── Badge tooltips ──────────────────────────────────────────────────
+ *
+ * BRANDING.md §5: "A badge never appears without its explainer within reach —
+ * a tooltip, or a link to the 'what's the difference' copy. A badge that
+ * can't be interrogated is decoration." This is that explainer, on every
+ * surface a badge appears — profiles, business pages, the leaderboard.
+ *
+ * 🚨 NOT on /how-verification-works. That page IS the explanation, and its
+ * specimens deliberately carry no `data-tip` (see the Badge in
+ * HowVerificationWorks.tsx). The rule here is attribute-driven rather than
+ * page-scoped precisely so that stays a property of the badge, not of a
+ * selector somebody has to remember to update.
+ *
+ * The bubble is --accent (near-black), NOT the rung's colour. A green tooltip
+ * on a green badge would spend the verification colour on chrome, and §3.1 is
+ * clear that green means one thing here. One neutral bubble for all three
+ * rungs also means the tooltip never restates the badge's claim in colour —
+ * it explains it in words.
+ *
+ * ⚠️ POINTER ONLY, TODAY. Badges are not focusable, so this is unreachable by
+ * keyboard and does not appear on touch. `:focus-visible` is wired up so the
+ * moment a badge gains a tabindex it works, but that is a change to the
+ * shared component (it would add a tab stop per badge) and has not been made.
+ */
+[data-badge][data-tip] {
+  position: relative;
+  /* The badge is the thing being asked about; say so on the pointer. */
+  cursor: help;
+}
+[data-badge][data-tip]:hover::after,
+[data-badge][data-tip]:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 0.45rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+
+  width: max-content;
+  max-width: 17rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-foreground);
+
+  /* Every one of these is a RESET, not a preference: the badge sets nowrap,
+     550 weight, 0.75rem, letter-spacing and a rung colour, and an ::after
+     inherits the lot. Without them the tooltip renders as one long coloured
+     line running off the page. */
+  white-space: normal;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.45;
+
+  pointer-events: none; /* never let the bubble eat the hover that opened it */
+}

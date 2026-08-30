@@ -1,6 +1,9 @@
 import { Fragment, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useBrand } from "@ballisticbrands/frontend-shared";
+import { useBrand,
+  verificationBadgeState,
+  VERIFICATION_GLYPH,
+} from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { useAddBusiness } from "@/AddBusiness";
 
@@ -172,24 +175,23 @@ function Hero() {
 /**
  * One badge, rendered exactly as a profile renders it.
  *
- * ⚠️ Mirrors `VerificationBadge` in the shared package's PublicProfile.tsx —
- * the same three-way map, the same three glyphs. It used to be a two-way
- * `tier.startsWith("verified")` test, which put verified_revenue and
- * verified_margin in the SAME green with the SAME check; §2 below was written
- * around that limitation and had to be rewritten when the ladder gained its
- * middle rung. If the shared component changes, this changes: a specimen that
- * does not match the thing it is a specimen OF teaches the wrong badge.
+ * The ladder — which tier is green, which glyph it wears — comes from the
+ * shared package, so a specimen can never drift from the thing it is a
+ * specimen OF. Two things stay local on purpose:
  *
- * `.vm-badge` is the app-owned alias for the shared package's `[data-badge]`
- * hook (globals.css §badges) — same rule, same look, no second stylesheet.
+ *   1. `.vm-badge`, not `[data-badge]`. The shared rule is scoped
+ *      `.vm-profile [data-badge]` and this page is not a profile, so the
+ *      app-owned alias is what carries the styling here.
+ *   2. NO `data-tip`. Everywhere else a badge explains itself on hover
+ *      (BRANDING.md §5 wants its explainer within reach) — but this page IS
+ *      that explainer, and a tooltip repeating the paragraph a reader is
+ *      already looking at is noise.
  */
 function Badge({ tier, label }: { tier: string; label: string }) {
-  const state =
-    tier === "verified_margin" ? "verified" : tier === "verified_revenue" ? "partial" : "estimated";
-  const glyph = state === "verified" ? "✓" : state === "partial" ? "◑" : "○";
+  const state = verificationBadgeState(tier);
   return (
     <span className="vm-badge" data-state={state}>
-      {glyph} {label}
+      {VERIFICATION_GLYPH[state]} {label}
     </span>
   );
 }
