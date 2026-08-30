@@ -28,7 +28,7 @@ import { useAddBusiness } from "@/AddBusiness";
  *   3. `frontend-shared/src/pages/PublicProfile.tsx` — `BusinessCard` renders
  *      the badge. `Badge` below reproduces its exact conditional (a tier that
  *      startsWith "verified" gets ✓ and the green fill, everything else gets
- *      ○ and grey type), because a specimen that does not match the thing it
+ *      ○ and red type), because a specimen that does not match the thing it
  *      is a specimen OF teaches the reader the wrong badge.
  *
  * 🚧 THE PAGE IS AHEAD OF THE FLOW IN TWO PLACES, both marked in the copy:
@@ -278,7 +278,7 @@ const COMPARISON: {
   },
 ];
 
-/** The two badges the page exists to distinguish, plus the grey state, in the
+/** The two badges the page exists to distinguish, plus the bottom rung, in the
  *  product's own words. `description` is verbatim from the backend's LABELS —
  *  see the twin note at the top. */
 const TIERS = {
@@ -440,8 +440,17 @@ export function HowVerificationWorks() {
             The heart of the page. Rendered with the SAME component a profile
             uses, so what a reader learns here is what they will meet there. */}
         <section>
-          <h2 className="text-base font-semibold">
-            What the badges mean — ◑ Verified revenue vs ✓ Verified margins
+          {/* The real pills, not a description of them. The heading is the
+              first place a reader meets the two badges, so meeting the actual
+              component — right colour, right glyph, right geometry — is worth
+              more than a sentence about it. `data-heading-badges` lets the
+              flex wrap land evenly instead of hanging one pill off the
+              baseline. */}
+          <h2 className="text-base font-semibold" data-heading-badges="">
+            <span>What the badges mean —</span>
+            <Badge tier="verified_revenue" label="Verified revenue" />
+            <span>vs</span>
+            <Badge tier="verified_margin" label="Verified margins" />
           </h2>
           <p className="mt-2">
             A profile's badge is not a score out of ten. It is the name of a cell in a
@@ -481,7 +490,7 @@ export function HowVerificationWorks() {
           <p className="mt-4">
             The badges are a ladder, and it steps in three channels at once — the{" "}
             <strong>glyph</strong> fills in (○ → ◑ → ✓), the <strong>word</strong> changes, and the{" "}
-            <strong>colour</strong> moves from grey through amber to green. Any one of the three
+            <strong>colour</strong> steps red → amber → green. Any one of the three
             tells you where a profile sits, which is the point: most people meet this product as a
             screenshot, and a distinction carried by colour alone is invisible in greyscale and to
             a colour-blind reader.
@@ -504,8 +513,9 @@ export function HowVerificationWorks() {
             </p>
             <p className="mt-2 text-[var(--muted-foreground)]">
               <small>
-                Hollow ○, no fill, grey type — provisional by appearance, from across the room.
-                The shape and the word change too, not just the colour.
+                Hollow ○ and red — the bottom rung, not a missing one. Nothing here was
+                checked against Amazon, and the shape and the word say so as loudly as the
+                colour does.
               </small>
             </p>
           </div>
@@ -663,7 +673,7 @@ export function HowVerificationWorks() {
  * One badge with its evidence underneath — the visual half of §2.
  *
  * The badge names a rung; this names the evidence. Even with the ladder now
- * legible at a glance (○ → ◑ → ✓, grey → amber → green), "Verified revenue"
+ * legible at a glance (○ → ◑ → ✓, red → amber → green), "Verified revenue"
  * does not on its own tell a reader WHICH half went unchecked — so the card
  * spells out all three facts and marks each one. ✓ / ○ here are the same
  * marks the badges use, so the vocabulary the reader is learning inside the

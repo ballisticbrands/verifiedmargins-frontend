@@ -83,8 +83,10 @@ only chroma in the entire system, which is what makes it carry meaning.
 | `--verified-tint` | `#e8f3ed` | Verified badge fill, verified row wash | green on tint = 6.0:1 |
 | `--partial` | `#8f4e00` | **Middle rung** — revenue verified, margin modelled | 6.45:1 on white |
 | `--partial-tint` | `#faeed9` | Partial badge fill | amber on tint = 5.6:1 |
-| `--estimated` | `#5c636e` | Nothing verified. Grey | 6.4:1 on white |
-| `--danger` | `#b42318` | Errors only. Never "a bad number" | 5.9:1 on white |
+| `--unverified` | `#b42318` | **Bottom rung** — self-reported, nothing checked | 6.57:1 on white |
+| `--unverified-tint` | `#fdecea` | Unverified badge fill | red on tint = 5.8:1 |
+| `--estimated` | `#5c636e` | Muted metadata. Retired from the badge | 6.4:1 on white |
+| `--danger` | `#b42318` | Errors only. Never "a bad number" | 6.57:1 on white |
 
 ### Dark — specified, not shipped
 
@@ -119,6 +121,8 @@ it.
 | `--verified-tint` | `#12271d` | |
 | `--partial` | `#d99b33` | 7.75:1 — matched to `--verified` on purpose |
 | `--partial-tint` | `#2c2010` | |
+| `--unverified` | `#f87171` | 6.8:1 on background |
+| `--unverified-tint` | `#2b1315` | |
 | `--estimated` | `#a2abb8` | |
 
 > ⚠️ **`#10683f` fails on dark.** It measures **2.6:1** against
@@ -340,10 +344,17 @@ mostly be seen).
 
 **Self-reported / unverified**
 
-- Pill, **no fill**, 1px `--border`
-- **○** (empty) + the word, `--estimated` text
+- Pill, `--unverified-tint` fill, 1px `--unverified` border
+- **○** (empty) + the word, `--unverified` text
 - No green and no amber anywhere in the component
-- The metrics block gets a dotted top rule, not a solid one
+- The metrics block gets a **dotted** top rule in `--unverified` — still
+  the weakest of the three treatments, but it carries the rung's colour
+
+⚠️ This rung used to be a transparent pill with grey type, "provisional
+by appearance". Grey read as a quiet absence — as if a figure were merely
+*missing* its verification. It is not missing anything: it is somebody's
+unchecked assertion, which on this site is the thing being argued
+against. Red says so.
 
 **Rules**
 
@@ -371,7 +382,13 @@ rule was protecting survives intact above — that was always the load-
 bearing half.
 
 ⚠️ **Amber does NOT mean warning here, and must never be spent on one.**
-It means "we checked half of this". `--danger` remains errors only.
+It means "we checked half of this".
+
+⚠️ **`--unverified` and `--danger` are the same hex and deliberately two
+tokens.** One is a rung on this ladder; the other is a form error or a
+failed request. They may diverge later, and the rule in §11 that forbids
+red for a bad number still needs a red that means *error* to point at.
+Do not collapse them.
 
 ---
 
@@ -570,7 +587,8 @@ same variables rather than to literals.
   is checked", not "careful".
 - Don't set a business number in the sans stack.
 - Don't add a web font, a gradient, or a drop shadow.
-- Don't use red for a low margin.
+- Don't use red for a low margin. Red on a badge means **unverified**,
+  never "bad" — a thin margin that we checked is still `--verified`.
 - Don't import Dragon assets, colours or type — different product,
   different promise.
 - Don't animate a figure.

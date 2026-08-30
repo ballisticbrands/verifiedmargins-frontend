@@ -57,9 +57,22 @@
   --partial: #8f4e00;
   --partial-tint: #faeed9;     /* 1.15 vs white — matches --verified-tint's 1.14 */
 
-  --estimated: #5c636e;        /* nothing checked at all. Grey. */
+  /* Nothing checked at all — the bottom rung. Red, because a self-reported
+     figure is a CLAIM, and this product exists to say so plainly.
+     6.57:1 on white, which lands between --verified (6.83) and --partial
+     (6.45): the three rungs carry equal weight and none shouts the others
+     down. See BRANDING.md §5. */
+  --unverified: #b42318;
+  --unverified-tint: #fdecea;  /* 1.14 vs white — exactly --verified-tint's 1.14 */
 
+  /* 🚨 SAME HEX AS --unverified, DELIBERATELY A DIFFERENT TOKEN. This one is
+     for form errors and failed requests; that one is a verification rung. They
+     are one colour today and may not be tomorrow, and a rule that says "never
+     use red for a bad number" (§11) still needs a red that means "error" to
+     point at. Do not collapse them. */
   --danger: #b42318;           /* ERRORS ONLY. Never "a bad number". */
+
+  --estimated: #5c636e;        /* retired from the badge; still muted metadata */
 
   /* Type. TWO roles: words and figures.
 
@@ -545,11 +558,16 @@ select.bg-white {
   background: var(--partial-tint);
   color: var(--partial);
 }
-/* Estimated: no fill, no green, grey type. Provisional by appearance. */
+/* Unverified: a filled red pill, the same construction as the two rungs above
+   it. It used to be transparent with grey type — "provisional by appearance" —
+   which read as a quiet absence rather than as the claim it actually is. A
+   self-reported figure is somebody's assertion, and on THIS site that is the
+   thing being argued against, so it says so. */
 .vm-badge[data-state="estimated"],
 .vm-profile [data-badge][data-state="estimated"] {
-  background: transparent;
-  color: var(--estimated);
+  border-color: var(--unverified);
+  background: var(--unverified-tint);
+  color: var(--unverified);
 }
 
 /* The metrics block takes its rule from the same state: solid green when the
@@ -561,10 +579,12 @@ select.bg-white {
 .vm-profile [data-verification="verified_revenue"] + section {
   border-top: 2px solid var(--partial);
 }
+/* Still 1px and still dotted — the weakest treatment of the three — but it
+   carries the rung's colour now, like the two solid rules above it. */
 .vm-profile [data-verification="estimated"] + section,
 .vm-profile [data-verification="self_reported"] + section,
 .vm-profile [data-verification="unverified"] + section {
-  border-top: 1px dotted var(--border);
+  border-top: 1px dotted var(--unverified);
 }
 
 /* ─── Anonymous avatars ───────────────────────────────────────────────
@@ -2371,10 +2391,24 @@ h6,
   font-weight: 650;
   letter-spacing: 0.01em;
 }
-.vm-hero [data-hero-mark][data-state="false"] { color: var(--danger); }
+/* --unverified, not --danger: this is the bottom rung of the ladder, the same
+   claim the ○ badge makes, not a form error. Same red today, different reason. */
+.vm-hero [data-hero-mark][data-state="false"] { color: var(--unverified); }
 .vm-hero [data-hero-note] {
   margin: 0;
   font-size: 0.8125rem;
   line-height: 1.5;
   color: var(--muted-foreground);
+}
+
+/* A heading that contains real badges rather than words describing them
+   (/how-verification-works §2). Flexed so the pills sit ON the baseline row
+   and a wrap drops to an even second line, instead of one badge hanging below
+   the text — the same problem, and the same fix, as the demo profile's tag
+   row. Scoped by attribute: no other heading on the site carries a component. */
+h2[data-heading-badges] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
 }
