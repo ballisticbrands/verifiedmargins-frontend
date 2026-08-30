@@ -152,21 +152,33 @@ for (const { slug } of list) {
    * deliberate withholding and is simply omitted. */
   const d = b.metrics?.display ?? {};
   const last30 = b.metrics?.last_30d ?? {};
+  /* PROFIT when it is computable, revenue otherwise — the same rule the
+   * client applies (`headlineMoney` in src/pages/Business.tsx), and it has to
+   * be the same or a crawler and a reader see different headline figures on
+   * one URL. `profit` is non-null only when COGS covers every month in the
+   * window, so falling back to revenue never silently downgrades a real
+   * profit figure into a partial one. */
+  const headline = (period, currency, revenue, profit) =>
+    profit != null
+      ? `Profit (${period}, ${currency ?? 'USD'}): ${Math.round(profit).toLocaleString('en-US')}`
+      : revenue != null
+        ? `Revenue (${period}, ${currency ?? 'USD'}): ${Math.round(revenue).toLocaleString('en-US')}`
+        : null;
+
   const facts = [
-    last30.revenue != null
-      ? `Revenue (30d, ${d.currency ?? 'USD'}): ${Math.round(last30.revenue).toLocaleString('en-US')}`
-      : null,
+    headline('30d', d.currency, last30.revenue, last30.profit),
     last30.margin_pct != null ? `Margin (30d): ${last30.margin_pct.toFixed(1)}%` : null,
-    d.revenue != null
-      ? `Revenue (${b.window?.months ?? 12}m, ${d.currency}): ${Math.round(d.revenue).toLocaleString('en-US')}`
-      : null,
+    headline(`${b.window?.months ?? 12}m`, d.currency, d.revenue, d.profit),
     b.metrics?.margin_pct != null ? `Margin (${b.window?.months ?? 12}m): ${b.metrics.margin_pct.toFixed(1)}%` : null,
     b.metrics?.sku_count ? `SKUs: ${b.metrics.sku_count}` : null,
     b.metrics?.brand_count ? `${b.metrics.brands_label ?? 'Brands'}: ${b.metrics.brand_count}` : null,
     b.metrics?.category ? `Category: ${b.metrics.category}` : null,
     b.seller_type ? `Seller type: ${String(b.seller_type).replace(/_/g, ' ')}` : null,
     Array.isArray(b.markets) && b.markets.length ? `Marketplaces: ${b.markets.join(', ')}` : null,
-    b.window ? `Covering ${b.window.from} to ${b.window.through}` : null,
+    /* No "Covering …" line: the window was removed from the rendered page, and
+     * a crawlable copy that states a fact the page does not is the exact
+     * divergence this prerender exists to avoid. The window still bounds every
+     * figure above — it is simply not called out. */
   ].filter(Boolean);
 
   const body = [
