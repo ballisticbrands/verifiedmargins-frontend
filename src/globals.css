@@ -1543,14 +1543,17 @@ a, button, [role="button"] {
   color: var(--muted-foreground);
 }
 
-/* A figure and the word for what it is, on one line.
-   Two stacked currency amounts with nothing between them are
-   indistinguishable, and a reader could take the larger one for the profit —
-   the opposite of what the board ranks on. The label is what makes the pair
-   readable, so it is never dropped responsively.
+/* The word for a figure, then the figure. Two stacked currency amounts with
+   nothing between them are indistinguishable, and a reader could take the
+   larger one for the profit — the opposite of what the board ranks on.
+   LABEL FIRST so the numbers hold the right edge: the column is flush right,
+   so leading with the label leaves the figures in one straight line a reader
+   can compare down the page, where trailing labels of different lengths would
+   step them in and out.
    Baseline-aligned so the word sits on the number's baseline rather than
    floating against its cap height, and NOT monospaced: the mono face is for
-   figures, and setting a word in it would make the label read as data. */
+   figures here, and setting a word in it would make the label read as data.
+   Never dropped responsively — it is what makes the pair readable at all. */
 .vm-profile [data-board-figure] {
   display: flex;
   align-items: baseline;
