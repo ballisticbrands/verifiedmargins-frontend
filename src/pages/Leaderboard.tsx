@@ -1,22 +1,29 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ApiError, apiFetch, useBrand } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { useCurrency } from "@/currency";
 
 /**
- * The leaderboard — and the site's front door (`/` lands here).
+ * The leaderboard, at /leaderboard.
  *
- * 🚨 IT RANKS BY MARGIN, NOT REVENUE. A revenue table is a size ranking, and
- * every other seller leaderboard already measures size. The whole reason this
- * product exists is that margin is the number nobody can check — so margin is
- * what it ranks, with revenue as context beside it.
+ * 🚨 IT RANKS BY PROFIT OVER 30 DAYS, AND NEVER BY REVENUE. A revenue table is
+ * a size ranking, and every other seller leaderboard already measures size.
+ * Margin ranked it until 2026-08-30, on the reasoning that margin is the
+ * number nobody can check; the revenue half of that survives, but a margin
+ * ranking puts a 60%-margin hobby above a business earning twenty times as
+ * much. Revenue stays as the context that makes a profit figure readable.
  *
- * The backend only ever returns sellers who PUBLISHED the number being ranked
- * (src/services/profiles/leaderboard.ts). A profile that keeps margin private
- * is absent rather than listed with a blank, and the response says how many
- * chose that, so a short board reads as "people are private" rather than as
- * "this product is empty".
+ * WHICH TAB IS IN THE URL (`?by=business`), so a board someone is looking at
+ * is a board they can send. See the `useSearchParams` block below.
+ *
+ * The backend only ever returns businesses whose figures were PUBLISHED and
+ * VERIFIED (src/services/profiles/leaderboard.ts). A profile that publishes
+ * neither figure is absent rather than listed with a blank, and the response
+ * says how many chose that, so a short board reads as "people are private"
+ * rather than as "this product is empty". A verified business whose costs are
+ * not on file is listed but unranked — it has not placed, which is not the
+ * same as placing last.
  */
 
 type Mode = "founder" | "business";
@@ -145,21 +152,44 @@ export function Leaderboard({
    * changes. Undefined everywhere else, which renders nothing. */
   banner?: React.ReactNode;
   /**
-   * `margin` — the real board. Ranks by margin, shows revenue as context.
+   * `profit` — THE BOARD. Ranks by 30-day profit, shows the change and the
+   * movement, and keeps revenue as context. The default since 2026-08-30.
    *
-   * `profit` — a gamified alternative currently only rendered by
-   * /demo/leaderboard: ranks by profit, drops the margin column, and adds
-   * 30-day movement. A prop rather than a forked page, so the demo cannot
-   * drift from the real one; and a variant rather than a rewrite, because
-   * ranking by profit contradicts the header note above — profit is a size
-   * measure, which is what every other seller leaderboard already is. Worth
-   * deciding deliberately before this becomes the default.
+   * `margin` — the previous board, ranking by margin with no movement. Kept
+   * because it is three conditionals rather than a fork, and because the
+   * choice between ranking efficiency and ranking size is one worth being
+   * able to reverse without a rewrite. Nothing renders it today.
    */
   variant?: "margin" | "profit";
 } = {}) {
   const brand = useBrand();
   const { currency } = useCurrency();
-  const [mode, setMode] = useState<Mode>("founder");
+  /* THE TAB LIVES IN THE URL, so a board someone is looking at is a board
+     they can send. `?by=business` is the same parameter the API takes, so the
+     page URL and the request it makes say the same word.
+
+     An unrecognised value falls back to "founder" rather than being passed
+     through — `?by=nonsense` would otherwise reach the API, which 400s on it,
+     and a shared link with a typo would render an error instead of a board.
+
+     The default deletes the parameter instead of writing `?by=founder`, so
+     the plain /leaderboard URL stays canonical for the default view rather
+     than there being two URLs for one page.
+
+     `replace`, not push: a tab is not a navigation. Pushing would stack a
+     history entry per click, so Back would walk a visitor through their own
+     tab presses instead of leaving the page. */
+  const [params, setParams] = useSearchParams();
+  const mode: Mode = params.get("by") === "business" ? "business" : "founder";
+  const setMode = useCallback(
+    (next: Mode) => {
+      const p = new URLSearchParams(params);
+      if (next === "founder") p.delete("by");
+      else p.set("by", next);
+      setParams(p, { replace: true });
+    },
+    [params, setParams],
+  );
   const [board, setBoard] = useState<Board | null>(null);
   const [error, setError] = useState<string | null>(null);
 
