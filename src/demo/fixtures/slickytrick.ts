@@ -115,7 +115,7 @@ const TILE = {
   profit: DAILY.reduce((n, d) => n + (d.profit ?? 0), 0),
 };
 
-export function slickyTrick(months: number, currency: string) {
+export function slickyTrick(months: number, _currency: string) {
   return {
     username: "SlickyTrick",
     display_name: "SlickyTrick",
@@ -162,7 +162,10 @@ export function slickyTrick(months: number, currency: string) {
     metrics: {
       native: [{ currency: "GBP", revenue: FULL.sales, profit: FULL.netProfit }],
       display: {
-        currency,
+        /* 🚨 PINNED, not the `currency` argument. The site's picker is off
+           (SHOW_CURRENCY_PICKER) so every reader gets the USD default — which
+           would render these GBP figures behind a "$". */
+        currency: "GBP",
         revenue: FULL.sales,
         /* Not published: he posted no fee, ad-spend or payout figure, and
            without a payout there is no cogs = payout − profit to compute. */
@@ -225,7 +228,7 @@ export function slickyTrick(months: number, currency: string) {
       category: null,
       categories: null,
     },
-    currency_options: ["GBP", "USD", "EUR", "CAD"],
+    currency_options: ["GBP"],
     notes: [
       "Profit is a RANGE, reduced to its conservative end: he stated 'about £12-£15,000 pure profit after all expenses' and only the £12,000 low end is rendered here.",
       "That profit is his OWN ESTIMATE, made a few days before filing his first year's Ltd company tax return — not a Sellerboard figure and not a settled number.",

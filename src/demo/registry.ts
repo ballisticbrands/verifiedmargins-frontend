@@ -9,6 +9,12 @@
  */
 
 import { afrasiab } from "./fixtures/afrasiab";
+import { jayeshchauhanreddit } from "./fixtures/jayeshchauhanreddit";
+import { muchExperience4197 } from "./fixtures/much-experience-4197";
+import { sirsolrac36 } from "./fixtures/sirsolrac36";
+import { slickyTrick } from "./fixtures/slickytrick";
+import { thickValuable4753 } from "./fixtures/thick-valuable-4753";
+import { tomNomYyz } from "./fixtures/tomnomyyz";
 import { pureZookeepergame } from "./fixtures/pure-zookeepergame";
 import { leaderboard } from "./fixtures/leaderboard";
 
@@ -121,6 +127,70 @@ export const DEMOS: Record<string, Demo> = {
        above it reads as a different person. */
     consultation: { price: "$150", minutes: 45, name: "boringfixesguy" },
   },
+  /* ── Built from public Reddit posts, one per person ────────────────────
+     Every figure is the poster's own, with their own caveats; see each
+     fixture's header comment for the arithmetic and src/demo/README.md for
+     the contracts. Ledgered in Dragon-marketing/skills/VM-demo-profile/
+     verifiedmargins-demo-profiles.csv. */
+  jayeshchauhanreddit: {
+    kind: "profile",
+    build: jayeshchauhanreddit,
+    label: "Jayesh Chauhan — UK private label",
+    blurb:
+      "A real July P&L at a 47% margin — and the no-referral-fee caveat he flagged himself.",
+    tags: STANDARD_TAGS,
+    consultation: { price: "$150", minutes: 45, name: "Jayesh Chauhan" },
+  },
+  "Much-Experience-4197": {
+    kind: "profile",
+    build: muchExperience4197,
+    label: "Ahad — first launch, 5 months",
+    blurb:
+      "A first private-label launch five months in: small numbers, verified margin, a real Sellerboard screenshot behind them.",
+    tags: STANDARD_TAGS,
+    consultation: { price: "$150", minutes: 45, name: "Ahad" },
+  },
+  Sirsolrac36: {
+    kind: "profile",
+    build: sirsolrac36,
+    label: "Sirsolrac36 — revenue only",
+    blurb:
+      "He published revenue and never profit. The revenue-only shape, with margin honestly withheld.",
+    /* 🚨 NOT StandardTags. He has no verified margin — he has no margin at
+       all — and "✓ Verified margins" in the verification green over a page
+       whose margin tile reads "—" is this site claiming something it can
+       plainly see is not there. The tone rule in README.md, applied. */
+    tags: [{ label: "✓ Verified revenue", tone: "verified" }, ...STANDARD_TAGS.slice(1)],
+    consultation: { price: "$150", minutes: 45, name: "Sirsolrac36" },
+  },
+  SlickyTrick: {
+    kind: "profile",
+    build: slickyTrick,
+    label: "SlickyTrick — UK wholesale, year one",
+    blurb:
+      "£231.8k of first-year revenue, a self-estimated £12k profit, and the thin 5.2% margin behind it.",
+    tags: STANDARD_TAGS,
+    consultation: { price: "$150", minutes: 45, name: "SlickyTrick" },
+  },
+  "Thick-Valuable-4753": {
+    kind: "profile",
+    build: thickValuable4753,
+    label: "Chicken Boy — one month in, at a loss",
+    blurb:
+      "£1.4k of arbitrage sales and a −2% margin, from his own Sellerboard card. Rendered as the loss it is.",
+    tags: STANDARD_TAGS,
+    consultation: { price: "$150", minutes: 45, name: "Chicken Boy" },
+  },
+  TomNomYYZ: {
+    kind: "profile",
+    build: tomNomYyz,
+    label: "TomNomYYZ — first $50K month",
+    blurb:
+      "A Canada-only arbitrage-to-wholesale seller's first $50K month, at the conservative end of the margin range he claimed.",
+    tags: STANDARD_TAGS,
+    consultation: { price: "$150", minutes: 45, name: "TomNomYYZ" },
+  },
+
   /* The front door with a populated board. `/leaderboard` against an empty or
      three-row production database shows the layout but not the argument; this
      shows what the page is FOR, and is the one link worth sending someone who

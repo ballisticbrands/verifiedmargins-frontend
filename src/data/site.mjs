@@ -87,6 +87,12 @@ export const DEMO_PAGES = [
   '/demo',
   '/demo/afrasiab',
   '/demo/Pure_Zookeepergame_2',
+  '/demo/jayeshchauhanreddit',
+  '/demo/Much-Experience-4197',
+  '/demo/Sirsolrac36',
+  '/demo/SlickyTrick',
+  '/demo/Thick-Valuable-4753',
+  '/demo/TomNomYYZ',
   /* The front door with a board on it. NOT a duplicate of '/leaderboard' in
    * PUBLIC_PAGES above: that one is the real page and is indexable on
    * purpose, this one is the same page over invented figures and must carry

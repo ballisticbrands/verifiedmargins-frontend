@@ -97,7 +97,7 @@ function build() {
 
 const DAILY = build();
 
-export function tomNomYyz(months: number, currency: string) {
+export function tomNomYyz(months: number, _currency: string) {
   return {
     username: "TomNomYYZ",
     display_name: "TomNomYYZ",
@@ -143,7 +143,10 @@ export function tomNomYyz(months: number, currency: string) {
     metrics: {
       native: [{ currency: "CAD", revenue: D30.revenue, profit: D30.profit }],
       display: {
-        currency,
+        /* 🚨 PINNED, not the `currency` argument. The site's picker is off
+           (SHOW_CURRENCY_PICKER) so every reader gets the USD default — which
+           would render these CAD figures behind a "$". */
+        currency: "CAD",
         revenue: D30.revenue,
         /* All three null on purpose — see the header comment. */
         fees: null,
@@ -200,7 +203,7 @@ export function tomNomYyz(months: number, currency: string) {
       category: null,
       categories: null,
     },
-    currency_options: ["CAD", "USD", "EUR", "GBP"],
+    currency_options: ["CAD"],
     notes: [
       `He stated a range — "about a 10-15% margin". This page uses the CONSERVATIVE end, ${MARGIN_PCT}%, so profit is $${D30.profit.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} rather than the $${(CLAIMED.monthlyGrossRevenue * (CLAIMED.marginPctHigh / 100)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} the top of his range would give.`,
       "$50,000 is his own monthly GROSS revenue figure, taken as-is: a month is already the ~30-day window these tiles describe, so unlike most of these demos nothing has been interpolated or scaled.",

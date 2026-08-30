@@ -150,7 +150,7 @@ const DAILY = build();
 const gbp = (n: number) =>
   `${n < 0 ? "−" : ""}£${Math.abs(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-export function thickValuable4753(months: number, currency: string) {
+export function thickValuable4753(months: number, _currency: string) {
   return {
     username: "Thick-Valuable-4753",
     display_name: "Chicken Boy",
@@ -197,7 +197,10 @@ export function thickValuable4753(months: number, currency: string) {
     metrics: {
       native: [{ currency: "GBP", revenue: FULL.sales, profit: FULL.netProfit }],
       display: {
-        currency,
+        /* 🚨 PINNED, not the `currency` argument. The site's picker is off
+           (SHOW_CURRENCY_PICKER) so every reader gets the USD default — which
+           would render these GBP figures behind a "$". */
+        currency: "GBP",
         revenue: FULL.sales,
         fees: Number(FEES_FULL.toFixed(2)),
         /* £0.00 on the card — he runs no PPC at all. Zero, not null: he
@@ -258,7 +261,7 @@ export function thickValuable4753(months: number, currency: string) {
       category: null,
       categories: null,
     },
-    currency_options: ["GBP", "USD", "EUR", "CAD"],
+    currency_options: ["GBP"],
     notes: [
       `This month is a LOSS and is shown as one: ${gbp(TILE.profit)} net profit on ${gbp(TILE.revenue)} of sales, a ${MARGIN_PCT.toFixed(1)}% margin. That is what his own Sellerboard card says, unadjusted.`,
       "Every figure comes from the Sellerboard screenshot attached to his post — sales £1,451.70, orders/units 62/65, refunds 1, adv. cost £0.00, est. payout £1,012.23, net profit −£29.42, for 1–31 July 2026. His post body states no numbers at all.",
