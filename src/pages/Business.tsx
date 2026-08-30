@@ -93,6 +93,9 @@ interface BusinessPayload {
       profit: number | null;
       units: number;
       margin_pct: number | null;
+      /** 30-day advertising spend. 🚨 Null means NOT REPORTED, never "spent
+       *  nothing" — the PPC tile hides itself rather than rendering $0. */
+      ad_spend: number | null;
     } | null;
     daily: Array<{
       date: string;
@@ -390,6 +393,15 @@ export function Business() {
                 value={percent(last30?.margin_pct ?? null)}
                 hint={p.metrics.margin_note ?? undefined}
               />
+              {/* PPC — advertising spend, beside the margin it eats into.
+                  🚨 THE ONE TILE THAT DISAPPEARS rather than showing a dash:
+                  `ad_spend` is null for "not reported", so "—" would imply we
+                  looked and found nothing while "$0" would assert that a
+                  seller who advertises does not. Twin of the PPC tile in the
+                  shared package's profile dashboard — keep the two in step. */}
+              {last30?.ad_spend != null ? (
+                <StatTile label="PPC" value={money(last30.ad_spend, displayCurrency)} />
+              ) : null}
               <StatTile
                 label="SKUs"
                 value={
