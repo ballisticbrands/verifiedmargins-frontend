@@ -1559,11 +1559,18 @@ a, button, [role="button"] {
   align-items: baseline;
   gap: 0.3rem;
 }
+/* ALL CAPS via text-transform, with the markup left naturally cased
+   ("Profit"). Two reasons it is not typed in caps: a screen reader may spell
+   out a literal all-caps word letter by letter, and copied text should read
+   the way a sentence does. It is also exactly how StatTile sets its own
+   labels, so a tile and a board row look like one system.
+   Letter-spacing is not optional at this size — caps set tight are a smear. */
 .vm-profile [data-board-unit] {
-  font-size: 0.6875rem;
-  font-weight: 500;
+  font-size: 0.625rem;
+  font-weight: 600;
   color: var(--muted-foreground);
-  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 
