@@ -94,9 +94,10 @@ export function PublicProfile() {
     <Breadcrumbs
       items={[
         { label: brand.displayName, to: "/" },
-        // "Founder" mirrors the leaderboard's own axis (By founder / By
-        // business) — the crumb is a real destination, not decoration.
-        { label: "Founder", to: "/leaderboard" },
+        /* No "Founder" crumb. It mirrored the leaderboard's own axis, but a
+           breadcrumb should trace where you ARE, and nobody arrives at a
+           profile by way of a founder index — the trail read as a category
+           that does not exist. Two crumbs: the site, then the person. */
         { label: crumbName },
       ]}
     />
