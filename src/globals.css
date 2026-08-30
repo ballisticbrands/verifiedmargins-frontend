@@ -48,7 +48,16 @@
   --verified-tint: #e8f3ed;    /* badge fill — green on tint = 6.0:1 */
   --success: var(--verified);
 
-  --estimated: #5c636e;        /* the un-verified state. Grey, never amber. */
+  /* Revenue checked, margin merely modelled — the middle rung. Amber, and
+     deliberately so: this used to render in --verified, which made the
+     weaker claim indistinguishable from the strongest one this product can
+     make. 6.45:1 on white, a near match for --verified's 6.83 so the two
+     badges carry the same visual weight and neither shouts down the other;
+     5.62:1 on its own tint. See BRANDING.md §5. */
+  --partial: #8f4e00;
+  --partial-tint: #faeed9;     /* 1.15 vs white — matches --verified-tint's 1.14 */
+
+  --estimated: #5c636e;        /* nothing checked at all. Grey. */
 
   --danger: #b42318;           /* ERRORS ONLY. Never "a bad number". */
 
@@ -526,6 +535,16 @@ select.bg-white {
   background: var(--verified-tint);
   color: var(--verified);
 }
+/* Partial: revenue verified, margin modelled. Filled like the verified pill
+   because something REALLY was checked — it is a rung on the ladder, not a
+   failure — but amber and half-filled (◑) so it can never be mistaken for the
+   top rung at a glance. */
+.vm-badge[data-state="partial"],
+.vm-profile [data-badge][data-state="partial"] {
+  border-color: var(--partial);
+  background: var(--partial-tint);
+  color: var(--partial);
+}
 /* Estimated: no fill, no green, grey type. Provisional by appearance. */
 .vm-badge[data-state="estimated"],
 .vm-profile [data-badge][data-state="estimated"] {
@@ -536,9 +555,11 @@ select.bg-white {
 /* The metrics block takes its rule from the same state: solid green when the
    numbers are verified, dotted grey when they are asserted. A second,
    non-colour channel for the same fact. */
-.vm-profile [data-verification="verified_margin"] + section,
-.vm-profile [data-verification="verified_revenue"] + section {
+.vm-profile [data-verification="verified_margin"] + section {
   border-top: 2px solid var(--verified);
+}
+.vm-profile [data-verification="verified_revenue"] + section {
+  border-top: 2px solid var(--partial);
 }
 .vm-profile [data-verification="estimated"] + section,
 .vm-profile [data-verification="self_reported"] + section,

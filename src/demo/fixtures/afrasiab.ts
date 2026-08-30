@@ -133,7 +133,7 @@ export function afrasiab(months: number, currency: string) {
          *    "<n> businesses with verified revenue" count on
          *    tier.startsWith("verified") — "connected_full" silently renders
          *    as an unverified ○. The tier strings are the contract. */
-        verification: { tier: "verified_margin", label: "Verified margin" },
+        verification: { tier: "verified_margin", label: "Verified margins" },
       })),
       margin_pct: Number(((profit / revenue) * 100).toFixed(1)),
       margin_basis: "per_sku",

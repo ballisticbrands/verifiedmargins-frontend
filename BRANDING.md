@@ -81,7 +81,9 @@ only chroma in the entire system, which is what makes it carry meaning.
 | `--verified` | `#10683f` | The brand green. Verified state only | 6.8:1 on white |
 | `--verified-strong` | `#0d5433` | Hover/press on green surfaces | — |
 | `--verified-tint` | `#e8f3ed` | Verified badge fill, verified row wash | green on tint = 6.0:1 |
-| `--estimated` | `#5c636e` | Estimated state — grey, never amber | 6.4:1 on white |
+| `--partial` | `#8f4e00` | **Middle rung** — revenue verified, margin modelled | 6.45:1 on white |
+| `--partial-tint` | `#faeed9` | Partial badge fill | amber on tint = 5.6:1 |
+| `--estimated` | `#5c636e` | Nothing verified. Grey | 6.4:1 on white |
 | `--danger` | `#b42318` | Errors only. Never "a bad number" | 5.9:1 on white |
 
 ### Dark — specified, not shipped
@@ -115,6 +117,8 @@ it.
 | `--accent-foreground` | `#101216` | |
 | `--verified` | `#3fbb7f` | 7.7:1 on background |
 | `--verified-tint` | `#12271d` | |
+| `--partial` | `#d99b33` | 7.75:1 — matched to `--verified` on purpose |
+| `--partial-tint` | `#2c2010` | |
 | `--estimated` | `#a2abb8` | |
 
 > ⚠️ **`#10683f` fails on dark.** It measures **2.6:1** against
@@ -317,34 +321,57 @@ a number that appears inside a sentence ("Eight years, two people").
 
 ## 5. Verification states
 
-The two states are the product. They must differ in **shape, colour and
+The ladder is the product. Its rungs must differ in **shape, colour and
 word** — never colour alone (colour-blind readers, greyscale
 screenshots, and the fact that a screenshot is how this product will
 mostly be seen).
 
-**Verified**
+**Verified margins** — `verified_margin`
 
 - Pill, `--verified-tint` fill, 1px `--verified` border
-- Check glyph + the word **Verified**, `--verified` text
-- On the profile: a 2px green rule above the metrics block
+- **✓** (filled) + the words **Verified margins**, `--verified` text
+- On the profile: a 2px `--verified` rule above the metrics block
 
-**Estimated**
+**Verified revenue** — `verified_revenue`
+
+- Pill, `--partial-tint` fill, 1px `--partial` border
+- **◑** (half) + the words **Verified revenue**, `--partial` text
+- On the profile: a 2px `--partial` rule above the metrics block
+
+**Self-reported / unverified**
 
 - Pill, **no fill**, 1px `--border`
-- Clock glyph + the word **Estimated**, `--estimated` text
-- No green anywhere in the component
+- **○** (empty) + the word, `--estimated` text
+- No green and no amber anywhere in the component
 - The metrics block gets a dotted top rule, not a solid one
 
 **Rules**
 
 - A badge never appears without its explainer within reach — a tooltip,
-  or a link to the "what's the difference" copy. A badge that can't be
+  or a link to `/how-verification-works`. A badge that can't be
   interrogated is decoration.
-- Estimated pages never borrow verified chrome. If the two are
-  distinguishable only by a small emoji, a screenshot of an estimated
-  page reads as us asserting a verified number.
-- Never invent a third badge colour. A future state ("self-reported",
-  "ops-reviewed") gets a word and a shape, not amber.
+- Unverified pages never borrow verified chrome. If two rungs are
+  distinguishable only by a small emoji, a screenshot of the weaker one
+  reads as us asserting the stronger.
+- **The glyph steps ○ → ◑ → ✓ and the word states the tier.** Either one
+  alone identifies the rung with the colour stripped out. That is the
+  half of this section that is not negotiable.
+
+**⚠️ This section used to say "never invent a third badge colour — a
+future state gets a word and a shape, not amber."** That rule was
+written when there were two states, and it became the thing standing in
+front of a real defect: `verified_revenue` and `verified_margin` both
+begin with "verified", so `tier.startsWith("verified")` rendered them in
+the SAME green with the SAME ✓. A margin we never checked wore the badge
+of one we did, which is the single confusion this product exists to
+remove. Amber is now the middle rung, deliberately, and it is measured
+to sit at the same visual weight as the green (6.45:1 vs 6.8:1) so
+neither shouts the other down. The shape-and-word discipline the old
+rule was protecting survives intact above — that was always the load-
+bearing half.
+
+⚠️ **Amber does NOT mean warning here, and must never be spent on one.**
+It means "we checked half of this". `--danger` remains errors only.
 
 ---
 
@@ -538,7 +565,9 @@ same variables rather than to literals.
 
 - Don't use green for anything that isn't verification (§3.1).
 - Don't ship `#10683f` on a dark background.
-- Don't distinguish verified from estimated by colour alone.
+- Don't distinguish two rungs of the ladder by colour alone (§5).
+- Don't spend `--partial` on a warning. Amber here means "half of this
+  is checked", not "careful".
 - Don't set a business number in the sans stack.
 - Don't add a web font, a gradient, or a drop shadow.
 - Don't use red for a low margin.

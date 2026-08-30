@@ -93,7 +93,7 @@ export function pureZookeepergame(months: number, currency: string) {
     noindex: true,
     verification: {
       tier: "verified_margin",
-      label: "Verified margin",
+      label: "Verified margins",
       description:
         "Sales, fees and ad spend come from Amazon; margin is computed against cost of goods.",
       revenueSource: "spapi",
@@ -154,7 +154,7 @@ export function pureZookeepergame(months: number, currency: string) {
           },
           revenue: FULL.sales,
           margin_pct: MARGIN_PCT,
-          verification: { tier: "verified_margin", label: "Verified margin" },
+          verification: { tier: "verified_margin", label: "Verified margins" },
         },
       ],
       margin_pct: MARGIN_PCT,

@@ -48,7 +48,7 @@ interface Seller {
 }
 
 const TIER_LABEL: Record<Tier, string> = {
-  verified_margin: "Verified margin",
+  verified_margin: "Verified margins",
   verified_revenue: "Verified revenue",
 };
 

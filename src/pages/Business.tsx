@@ -94,6 +94,18 @@ interface BusinessPayload {
   notes: string[];
 }
 
+/** Which rung of the verification ladder a tier sits on.
+ *  verified_margin → checked throughout; verified_revenue → revenue checked,
+ *  margin modelled; anything else → nothing checked. */
+function badgeState(tier: string): "verified" | "partial" | "estimated" {
+  if (tier === "verified_margin") return "verified";
+  if (tier === "verified_revenue") return "partial";
+  return "estimated";
+}
+
+/** Filled → half → empty. The shape says it without the colour. */
+const BADGE_GLYPH = { verified: "✓", partial: "◑", estimated: "○" } as const;
+
 const SELLER_TYPE_LABEL: Record<string, string> = {
   private_label: "Private label",
   wholesaler: "Wholesale",
@@ -288,12 +300,13 @@ export function Business() {
               ) : null}
             </p>
             <p>
-              <span
-                data-badge=""
-                data-state={p.verification.tier.startsWith("verified") ? "verified" : "estimated"}
-              >
-                {p.verification.tier.startsWith("verified") ? "✓" : "○"}{" "}
-                {p.verification.label}
+              {/* 🚨 THREE states. `startsWith("verified")` matched BOTH
+                  verified_revenue and verified_margin, so this page rendered
+                  a modelled margin in the same green as a checked one. Twin
+                  of VerificationBadge in the shared package's PublicProfile —
+                  keep the two in step. */}
+              <span data-badge="" data-state={badgeState(p.verification.tier)}>
+                {BADGE_GLYPH[badgeState(p.verification.tier)]} {p.verification.label}
               </span>
             </p>
             {/* The business belongs to a seller, and the profile is where the

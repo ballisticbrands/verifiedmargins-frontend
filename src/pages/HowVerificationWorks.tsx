@@ -32,7 +32,7 @@ import { useAddBusiness } from "@/AddBusiness";
  *      is a specimen OF teaches the reader the wrong badge.
  *
  * 🚧 THE PAGE IS AHEAD OF THE FLOW IN TWO PLACES, both marked in the copy:
- *   • The $20 upgrade from ✓ Verified revenue to ✓ Verified margin is the
+ *   • The $20 upgrade from ◑ Verified revenue to ✓ Verified margins is the
  *     designed model. Nothing charges $20 or takes a COGS sheet today — the
  *     modal's connect route is Free and stops there.
  *   • SellerBoard is `disabled: true` in the modal ("Coming soon"), so it is
@@ -125,7 +125,7 @@ function Hero() {
         </div>
 
         <p data-hero-mark="" data-state="false">
-          <span aria-hidden="true">{"✗"}</span> Unverifiable
+          <span aria-hidden="true">{"✗"}</span> Fake news profits
         </p>
         <p data-hero-note="">
           A screenshot and a claim. Nothing behind it can be checked by the
@@ -157,7 +157,7 @@ function Hero() {
         </div>
 
         <p data-hero-mark="">
-          <Badge tier="verified_margin" label="Verified margin" />
+          <Badge tier="verified_margin" label="Verified margins" />
         </p>
         <p data-hero-note="">
           The same kind of number, read from Amazon through their own API,
@@ -172,25 +172,24 @@ function Hero() {
 /**
  * One badge, rendered exactly as a profile renders it.
  *
- * ⚠️ The conditional is `tier.startsWith("verified")`, copied from
- * BusinessCard — which means BOTH `verified_revenue` and `verified_margin`
- * come out green with a ✓. That is not a bug to fix on this page: it is the
- * live behaviour, and a specimen that quietly "improved" it would send a
- * reader looking for a grey Verified-revenue badge that does not exist.
- * The two tiers are told apart by the WORD on the badge and by the sentence
- * underneath it, which is exactly the point §2 is making.
+ * ⚠️ Mirrors `VerificationBadge` in the shared package's PublicProfile.tsx —
+ * the same three-way map, the same three glyphs. It used to be a two-way
+ * `tier.startsWith("verified")` test, which put verified_revenue and
+ * verified_margin in the SAME green with the SAME check; §2 below was written
+ * around that limitation and had to be rewritten when the ladder gained its
+ * middle rung. If the shared component changes, this changes: a specimen that
+ * does not match the thing it is a specimen OF teaches the wrong badge.
  *
  * `.vm-badge` is the app-owned alias for the shared package's `[data-badge]`
  * hook (globals.css §badges) — same rule, same look, no second stylesheet.
  */
 function Badge({ tier, label }: { tier: string; label: string }) {
-  return tier.startsWith("verified") ? (
-    <span className="vm-badge" data-state="verified">
-      {"✓"} {label}
-    </span>
-  ) : (
-    <span className="vm-badge" data-state="estimated">
-      {"○"} {label}
+  const state =
+    tier === "verified_margin" ? "verified" : tier === "verified_revenue" ? "partial" : "estimated";
+  const glyph = state === "verified" ? "✓" : state === "partial" ? "◑" : "○";
+  return (
+    <span className="vm-badge" data-state={state}>
+      {glyph} {label}
     </span>
   );
 }
@@ -222,7 +221,7 @@ const COMPARISON: {
     cells: [
       <Badge tier="verified_revenue" label="Verified revenue" />,
       <Badge tier="verified_revenue" label="Verified revenue" />,
-      <Badge tier="verified_margin" label="Verified margin" />,
+      <Badge tier="verified_margin" label="Verified margins" />,
     ],
   },
   {
@@ -244,7 +243,7 @@ const COMPARISON: {
   {
     row: (
       <>
-        Upgrade to <span className="whitespace-nowrap">✓ Verified margin</span>
+        Upgrade to <span className="whitespace-nowrap">✓ Verified margins</span>
       </>
     ),
     cells: [
@@ -293,7 +292,7 @@ const TIERS = {
   },
   verifiedMargin: {
     tier: "verified_margin",
-    label: "Verified margin",
+    label: "Verified margins",
     description:
       "Revenue, fees and ad spend come straight from Amazon, and margin is computed from per-SKU " +
       "costs the seller uploaded.",
@@ -432,7 +431,7 @@ export function HowVerificationWorks() {
               🚧 SellerBoard is not live yet — the option appears in the flow so you can see it
               coming, and the flow will not accept it. The $20 upgrade on the two connected
               routes is the model we are building to; today connecting is free and stops at
-              ✓&nbsp;Verified revenue.
+              ◑&nbsp;Verified revenue.
             </small>
           </p>
         </section>
@@ -442,7 +441,7 @@ export function HowVerificationWorks() {
             uses, so what a reader learns here is what they will meet there. */}
         <section>
           <h2 className="text-base font-semibold">
-            What the badges mean — ✓ Verified revenue vs ✓ Verified margin
+            What the badges mean — ◑ Verified revenue vs ✓ Verified margins
           </h2>
           <p className="mt-2">
             A profile's badge is not a score out of ten. It is the name of a cell in a
@@ -480,11 +479,19 @@ export function HowVerificationWorks() {
           </div>
 
           <p className="mt-4">
-            Both badges are green and both carry a ✓, because in both cases we really did check
-            something against Amazon. The difference is stated in the word on the badge and in the
-            sentence that always travels with it — never in the colour alone, which most people
-            never see (screenshots, greyscale, colour-blind readers) and which cannot carry a
-            distinction this important.
+            The badges are a ladder, and it steps in three channels at once — the{" "}
+            <strong>glyph</strong> fills in (○ → ◑ → ✓), the <strong>word</strong> changes, and the{" "}
+            <strong>colour</strong> moves from grey through amber to green. Any one of the three
+            tells you where a profile sits, which is the point: most people meet this product as a
+            screenshot, and a distinction carried by colour alone is invisible in greyscale and to
+            a colour-blind reader.
+          </p>
+          <p className="mt-2">
+            The amber rung is the one that matters most, because it is the easiest to overclaim.
+            Revenue really did come from Amazon — that half is checked, and the badge says so
+            rather than withholding credit. But the costs behind the margin are a number the
+            seller supplied and we did not open, so the badge stops short of green and the line
+            beneath it says exactly where it stopped.
           </p>
 
           <div className="mt-5 rounded-[var(--radius)] border border-[var(--border)] p-4">
@@ -538,7 +545,7 @@ export function HowVerificationWorks() {
           <p className="mt-3">
             This earns <Badge tier="verified_revenue" label="Verified revenue" />. Your margin still
             rests on a blended cost percentage you supply, so it is published as modelled. To turn
-            it into <Badge tier="verified_margin" label="Verified margin" /> you send a per-SKU cost
+            it into <Badge tier="verified_margin" label="Verified margins" /> you send a per-SKU cost
             sheet and spend fifteen minutes on a call while we check it against what Amazon is
             telling us — <strong>$20, once</strong>.
           </p>
@@ -564,7 +571,7 @@ export function HowVerificationWorks() {
           <p className="mt-3">
             Per-SKU costs arriving from SellerBoard are still <em>your</em> numbers, entered by you
             into a tool of your choosing. We did not check them, so they do not earn{" "}
-            <Badge tier="verified_margin" label="Verified margin" /> on their own. The same
+            <Badge tier="verified_margin" label="Verified margins" /> on their own. The same
             fifteen-minute call does — <strong>$20, once</strong>.
           </p>
         </section>
@@ -574,7 +581,7 @@ export function HowVerificationWorks() {
           <p className="mt-2">
             Fifteen minutes on a call, sharing your screen, so we can see the figures in Seller
             Central and your cost records ourselves. It earns{" "}
-            <Badge tier="verified_margin" label="Verified margin" /> directly — the highest tier,
+            <Badge tier="verified_margin" label="Verified margins" /> directly — the highest tier,
             without connecting anything.
           </p>
           <p className="mt-3">
@@ -655,11 +662,12 @@ export function HowVerificationWorks() {
 /**
  * One badge with its evidence underneath — the visual half of §2.
  *
- * The badge alone cannot do this job: "Verified revenue" and "Verified margin"
- * are two words apart and both green, so the card spells out the three facts
- * behind them and marks each one checked or not. ✓ / ○ here are the same two
- * marks the badges use, so the vocabulary the reader is learning is consistent
- * within the diagram as well as with the profile.
+ * The badge names a rung; this names the evidence. Even with the ladder now
+ * legible at a glance (○ → ◑ → ✓, grey → amber → green), "Verified revenue"
+ * does not on its own tell a reader WHICH half went unchecked — so the card
+ * spells out all three facts and marks each one. ✓ / ○ here are the same
+ * marks the badges use, so the vocabulary the reader is learning inside the
+ * diagram is the vocabulary they meet on a profile.
  */
 function TierCard({
   spec,

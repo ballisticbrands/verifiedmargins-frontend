@@ -126,7 +126,7 @@ function publicProfile(over = {}) {
     avatar_url: null, website_url: "https://acme.test", socials: { x: "acmebrands", reddit: "u/acmebrands" },
     seller_type: "private_label", type: "seller", claimed: true, noindex: false,
     verification: {
-      tier: "verified_margin", label: "Verified margin",
+      tier: "verified_margin", label: "Verified margins",
       description: "Revenue, fees and ad spend come straight from Amazon, and margin is computed from per-SKU costs the seller uploaded.",
       revenueSource: "spapi", marginBasis: "per_sku", verified_at: "2026-08-24T00:00:00.000Z", note: null,
     },
@@ -144,7 +144,7 @@ function publicProfile(over = {}) {
       businesses: [
         { platform: "amazon_selling_partner", label: "Amazon FBA", markets: ["US", "CA"], seller_type: "private_label",
           last_30d: { revenue: 164000, profit: 54000, margin_pct: 32.9 }, revenue: 1840000,
-          margin_pct: 33.1, verification: { tier: "verified_margin", label: "Verified margin" } },
+          margin_pct: 33.1, verification: { tier: "verified_margin", label: "Verified margins" } },
         { platform: "amazon_selling_partner", label: "Amazon FBA", markets: ["DE", "FR"],
           seller_type: "private_label",
           last_30d: { revenue: 41000, profit: 11800, margin_pct: 28.8 }, revenue: 402000,
@@ -198,7 +198,7 @@ const MARGIN_ONLY = publicProfile({
     businesses: [
       { platform: "amazon_selling_partner", label: "Amazon FBA", markets: ["US"], seller_type: "private_label",
         last_30d: { revenue: null, profit: null, margin_pct: 31.8 }, revenue: null,
-        margin_pct: 31.8, verification: { tier: "verified_margin", label: "Verified margin" } },
+        margin_pct: 31.8, verification: { tier: "verified_margin", label: "Verified margins" } },
     ],
     sku_count: null, brand_count: null, category: null, categories: null,
   },
@@ -209,10 +209,10 @@ const LEADERBOARD = {
   entries: [
     { rank: 1, username: "leanlabs", display_name: "Lean Labs", avatar_url: null, business: null,
       margin_pct: 41.2, revenue: 640000, currency: "USD",
-      verification: { tier: "verified_margin", label: "Verified margin" } },
+      verification: { tier: "verified_margin", label: "Verified margins" } },
     { rank: 2, username: "ggballas", display_name: "Gershon Ballas", avatar_url: null, business: null,
       margin_pct: 31.8, revenue: 2140000, currency: "USD",
-      verification: { tier: "verified_margin", label: "Verified margin" } },
+      verification: { tier: "verified_margin", label: "Verified margins" } },
     { rank: 3, username: "quietseller", display_name: "Quiet Seller", avatar_url: null, business: null,
       margin_pct: 27.4, revenue: null, currency: "USD",
       verification: { tier: "verified_revenue", label: "Verified revenue" } },
