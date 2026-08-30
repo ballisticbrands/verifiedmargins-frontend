@@ -14,6 +14,7 @@ import { Shell } from "@/pages/Shell";
 import { PublicProfile } from "@/pages/PublicProfile";
 import { Business } from "@/pages/Business";
 import { Demo } from "./pages/Demo";
+import { DemoIndex } from "./pages/DemoIndex";
 import { ProfileRedirect } from "@/pages/ProfileRedirect";
 import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
@@ -145,6 +146,7 @@ export default function App() {
           they are noindex + Disallow'd (DEMO_PAGES in site.mjs). Declared
           BEFORE /:username: "demo" is a path segment, not a handle, and the
           two-segment shape would otherwise fall through to the catch-all. */}
+      <Route path="/demo" element={<DemoIndex />} />
       <Route path="/demo/:slug" element={<Demo />} />
       {/* ONE business, rather than the seller's whole portfolio — the page the
           add-business wizard lands on and the natural thing to share. Two

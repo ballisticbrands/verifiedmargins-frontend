@@ -43,7 +43,28 @@ inside an existing demo page.
 4. **Shoot it** — add an entry to `PAGES` in `scripts/screenshot.mjs` and
    look at the PNG. A demo that renders wrong is a demo shown to a prospect.
 
-No route change is needed: `/demo/:slug` is already declared.
+No route change is needed: `/demo/:slug` is already declared. **`/demo` itself lists
+every entry** (`DemoIndex`, read straight off `DEMOS`), so a registered demo is a linked
+demo — nothing to update by hand, and no demo that exists but nobody remembers to send.
+
+## Tags beside the name
+
+`tags` on a profile demo renders pills after the @handle — `STANDARD_TAGS` is the set every
+demo profile carries (✓ Verified margins, Paid consultation, Free resources).
+
+Two things about them:
+
+**They are portalled elements, not a `::after`.** The single pill used to be
+`h1::after { content: var(--demo-pill) }`. `content` holds exactly one string, so a second
+tag was never a bigger value — it was a different mechanism. `DemoProfile` portals real
+`<span data-demo-tag>` nodes into the shared page's `<h1>`, the same technique the
+consultation CTA already used for `[data-profile-actions-row]`.
+
+**`tone` is a claim, not a colour.** `verified` is the green the product uses to mean
+"checked against Amazon". `offer` is the same pill in neutral grey, for what a seller merely
+advertises. An offer rendered in the verification green is this site claiming it verified
+something it never saw — which is the one thing a demo of a *verification* product must not
+do casually.
 
 ## The fetch seam
 

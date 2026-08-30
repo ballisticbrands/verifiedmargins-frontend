@@ -22,6 +22,37 @@ import { leaderboard } from "./fixtures/leaderboard";
  */
 export type Demo = ProfileDemo | LeaderboardDemo;
 
+/** A tag beside the name.
+ *
+ * `tone` is NOT decoration. `verified` is the green ✓ treatment the product
+ * uses to mean "we checked this against Amazon"; `offer` is the same pill
+ * geometry in a neutral colour, for things the seller merely OFFERS — a paid
+ * consultation, free resources. Rendering an offer in the verification colour
+ * would be this product claiming it verified something it did not. */
+export interface DemoTag {
+  label: string;
+  tone?: "verified" | "offer";
+}
+
+/** Tags every demo profile carries. Verification first — it is the claim the
+ *  page is built on; the offers follow. Spread into a demo's own `tags` so a
+ *  demo can still add one of its own without editing this. */
+export const STANDARD_TAGS: DemoTag[] = [
+  { label: "✓ Verified margins", tone: "verified" },
+  { label: "Paid consultation", tone: "offer" },
+  { label: "Free resources", tone: "offer" },
+];
+
+/** What /demo (the index) shows for an entry. Optional everywhere: an
+ *  unlabelled demo lists under its slug rather than not listing at all — a
+ *  demo missing from the index is a demo nobody remembers exists. */
+export interface DemoMeta {
+  /** Human name for the index card. Defaults to the slug. */
+  label?: string;
+  /** One line: what this demo is FOR, i.e. why you would send it to someone. */
+  blurb?: string;
+}
+
 /** Builds the payload GET /v1/public/profiles/:username would return. */
 export type ProfileBuilder = (months: number, currency: string) => unknown;
 
@@ -31,7 +62,7 @@ export type LeaderboardBuilder = (
   currency: string,
 ) => unknown;
 
-export interface ProfileDemo {
+export interface ProfileDemo extends DemoMeta {
   kind: "profile";
   build: ProfileBuilder;
   /* Everything below is PER DEMO on purpose. These started scoped to
@@ -40,8 +71,13 @@ export interface ProfileDemo {
      one the moment it existed. A demo shows features the product lacks;
      which features is a property of that demo, not of demos. */
 
-  /** Renders a pill beside the name, e.g. "✓ Verified margins". */
-  pill?: string;
+  /** Pills beside the name, in order. See STANDARD_TAGS.
+   *
+   *  🚨 Rendered as REAL elements portalled into the header's <h1>, not as a
+   *  ::after on it. It was a ::after, whose `content` can only ever be one
+   *  string — so a second tag was not a bigger value, it was a different
+   *  mechanism. */
+  tags?: DemoTag[];
   /** Replaces the header's computed "<n> businesses with verified revenue".
    *  The shared page derives that from the array length and the payload
    *  cannot set it — see README. */
@@ -50,7 +86,7 @@ export interface ProfileDemo {
   consultation?: { price: string; minutes: number; name: string };
 }
 
-export interface LeaderboardDemo {
+export interface LeaderboardDemo extends DemoMeta {
   kind: "leaderboard";
   build: LeaderboardBuilder;
 }
@@ -68,14 +104,18 @@ export const DEMOS: Record<string, Demo> = {
   afrasiab: {
     kind: "profile",
     build: afrasiab,
-    pill: "✓ Verified margins",
+    label: "Afrasiab Khan — agency",
+    blurb: "An agency owner rolling up many connected businesses. The multi-business shape of the profile page.",
+    tags: STANDARD_TAGS,
     countLabel: "142 businesses with verified profits",
     consultation: { price: "$200", minutes: 45, name: "Afrasiab Khan" },
   },
   Pure_Zookeepergame_2: {
     kind: "profile",
     build: pureZookeepergame,
-    pill: "✓ Verified margins",
+    label: "boringfixesguy — single seller",
+    blurb: "Built from their own r/AmazonFBA post. The outreach shape: one seller, their real handle, bio and figures.",
+    tags: STANDARD_TAGS,
     /* The display name, not the handle — it is what the page shows, and a
        booking dialog that addresses you by a different name than the profile
        above it reads as a different person. */
@@ -88,5 +128,7 @@ export const DEMOS: Record<string, Demo> = {
   leaderboard: {
     kind: "leaderboard",
     build: leaderboard,
+    label: "Leaderboard",
+    blurb: "The front door with a populated board. The one link worth sending someone who has never seen the product.",
   },
 };

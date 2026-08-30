@@ -281,6 +281,7 @@ const PAGES = [
   /* 🎭 Demo pages render fixture data through the real components — see
    * src/demo/README.md. Worth shooting: a demo that renders wrong is a demo
    * shown to a prospect. */
+  { route: "/demo", auth: false, name: "demo-index" },
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab" },
   { route: "/demo/Pure_Zookeepergame_2", auth: false, name: "demo-zookeeper" },
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab-scheduler", click: "[data-demo-cta]" },

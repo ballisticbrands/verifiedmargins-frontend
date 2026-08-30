@@ -1739,26 +1739,78 @@ dialog[data-add-business]::backdrop {
    it can reach a real profile. These render features the product does not
    have; see src/demo/README.md. */
 
-/* A pill beside the name. Attached with ::after rather than by editing the
-   shared page: the header comes from frontend-shared and a demo must not fork
-   it. Gated on [data-demo-pill] and its text comes from --demo-pill, so it
-   appears on the demos that asked for one and NOT on the ones that did not —
-   which is what scoping it to .vm-demo alone got wrong. */
-.vm-demo[data-demo-pill] [data-profile-identity] h1::after {
-  content: var(--demo-pill);
+/* Tags beside the name — "✓ Verified margins", "Paid consultation", "Free
+   resources". Real elements portalled into the header's <h1> by DemoProfile,
+   not a ::after on it: `content` holds exactly one string, so the second tag
+   was never a bigger value, it was a different mechanism. Styling still lives
+   here rather than inline, so all three stay one look.
+
+   🚨 TONE IS A CLAIM, NOT A COLOUR. `verified` is the green the product uses
+   to mean "checked against Amazon". An offer the seller merely advertises —
+   a consultation, a resource pack — in that same green would read as this
+   site having verified it. Offers are deliberately neutral. */
+[data-demo-tag] {
   display: inline-block;
-  margin-left: 0.6rem;
+  margin-left: 0.5rem;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--verified, #15803d) 45%, transparent);
-  background: color-mix(in srgb, var(--verified, #15803d) 12%, transparent);
-  color: var(--verified, #15803d);
+  border: 1px solid var(--border, rgba(127, 127, 127, 0.35));
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  color: var(--muted-foreground);
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   vertical-align: middle;
   white-space: nowrap;
 }
+/* Three tags do not fit on one line beside a name and an @handle, and the
+   header column is narrowed by the actions rail beside it — so they WILL wrap.
+   Flexing the h1 (demo scope only) makes that wrap land as an even second row
+   instead of one tag hanging off the baseline under the name. gap replaces the
+   tags' own margin here; the index page keeps its. */
+.vm-demo [data-profile-identity] h1 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+.vm-demo [data-profile-identity] h1 [data-demo-tag] { margin-left: 0; }
+
+[data-demo-tag][data-tone="verified"] {
+  border-color: color-mix(in srgb, var(--verified, #15803d) 45%, transparent);
+  background: color-mix(in srgb, var(--verified, #15803d) 12%, transparent);
+  color: var(--verified, #15803d);
+}
+
+/* ── /demo — the index of demos ──────────────────────────────────────── */
+[data-demo-index] {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+[data-demo-index] a {
+  display: block;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border, rgba(127, 127, 127, 0.35));
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+[data-demo-index] a:hover { background: color-mix(in srgb, var(--foreground) 4%, transparent); }
+[data-demo-index] strong { display: block; font-size: 0.98rem; }
+[data-demo-index] code {
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+}
+[data-demo-index] p {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  line-height: 1.45;
+}
+[data-demo-index] [data-demo-tag] { margin: 0.5rem 0.4rem 0 0; }
 
 [data-demo-cta] {
   display: inline-flex;

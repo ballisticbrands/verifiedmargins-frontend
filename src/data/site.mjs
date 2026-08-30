@@ -73,6 +73,11 @@ export const PUBLIC_PAGES = [
  * resolve on a cold link but must never be indexed. Adding a demo means adding
  * a line here — see src/demo/README.md. */
 export const DEMO_PAGES = [
+  /* The index of the list below, read off the DEMOS registry. Listed here
+     like any other demo: it needs the 200-answering stub, and it must carry
+     the Disallow — a crawlable index of noindex pages hands a crawler every
+     URL the Disallow was meant to keep it away from. */
+  '/demo',
   '/demo/afrasiab',
   '/demo/Pure_Zookeepergame_2',
   /* The front door with a board on it. NOT a duplicate of '/leaderboard' in

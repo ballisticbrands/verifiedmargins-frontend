@@ -29,36 +29,23 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
   });
   useDemoMeta(`${slug} — demo — ${brand.displayName}`);
 
-  /* The CTA belongs UNDER the social buttons, which the shared page renders in
-   * its own column ([data-profile-actions-row]) — a slot the host is not given.
-   * Rather than fork the shared page for a demo-only control, portal into it.
-   * Polled because the row only exists once the payload lands, and the parent's
-   * mount effect fires long before that. */
-  const [actionsRow, setActionsRow] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    let tries = 0;
-    const id = window.setInterval(() => {
-      const el = document.querySelector<HTMLElement>("[data-profile-actions-row]");
-      if (el) {
-        setActionsRow(el);
-        window.clearInterval(id);
-      } else if (++tries > 60) {
-        window.clearInterval(id);
-      }
-    }, 50);
-    return () => window.clearInterval(id);
-  }, [slug]);
+  /* Demo-only controls go into slots the shared page owns and does not offer
+   * the host: the CTA under the social buttons ([data-profile-actions-row]),
+   * the tags inside the header's <h1>, after the @handle. Portalled rather
+   * than forking the shared page for a demo. Polled because those nodes only
+   * exist once the payload lands, and the parent's mount effect fires long
+   * before that. */
+  const actionsRow = useHostNode("[data-profile-actions-row]", slug);
+  const identity = useHostNode("[data-profile-identity] h1", slug);
 
   return (
     <Shell width="profile">
       <DemoBanner />
       <div
         className="vm-form vm-profile vm-demo"
-        data-demo-pill={demo.pill ? "" : undefined}
         data-demo-count={demo.countLabel ? "" : undefined}
         style={
           {
-            ...(demo.pill ? { "--demo-pill": JSON.stringify(demo.pill) } : {}),
             ...(demo.countLabel ? { "--demo-count": JSON.stringify(demo.countLabel) } : {}),
           } as React.CSSProperties
         }
@@ -79,6 +66,18 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
 
         />
       </div>
+      {identity && demo.tags?.length
+        ? createPortal(
+            <>
+              {demo.tags.map((t) => (
+                <span key={t.label} data-demo-tag="" data-tone={t.tone ?? "offer"}>
+                  {t.label}
+                </span>
+              ))}
+            </>,
+            identity,
+          )
+        : null}
       {actionsRow && demo.consultation
         ? createPortal(
             <button type="button" data-demo-cta="" onClick={() => setBooking(true)}>
@@ -97,4 +96,32 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
       ) : null}
     </Shell>
   );
+}
+
+
+/**
+ * A node inside the shared page, once it exists.
+ *
+ * Polled rather than queried once: every one of these lives under data the
+ * page has not fetched yet, so a mount effect finds nothing. Capped at ~3s of
+ * tries so a selector that never matches (a shared-package rename) fails as a
+ * missing control rather than a timer running for the life of the tab.
+ */
+function useHostNode(selector: string, resetKey: string): HTMLElement | null {
+  const [node, setNode] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setNode(null);
+    let tries = 0;
+    const id = window.setInterval(() => {
+      const el = document.querySelector<HTMLElement>(selector);
+      if (el) {
+        setNode(el);
+        window.clearInterval(id);
+      } else if (++tries > 60) {
+        window.clearInterval(id);
+      }
+    }, 50);
+    return () => window.clearInterval(id);
+  }, [selector, resetKey]);
+  return node;
 }
