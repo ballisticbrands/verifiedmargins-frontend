@@ -1158,9 +1158,11 @@ a, button, [role="button"] {
    Uses the verified/green tint rather than a warning palette — this is
    reassurance, not a caution. Green on tint is 6.0:1 (see --verified-tint). */
 [data-announcement] {
+  position: relative;
   background: var(--verified-tint);
   border-bottom: 1px solid var(--border);
-  padding: 0.6rem 1.25rem;
+  padding: 0.6rem 3rem; /* symmetric: the close button lives in the right gutter,
+                           so matching padding keeps the text optically centred */
 }
 [data-announcement] p {
   margin: 0 auto;
@@ -1173,9 +1175,37 @@ a, button, [role="button"] {
 [data-announcement] strong {
   font-weight: 700;
 }
+[data-announcement-close] {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 28px: below the 44px ideal, but this is a low-stakes dismiss sitting in a
+     tight bar. The generous right padding above keeps it from crowding text. */
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--verified);
+  cursor: pointer;
+  opacity: 0.7;
+}
+[data-announcement-close]:hover {
+  opacity: 1;
+  background: rgb(0 0 0 / 6%);
+}
+[data-announcement-close]:focus-visible {
+  outline: 2px solid var(--verified);
+  outline-offset: 1px;
+  opacity: 1;
+}
 @media (max-width: 640px) {
   [data-announcement] {
-    padding: 0.55rem 1rem;
+    padding: 0.55rem 2.5rem 0.55rem 1rem;
   }
   [data-announcement] p {
     font-size: 0.75rem;
