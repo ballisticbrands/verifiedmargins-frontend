@@ -10,6 +10,9 @@ import {
   useBrand,
   useSession,
   type ConnectionOption,
+  VerificationBadge,
+  ShareButton,
+  AMAZON_MARK_SRC,
 } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -63,11 +66,20 @@ interface BusinessPayload {
   verification: { tier: string; label: string };
   claimed: boolean;
   noindex: boolean;
-  window: { months: number; from: string; through: string; includes_partial_month: boolean };
+  window: {
+    months: number;
+    from: string;
+    through: string;
+    includes_partial_month: boolean;
+  };
   /** The seller behind this business, or `null` for an ORPHAN — one nobody
    *  has claimed. Every read of it below is guarded; an orphan renders with
    *  no founder rather than with a link to a profile that does not exist. */
-  profile: { username: string; display_name: string | null; avatar_url: string | null } | null;
+  profile: {
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
   metrics: {
     display: {
       currency: string;
@@ -82,7 +94,13 @@ interface BusinessPayload {
       units: number;
       margin_pct: number | null;
     } | null;
-    daily: Array<{ date: string; revenue: number; units: number; orders: number; profit: number | null }> | null;
+    daily: Array<{
+      date: string;
+      revenue: number;
+      units: number;
+      orders: number;
+      profit: number | null;
+    }> | null;
     margin_pct: number | null;
     margin_series: Array<{ month: string; margin_pct: number | null }> | null;
     margin_note: string | null;
@@ -93,18 +111,6 @@ interface BusinessPayload {
   };
   notes: string[];
 }
-
-/** Which rung of the verification ladder a tier sits on.
- *  verified_margin → checked throughout; verified_revenue → revenue checked,
- *  margin modelled; anything else → nothing checked. */
-function badgeState(tier: string): "verified" | "partial" | "estimated" {
-  if (tier === "verified_margin") return "verified";
-  if (tier === "verified_revenue") return "partial";
-  return "estimated";
-}
-
-/** Filled → half → empty. The shape says it without the colour. */
-const BADGE_GLYPH = { verified: "✓", partial: "◑", estimated: "○" } as const;
 
 const SELLER_TYPE_LABEL: Record<string, string> = {
   private_label: "Private label",
@@ -131,7 +137,10 @@ function percent(n: number | null): string {
   return n === null ? "—" : `${n.toFixed(1)}%`;
 }
 
-function fetchBusiness(slug: string, currency: string): Promise<BusinessPayload> {
+function fetchBusiness(
+  slug: string,
+  currency: string,
+): Promise<BusinessPayload> {
   // auth: false — a public page must render for a signed-out visitor, and
   // sending a stale bearer is the easiest way to make it LOOK like it works
   // when it does not.
@@ -194,9 +203,9 @@ export function Business() {
           // routes/profiles.ts) but not yet in the shared package's
           // ConnectionOption type. Widened here rather than republishing
           // frontend-shared for one optional field.
-          const found = (options as Array<ConnectionOption & { slug?: string }>).some(
-            (o) => o.slug === slug,
-          );
+          const found = (
+            options as Array<ConnectionOption & { slug?: string }>
+          ).some((o) => o.slug === slug);
           if (found) {
             if (!cancelled) setMine(true);
             return;
@@ -240,9 +249,10 @@ export function Business() {
             <>
               <h1>Not live yet</h1>
               <p>
-                This is your business, and its page is not public yet. It goes live once your
-                profile is published <em>and</em> we have pulled your first numbers from Amazon —
-                for a brand-new connection that can take a few hours.
+                This is your business, and its page is not public yet. It goes
+                live once your profile is published <em>and</em> we have pulled
+                your first numbers from Amazon — for a brand-new connection that
+                can take a few hours.
               </p>
               <p>
                 <Link to="/settings">Publishing and connected accounts →</Link>
@@ -252,8 +262,9 @@ export function Business() {
             <>
               <h1>No business here</h1>
               <p>
-                This page does not exist, or its owner has not published it. Business links change
-                when a seller reconnects their account, so an older link can stop working.
+                This page does not exist, or its owner has not published it.
+                Business links change when a seller reconnects their account, so
+                an older link can stop working.
               </p>
               <p>
                 <Link to="/leaderboard">Browse verified sellers →</Link>
@@ -269,61 +280,85 @@ export function Business() {
   const d = p.metrics.display;
   const last30 = p.metrics.last_30d;
   const displayCurrency = d?.currency ?? currency;
-  const sub = [p.label, p.seller_type ? SELLER_TYPE_LABEL[p.seller_type] : null]
+  /* "Amazon FBA · Private label · MX · CA · US" — what this business IS, in
+     the slot a founder profile uses for its tier pills. Markets are part of
+     the same sentence rather than a separate span: they disambiguate two
+     businesses on one platform, which is the same job the rest of the line
+     does. */
+  const sub = [
+    p.label,
+    p.seller_type ? SELLER_TYPE_LABEL[p.seller_type] : null,
+    ...p.markets,
+  ]
     .filter(Boolean)
     .join(" · ");
   /* `profile` is null for an ORPHAN — a business with no founder behind it.
      Every use of it below is guarded, and the guard is the feature: an orphan
      must render as a business nobody has claimed, never as a broken link to a
      profile that does not exist. */
-  const owner = p.profile ? p.profile.display_name || `@${p.profile.username}` : null;
-
+  const owner = p.profile
+    ? p.profile.display_name || `@${p.profile.username}`
+    : null;
 
   return (
     <Shell width="profile">
       <div className="vm-form vm-profile">
-        <Breadcrumbs
-          items={[
-            { label: brand.displayName, to: "/" },
-            // The seller's crumb is dropped entirely for an orphan rather
-            // than rendered empty — there is no one to name and nowhere to go.
-            ...(p.profile && owner ? [{ label: owner, to: `/${p.profile.username}` }] : []),
-            { label: p.name },
-          ]}
-        />
         <main>
+          {/* THE SAME HEADER SHAPE AS A FOUNDER PROFILE, on purpose: mark
+            where the avatar goes, share in the actions column, identity in
+            between. A reader moving between /:username and /business/:slug
+            should recognise the page, and reusing the attributes means the
+            two share one stylesheet rather than drifting apart in two. */}
           <header data-profile-head="">
-            <h1>{p.name}</h1>
-            <p>
-              {sub}
-              {p.markets.length > 0 ? (
-                <span data-business-markets=""> · {p.markets.join(" · ")}</span>
-              ) : null}
-            </p>
-            <p>
-              {/* 🚨 THREE states. `startsWith("verified")` matched BOTH
-                  verified_revenue and verified_margin, so this page rendered
-                  a modelled margin in the same green as a checked one. Twin
-                  of VerificationBadge in the shared package's PublicProfile —
-                  keep the two in step. */}
-              <span data-badge="" data-state={badgeState(p.verification.tier)}>
-                {BADGE_GLYPH[badgeState(p.verification.tier)]} {p.verification.label}
+            <span data-profile-main="">
+              <span data-profile-crumbs="">
+                <Breadcrumbs
+                  items={[
+                    { label: brand.displayName, to: "/" },
+                    ...(p.profile && owner
+                      ? [{ label: owner, to: `/${p.profile.username}` }]
+                      : []),
+                    { label: p.name },
+                  ]}
+                />
               </span>
-            </p>
-            {/* The business belongs to a seller, and the profile is where the
-                rest of their portfolio lives — when there IS one. An orphan
-                has no founder, so it says nothing here rather than linking
-                somewhere empty.
+              <span data-profile-who="">
+                {/* The platform mark sits where a founder's face does. Same
+                  file the business cards use, served from our own origin. */}
+                <span data-avatar="" data-business-avatar="" aria-hidden="true">
+                  <img src={AMAZON_MARK_SRC} alt="" width={30} height={30} />
+                </span>
+                <span data-profile-identity="">
+                  <h1>
+                    {p.name}
+                    {/* The shared badge component, so this page, the profile
+                        cards and the leaderboard all render ONE ladder from
+                        one implementation rather than three that drift. */}
+                    <VerificationBadge verification={p.verification} />
+                  </h1>
+                  {/* Where a founder profile says "3 businesses with ◑ Verified
+                    revenue", a business says what IT is. */}
+                  <p data-verified-count="">{sub}</p>
+                  {/* The business belongs to a seller, and the profile is where
+                    the rest of their portfolio lives — when there IS one. An
+                    orphan has no founder, so it says nothing rather than
+                    linking somewhere empty.
 
-                🚨 There is deliberately NO source line. A transcribed
-                business's listing URL is not on the payload at all (the
-                backend withholds it), so there is nothing here to render even
-                by accident. */}
-            {p.profile && owner ? (
-              <p>
-                One business of <Link to={`/${p.profile.username}`}>{owner}</Link>
-              </p>
-            ) : null}
+                    🚨 There is deliberately NO source line. A transcribed
+                    business's listing URL is not on the payload at all, so
+                    there is nothing here to render even by accident. */}
+                  {p.profile && owner ? (
+                    <p data-business-owner="">
+                      One business of{" "}
+                      <Link to={`/${p.profile.username}`}>{owner}</Link>
+                    </p>
+                  ) : null}
+                </span>
+              </span>
+            </span>
+            <span data-profile-actions-row="">
+              <ShareButton fallbackPath={`/business/${p.slug}`} />
+            </span>
           </header>
 
           <section data-profile-dashboard="">
@@ -344,16 +379,25 @@ export function Business() {
               <StatTile
                 label="Revenue (30d)"
                 value={money(last30?.revenue ?? null, displayCurrency)}
-                hint={last30?.revenue == null ? "This seller keeps revenue private." : undefined}
+                hint={
+                  last30?.revenue == null
+                    ? "This seller keeps revenue private."
+                    : undefined
+                }
               />
               <StatTile
                 label="Margin"
                 value={percent(last30?.margin_pct ?? null)}
                 hint={p.metrics.margin_note ?? undefined}
               />
-              <StatTile label="SKUs" value={
-                p.metrics.sku_count === null ? "—" : p.metrics.sku_count.toLocaleString()
-              } />
+              <StatTile
+                label="SKUs"
+                value={
+                  p.metrics.sku_count === null
+                    ? "—"
+                    : p.metrics.sku_count.toLocaleString()
+                }
+              />
             </div>
 
             {trend.length > 0 ? (
@@ -368,13 +412,10 @@ export function Business() {
           </section>
 
           <section>
+            {/* No "Brands sold" row. A business page is ONE business, and its
+                brand count was a number with nothing to compare against —
+                unlike on a founder profile, where it summarises an estate. */}
             <dl>
-              {p.metrics.brand_count !== null ? (
-                <div>
-                  <dt>{p.metrics.brands_label}</dt>
-                  <dd data-metric="">{p.metrics.brand_count}</dd>
-                </div>
-              ) : null}
               {p.metrics.category ? (
                 <div>
                   <dt>Category</dt>
@@ -397,7 +438,8 @@ export function Business() {
 
           {d ? (
             <p data-fx="">
-              Converted to {d.currency} at rates from {d.fx.source}, as of {d.fx.as_of}.
+              Converted to {d.currency} at rates from {d.fx.source}, as of{" "}
+              {d.fx.as_of}.
             </p>
           ) : null}
         </main>

@@ -1110,6 +1110,41 @@ a, button, [role="button"] {
   font-weight: 400;
   color: var(--muted-foreground);
 }
+/* The platform mark, in the slot a founder's face occupies.
+   🚨 A LIGHT SURFACE, ALWAYS — not var(--muted). The Amazon "a" is
+   near-black, so on the dark theme's muted grey it disappears entirely. The
+   logo is drawn for a light ground, so it gets one in both themes; the thin
+   border keeps it from floating on the light theme's white page. */
+.vm-profile [data-business-avatar] {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  padding: 0.4rem;
+}
+.vm-profile [data-business-avatar] img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* The badge sits inside the <h1>, which is flex + baseline, so it lines up
+   with the name rather than with the top of the text box. Reset to its own
+   scale — inheriting an h1's size would make the pill the loudest thing on
+   the page and out-shout the business name it qualifies. */
+.vm-profile [data-profile-head] h1 [data-badge] {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* "One business of <founder>", under the line that says what the business
+   is. Quiet: it is a pointer to the rest of a portfolio, not a claim about
+   this one. Absent entirely on an orphan. */
+.vm-profile [data-business-owner] {
+  margin-top: 0.15rem;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
 .vm-profile [data-share] {
   flex-shrink: 0;
   padding: 0.35rem 0.8rem;
