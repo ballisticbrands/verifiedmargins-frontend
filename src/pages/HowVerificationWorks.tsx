@@ -278,9 +278,18 @@ const COMPARISON: {
   },
 ];
 
-/** The two badges the page exists to distinguish, plus the bottom rung, in the
- *  product's own words. `description` is verbatim from the backend's LABELS —
- *  see the twin note at the top. */
+/** The two badges the page exists to distinguish, in the product's own words.
+ *  `description` is verbatim from the backend's LABELS — see the twin note at
+ *  the top.
+ *
+ *  🚨 `self_reported` is NOT documented here, deliberately. Nothing a visitor
+ *  can reach carries it: no route in the add-business flow can produce a manual
+ *  connection, and the seeded businesses that could are transcribed from
+ *  fully-trusted public sources, so they are meant to read as verified margins.
+ *  A page explaining a badge nobody will meet invites the one question it must
+ *  not invite — "so can I just self-report?" — whose answer is no. `Badge`
+ *  still renders the state, because the component must handle every tier the
+ *  API can return; this section just does not teach it. */
 const TIERS = {
   verifiedRevenue: {
     tier: "verified_revenue",
@@ -297,11 +306,6 @@ const TIERS = {
       "Revenue, fees and ad spend come straight from Amazon, and margin is computed from per-SKU " +
       "costs the seller uploaded.",
     marginNote: "Computed from per-SKU costs.",
-  },
-  selfReported: {
-    tier: "self_reported",
-    label: "Self-reported",
-    description: "Revenue and costs were entered by hand and are not verified against Amazon.",
   },
 };
 
@@ -488,37 +492,21 @@ export function HowVerificationWorks() {
           </div>
 
           <p className="mt-4">
-            The badges are a ladder, and it steps in three channels at once — the{" "}
-            <strong>glyph</strong> fills in (○ → ◑ → ✓), the <strong>word</strong> changes, and the{" "}
-            <strong>colour</strong> steps red → amber → green. Any one of the three
-            tells you where a profile sits, which is the point: most people meet this product as a
-            screenshot, and a distinction carried by colour alone is invisible in greyscale and to
-            a colour-blind reader.
+            The two badges differ in three channels at once — the <strong>glyph</strong>{" "}
+            fills in (◑ → ✓), the <strong>word</strong> changes, and the{" "}
+            <strong>colour</strong> steps amber → green. Any one of the three tells you which
+            you are looking at, which is the point: most people meet this product as a
+            screenshot, and a distinction carried by colour alone is invisible in greyscale and
+            to a colour-blind reader.
           </p>
           <p className="mt-2">
-            The amber rung is the one that matters most, because it is the easiest to overclaim.
+            The amber badge is the one that matters most, because it is the easiest to overclaim.
             Revenue really did come from Amazon — that half is checked, and the badge says so
             rather than withholding credit. But the costs behind the margin are a number the
             seller supplied and we did not open, so the badge stops short of green and the line
             beneath it says exactly where it stopped.
           </p>
 
-          <div className="mt-5 rounded-[var(--radius)] border border-[var(--border)] p-4">
-            <p className="font-medium">The third state, for completeness</p>
-            <p className="mt-2">
-              <Badge tier={TIERS.selfReported.tier} label={TIERS.selfReported.label} />
-            </p>
-            <p className="mt-2 text-[var(--muted-foreground)]">
-              {TIERS.selfReported.description}
-            </p>
-            <p className="mt-2 text-[var(--muted-foreground)]">
-              <small>
-                Hollow ○ and red — the bottom rung, not a missing one. Nothing here was
-                checked against Amazon, and the shape and the word say so as loudly as the
-                colour does.
-              </small>
-            </p>
-          </div>
         </section>
 
         {/* ── §3 Where the badge lives ────────────────────────────────── */}
