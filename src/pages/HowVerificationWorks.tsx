@@ -48,10 +48,6 @@ import { useAddBusiness } from "@/AddBusiness";
  * it.
  */
 
-/** The booking link the video-call route actually uses. Twin of
- *  `CALENDLY_URL` in frontend-shared's VerifyAccounts.tsx. */
-const CALENDLY_URL = "https://calendly.com/ggballas";
-
 /**
  * The window the hero's chart illustrates: the twelve COMPLETE months ending
  * with last month. In August 2026 that is Aug 2025 → Jul 2026.
@@ -629,17 +625,6 @@ export function HowVerificationWorks() {
             The trade is freshness. A call verifies the window you showed us; unlike a connected
             account it does not keep itself up to date, so the profile carries the date it was
             verified.
-          </p>
-          <p className="mt-3">
-            <a
-              className="underline underline-offset-4"
-              href={CALENDLY_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Book the call
-            </a>
-            , or start from the flow below and we will send you the link.
           </p>
         </section>
 
