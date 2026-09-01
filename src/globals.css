@@ -698,6 +698,20 @@ a, button, [role="button"] {
 .vm-profile [data-profile-head] h1 { margin: 0; }
 .vm-profile [data-profile-head] p { margin: 0; }
 
+/* A bio keeps the line breaks its author typed.
+ *
+ * People write LISTS in a bio — "* 3 businesses / * $1MM/year / * Toys &
+ * games" — and a plain <p> collapses every newline into a space, turning five
+ * lines into one run-on sentence.
+ *
+ * `pre-line`, not `pre-wrap`: it honours the newlines while collapsing runs of
+ * spaces from a paste, and it still wraps normally on a phone. `pre-wrap`
+ * would preserve leading indentation and can force horizontal scroll.
+ */
+.vm-profile [data-profile-bio] {
+  white-space: pre-line;
+}
+
 /* A qualifier on a FIGURE — "unverified" beside the Margin label.
  *
  * 🚨 QUIET, NOT ALARMING. BRANDING.md §4.3: red is for errors, and an
@@ -2668,23 +2682,75 @@ h2[data-heading-badges] {
   pointer-events: none; /* never let the bubble eat the hover that opened it */
 }
 
-/* The profile's window selector, beside the dashboard heading. */
-[data-window-picker] { margin-left: auto; }
-[data-window-select] {
-  font: inherit;
-  font-size: 0.82rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 7px;
+/* ── The profile's window picker ─────────────────────────────────────────
+   A pill trigger and a listbox, not a <select>: a native option cannot draw
+   a lock, and the gate has to look deliberate rather than like a typo. */
+
+[data-dashboard-head] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+[data-window-picker] { position: relative; }
+
+[data-window-trigger] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 9px;
   border: 1px solid var(--border);
-  background: var(--background);
+  background: var(--card, var(--background));
   color: var(--foreground);
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.1;
   cursor: pointer;
 }
-/* The heading row carries the picker on its right. */
-[data-profile-dashboard] > h2 { display: inline-block; }
-[data-profile-dashboard] { position: relative; }
-[data-profile-dashboard] > [data-window-picker] {
+[data-window-trigger]:hover { border-color: var(--muted-foreground); }
+[data-window-trigger][aria-expanded="true"] { border-color: var(--muted-foreground); }
+[data-window-chevron] { color: var(--muted-foreground); flex: none; }
+[data-window-trigger][aria-expanded="true"] [data-window-chevron] { transform: rotate(180deg); }
+
+[data-window-menu] {
   position: absolute;
   right: 0;
-  top: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 20;
+  min-width: 11.5rem;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: var(--card, var(--background));
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
 }
+[data-window-menu] li { margin: 0; }
+[data-window-menu] button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.42rem 0.55rem;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+[data-window-menu] button:hover { background: var(--muted, rgba(127, 127, 127, 0.14)); }
+[data-window-menu] button[data-selected] { font-weight: 600; }
+
+/* Locked reads as unavailable-but-obtainable: dimmed, still hoverable, and
+   carrying a lock rather than looking broken. It must invite the click that
+   opens the dialog, so it is deliberately NOT disabled. */
+[data-window-menu] button[data-locked] { color: var(--muted-foreground); }
+[data-window-menu] button[data-locked] svg { opacity: 0.85; flex: none; }
+[data-window-menu] button svg { flex: none; }

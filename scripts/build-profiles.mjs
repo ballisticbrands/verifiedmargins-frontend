@@ -155,7 +155,10 @@ for (const { username } of list) {
     `<h1>${esc(name)}</h1>`,
     `<p>/${esc(p.username)}</p>`,
     `<p>${esc(tier)} — ${esc(p.verification?.description ?? '')}</p>`,
-    p.bio ? `<p>${esc(p.bio)}</p>` : '',
+    /* Same line-break treatment the rendered page gets — a crawler and a
+       reader must see the same bio. `esc()` first, so the newline swap can
+       only ever produce <br/> and never revive escaped markup. */
+    p.bio ? `<p data-profile-bio="">${esc(p.bio).replace(/\r?\n/g, '<br/>')}</p>` : '',
     facts.length ? `<ul>${facts.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>` : '',
     p.metrics?.margin_note ? `<p>${esc(p.metrics.margin_note)}</p>` : '',
     p.website_url ? `<p><a href="${esc(p.website_url)}" rel="nofollow noopener">Website</a></p>` : '',
