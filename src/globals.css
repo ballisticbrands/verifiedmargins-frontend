@@ -2814,3 +2814,45 @@ h2[data-heading-badges] {
 [data-window-menu] button[data-locked] { color: var(--muted-foreground); }
 [data-window-menu] button[data-locked] svg { opacity: 0.85; flex: none; }
 [data-window-menu] button svg { flex: none; }
+
+/* ── Owner affordances on the businesses row ─────────────────────────── */
+
+/* "Edit", beside the business name. Quiet until hovered: it is a signpost
+   that the page is editable, not a call to action competing with the name. */
+[data-business-edit] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+[data-business-edit]:hover { color: var(--foreground); border-color: var(--muted-foreground); }
+
+/* A CARD in the businesses grid, not a button under it — it has to read as
+   "one more of these". Dashed, so it is legible as a slot rather than as a
+   business that failed to load. */
+[data-business-add] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 8rem;
+  width: 100%;
+  padding: 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: none;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+[data-business-add]:hover { border-color: var(--muted-foreground); color: var(--foreground); }
+[data-business-add-plus] { font-size: 1.5rem; line-height: 1; }
