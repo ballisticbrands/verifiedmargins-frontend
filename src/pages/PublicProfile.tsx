@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   PublicProfilePage,
-  fetchConnectionOptions,
   listProfiles,
   useBrand,
   useSession,
-  type WindowKey,
 } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
+import { useUnlockedWindows } from "@/lib/unlocked-windows";
 import { useAddBusiness } from "@/AddBusiness";
 import { useCurrency } from "@/currency";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -50,44 +49,10 @@ export function PublicProfile() {
     undefined,
   );
   const { open: openAddBusiness } = useAddBusiness();
-  /* THE GATE. Longer windows are for readers who have shown their own numbers
-     — you publish, you see. Undefined while we are still finding out, which
-     renders every option open rather than flashing a lock at someone who has
-     earned none; the picker is inert for that instant either way.
-     A reader with no connection sees 30 days only, and picking a locked one
-     opens the dialog that would earn it. */
-  const [unlocked, setUnlocked] = useState<readonly WindowKey[] | undefined>(undefined);
-
-  useEffect(() => {
-    if (status === "loading") return;
-    if (status !== "authenticated") {
-      setUnlocked(["30d"]);
-      return;
-    }
-    let cancelled = false;
-    /* Two calls because connections hang off a PROFILE, not off a user: their
-       own profiles first, then whether any connection feeds one. */
-    listProfiles()
-      .then(async (mine) => {
-        const first = mine[0];
-        if (!first) return [] as Awaited<ReturnType<typeof fetchConnectionOptions>>;
-        return fetchConnectionOptions(first.id);
-      })
-      .then((opts) => {
-        if (cancelled) return;
-        /* A CONNECTION is the price, not an account: signing up and stopping
-           is not showing your numbers. */
-        setUnlocked(opts.length > 0 ? undefined : ["30d"]);
-      })
-      .catch(() => {
-        /* Cannot tell — open it. Locking someone out on our own failure is
-           the worse of the two mistakes. */
-        if (!cancelled) setUnlocked(undefined);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [status]);
+  /* THE GATE, in lib/unlocked-windows.ts — the business page asks the same
+     question, and a pricing rule kept in two files is one place to change
+     and one place to forget. */
+  const unlocked = useUnlockedWindows();
 
   useEffect(() => {
     document.title = `${username} — ${brand.displayName}`;

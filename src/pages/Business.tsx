@@ -17,8 +17,13 @@ import {
   dashboardPlots,
   plotLabel,
   type PlotKey,
+  WindowPicker,
+  WINDOW_OPTIONS,
+  type WindowKey,
 } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
+import { useAddBusiness } from "@/AddBusiness";
+import { useUnlockedWindows } from "@/lib/unlocked-windows";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { useCurrency } from "@/currency";
 
@@ -71,6 +76,10 @@ interface BusinessPayload {
   claimed: boolean;
   noindex: boolean;
   window: {
+    /** Which window the backend actually answered for. Echoed back so the
+     *  picker, the tiles and the chart caption cannot disagree with the
+     *  figures — the page asks, the server decides, the label follows. */
+    key: WindowKey;
     months: number;
     from: string;
     through: string;
@@ -151,12 +160,14 @@ function percent(n: number | null): string {
 function fetchBusiness(
   slug: string,
   currency: string,
+  window: WindowKey,
 ): Promise<BusinessPayload> {
   // auth: false — a public page must render for a signed-out visitor, and
   // sending a stale bearer is the easiest way to make it LOOK like it works
   // when it does not.
   return apiFetch<BusinessPayload>(
-    `/v1/public/businesses/${encodeURIComponent(slug)}?currency=${encodeURIComponent(currency)}`,
+    `/v1/public/businesses/${encodeURIComponent(slug)}` +
+      `?window=${encodeURIComponent(window)}&currency=${encodeURIComponent(currency)}`,
     { auth: false },
   );
 }
@@ -172,6 +183,15 @@ export function Business() {
   const { status } = useSession();
   const { currency } = useCurrency();
   const [load, setLoad] = useState<Load>({ state: "loading" });
+  /* 30 days by default: what a business is doing NOW, with a year as the
+     context you opt into. The backend defaults the same way, so a payload
+     fetched with no window and one fetched with "30d" are the same payload. */
+  const [windowKey, setWindowKey] = useState<WindowKey>("30d");
+  /* THE GATE, resolved by the host and shared with the founder profile —
+     see lib/unlocked-windows.ts. A pricing rule kept in two files is one
+     place to change and one place to forget. */
+  const unlocked = useUnlockedWindows();
+  const { open: openAddBusiness } = useAddBusiness();
   /** `true` once we have confirmed this slug is one of the caller's own.
    *  Only ever consulted on the 404 path. */
   const [mine, setMine] = useState(false);
@@ -180,7 +200,7 @@ export function Business() {
     let cancelled = false;
     setLoad({ state: "loading" });
     setMine(false);
-    fetchBusiness(slug, currency)
+    fetchBusiness(slug, currency, windowKey)
       .then((payload) => {
         if (!cancelled) setLoad({ state: "found", payload });
       })
@@ -195,7 +215,10 @@ export function Business() {
     return () => {
       cancelled = true;
     };
-  }, [slug, currency]);
+    /* `windowKey` in the deps is what makes the picker DO something: the
+       window is resolved server-side, so changing it has to refetch or the
+       heading would move while the figures stood still. */
+  }, [slug, currency, windowKey]);
 
   /* Owner resolution, on the 404 path only. Two authenticated calls that
      each return ONLY the caller's own rows, so this can never answer a
@@ -325,6 +348,13 @@ export function Business() {
     ? p.profile.display_name || `@${p.profile.username}`
     : null;
 
+  /* 🚨 THE LABEL COMES OFF THE PAYLOAD, not off `windowKey`. They agree
+     almost always and disagree in exactly the moment that matters: while a
+     new window is in flight, the old figures are still on screen, and a
+     heading that had already jumped ahead would be captioning them wrongly. */
+  const windowLabel =
+    WINDOW_OPTIONS.find((o) => o.value === p.window.key)?.label ?? "Last 30 days";
+
   /* The tile the chart is currently showing. Falls back to the leading
      plottable one rather than to a fixed "profit", which would leave nothing
      looking selected on a business with no costs on file. */
@@ -423,6 +453,26 @@ export function Business() {
           </header>
 
           <section data-profile-dashboard="">
+            {/* THE PICKER IS THE HEADING — the same arrangement as a founder
+                profile, and the same control (WindowPicker, from the shared
+                package, not a lookalike). It names the span the tiles and the
+                chart describe and is the only way to change it, so two of
+                them would be one label and one control saying the same words.
+                The <h2> stays for structure and for a screen reader. */}
+            <div data-dashboard-head="">
+              <h2 className="vm-visually-hidden">{windowLabel}</h2>
+              <WindowPicker
+                value={windowKey}
+                options={WINDOW_OPTIONS}
+                unlocked={unlocked ?? WINDOW_OPTIONS.map((o) => o.value)}
+                onPick={setWindowKey}
+                /* A locked pick must not move the board underneath the
+                   dialog: showing the answer while asking someone to pay for
+                   it is worse than not showing it. */
+                onLockedPick={() => openAddBusiness()}
+              />
+            </div>
+
             <div data-tiles="">
               {/* FOUR CARDS, all on the same 30-day period, and the same four
                   the founder profile shows — a reader moving between the two
@@ -498,8 +548,8 @@ export function Business() {
                   <small>
                     {plotLabel(activeKey)}{" "}
                     {board.useDaily
-                      ? "by day, last 30 days"
-                      : `by month, last ${p.window.months} months`}
+                      ? `by day, ${windowLabel.toLowerCase()}`
+                      : `by month, ${windowLabel.toLowerCase()}`}
                   </small>
                 </p>
                 <div data-chart="">
