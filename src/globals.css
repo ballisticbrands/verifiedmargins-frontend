@@ -2641,3 +2641,24 @@ h2[data-heading-badges] {
 
   pointer-events: none; /* never let the bubble eat the hover that opened it */
 }
+
+/* The profile's window selector, beside the dashboard heading. */
+[data-window-picker] { margin-left: auto; }
+[data-window-select] {
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  cursor: pointer;
+}
+/* The heading row carries the picker on its right. */
+[data-profile-dashboard] > h2 { display: inline-block; }
+[data-profile-dashboard] { position: relative; }
+[data-profile-dashboard] > [data-window-picker] {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
