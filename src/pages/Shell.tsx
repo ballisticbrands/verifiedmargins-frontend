@@ -4,6 +4,7 @@ import { Logo } from "@/components/Logo";
 import { CURRENCIES, SHOW_CURRENCY_PICKER, useCurrency } from "@/currency";
 import { useAddBusiness } from "@/AddBusiness";
 import { AddBusinessModal } from "@/components/AddBusinessModal";
+import { UnlockModal } from "@/components/UnlockModal";
 import {
   DashboardIcon,
   FeedIcon,
@@ -177,6 +178,12 @@ export function Shell({
         </footer>
       </div>
 
+      {/* Two steps of one journey, never stacked: `open` clears the prompt
+          on its way in (see AddBusinessProvider), so at most one of these is
+          ever mounted. */}
+      {addBusiness.unlockOpen ? (
+        <UnlockModal onClose={addBusiness.closeUnlock} onAdd={addBusiness.open} />
+      ) : null}
       {addBusiness.isOpen ? <AddBusinessModal onClose={addBusiness.close} /> : null}
       </div>
     </>

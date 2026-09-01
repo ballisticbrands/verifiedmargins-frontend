@@ -191,7 +191,10 @@ export function Business() {
      see lib/unlocked-windows.ts. A pricing rule kept in two files is one
      place to change and one place to forget. */
   const unlocked = useUnlockedWindows();
-  const { open: openAddBusiness } = useAddBusiness();
+  /* The PROMPT, not the flow: a locked pick opens one sentence and a
+     button, and that button opens the wizard. Dropping the wizard on
+     someone who pressed a date range reads as a paywall ambush. */
+  const { promptUnlock } = useAddBusiness();
   /** `true` once we have confirmed this slug is one of the caller's own.
    *  Only ever consulted on the 404 path. */
   const [mine, setMine] = useState(false);
@@ -469,7 +472,7 @@ export function Business() {
                 /* A locked pick must not move the board underneath the
                    dialog: showing the answer while asking someone to pay for
                    it is worse than not showing it. */
-                onLockedPick={() => openAddBusiness()}
+                onLockedPick={() => promptUnlock()}
               />
             </div>
 

@@ -1771,6 +1771,51 @@ a, button, [role="button"] {
   .vm-profile [data-profile-businesses] { margin-top: 1.1rem; }
 }
 
+/* ─── The unlock prompt — components/UnlockModal.tsx ──────────────────
+ *
+ * The step in front of the onboarding dialog, shown when a reader picks a
+ * locked window. Deliberately the SMALLEST thing that can carry a sentence
+ * and a button: it exists to explain a lock, not to sell, and a dialog the
+ * size of the wizard would be the ambush this replaced.
+ *
+ * Shares the wizard's frame (radius, border, card ground, backdrop) so it
+ * reads as the same surface at a different size, and reuses
+ * [data-add-business-dismiss] for the ✕ rather than growing a second one.
+ */
+dialog[data-unlock] {
+  width: min(24rem, calc(100vw - 1.5rem));
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+dialog[data-unlock]::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+[data-unlock-body] {
+  padding: 1.6rem 1.35rem 1.35rem;
+}
+[data-unlock-body] h2 {
+  margin: 0 0 1.1rem;
+  padding-right: 1.25rem; /* clears the ✕ */
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+/* The rail's own button, verbatim — [data-nav-cta] already styles it. The
+   one override is the margin the sidebar needed and a dialog does not, and
+   centring the label: in the rail it sits in a left-aligned stack of nav
+   items, here it is the only thing in the box. */
+[data-unlock-body] [data-nav-cta] {
+  margin-top: 0;
+  justify-content: center;
+  padding: 0.6rem 0.75rem;
+  text-align: center;
+}
+
 /* ─── "Add your business" — the onboarding dialog ─────────────────────
  *
  * The one flow this product has, and the surface where a stranger decides

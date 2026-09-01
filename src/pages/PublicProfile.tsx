@@ -48,7 +48,10 @@ export function PublicProfile() {
   const [owner, setOwner] = useState<{ profileId: string; published: boolean } | null | undefined>(
     undefined,
   );
-  const { open: openAddBusiness } = useAddBusiness();
+  /* The PROMPT, not the flow: a locked pick opens one sentence and a
+     button, and that button opens the wizard. Dropping the wizard on
+     someone who pressed a date range reads as a paywall ambush. */
+  const { promptUnlock } = useAddBusiness();
   /* THE GATE, in lib/unlocked-windows.ts — the business page asks the same
      question, and a pricing rule kept in two files is one place to change
      and one place to forget. */
@@ -137,7 +140,7 @@ export function PublicProfile() {
           defaultCurrency={currency}
           onLoaded={(p) => setCrumbName(p.display_name || `@${p.username}`)}
           unlockedWindows={unlocked}
-          onLockedWindow={() => openAddBusiness()}
+          onLockedWindow={() => promptUnlock()}
           breadcrumb={breadcrumb}
         />
       </div>
