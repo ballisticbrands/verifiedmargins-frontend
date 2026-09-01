@@ -14,6 +14,9 @@ import {
   ShareButton,
   AMAZON_MARK_SRC,
   UNVERIFIED_MARGIN_TAG,
+  dashboardPlots,
+  plotLabel,
+  type PlotKey,
 } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -236,10 +239,24 @@ export function Business() {
   }, [name, brand.displayName]);
 
   const daily = load.state === "found" ? load.payload.metrics.daily : null;
-  const trend = useMemo(
-    () => (daily ?? []).map((d) => ({ date: d.date, value: d.revenue })),
-    [daily],
+  const marginSeries =
+    load.state === "found" ? load.payload.metrics.margin_series : null;
+  /* WHAT IS CLICKABLE IS NOT THIS PAGE'S DECISION — see dashboardPlots in
+     the shared package. This page used to hardwire the chart to Revenue and
+     make none of its tiles a control, while the founder profile showing the
+     same four tiles made three of them controls. Same data, same tiles, two
+     different answers. */
+  const board = useMemo(
+    () => dashboardPlots({ daily, marginSeries }),
+    [daily, marginSeries],
   );
+  /* null until the reader picks one, so the leading plottable tile opens
+     selected. Reset when the slug changes — a key that was plottable on the
+     last business need not be on this one. */
+  const [plot, setPlot] = useState<PlotKey | null>(null);
+  useEffect(() => {
+    setPlot(null);
+  }, [slug]);
 
   if (load.state === "loading") {
     return (
@@ -307,6 +324,26 @@ export function Business() {
   const owner = p.profile
     ? p.profile.display_name || `@${p.profile.username}`
     : null;
+
+  /* The tile the chart is currently showing. Falls back to the leading
+     plottable one rather than to a fixed "profit", which would leave nothing
+     looking selected on a business with no costs on file. */
+  const activeKey = board.plots.includes(plot as PlotKey)
+    ? (plot as PlotKey)
+    : (board.plots[0] ?? null);
+  /* 🚨 A TILE IS A CONTROL ONLY WHEN IT HAS A SERIES BEHIND IT — `board.plots`
+     is the whole answer, and this page must not add to it. Spread onto the
+     three tiles that can plot; PPC and SKUs get nothing, because the payload
+     carries one figure for each rather than a series, and a button that
+     changed no chart would be a control lying about being one. */
+  const tilePlot = (key: PlotKey) =>
+    board.plots.includes(key)
+      ? {
+          spark: board.sparkFor(key),
+          selected: key === activeKey,
+          onClick: () => setPlot(key),
+        }
+      : {};
 
   return (
     <Shell width="profile">
@@ -399,6 +436,7 @@ export function Business() {
                 label="Profit (30d)"
                 value={money(last30?.profit ?? null, displayCurrency)}
                 hint={p.metrics.margin_note ?? undefined}
+                {...tilePlot("profit")}
               />
               <StatTile
                 label="Revenue (30d)"
@@ -408,6 +446,7 @@ export function Business() {
                     ? "This seller keeps revenue private."
                     : undefined
                 }
+                {...tilePlot("revenue")}
               />
               {/* 🚨 An unverified margin says so, ON the tile. Only
                   `verified_margin` means we checked the cost side;
@@ -427,6 +466,7 @@ export function Business() {
                     ? UNVERIFIED_MARGIN_TAG
                     : undefined
                 }
+                {...tilePlot("margin")}
               />
               {/* PPC — advertising spend, beside the margin it eats into.
                   🚨 THE ONE TILE THAT DISAPPEARS rather than showing a dash:
@@ -447,14 +487,41 @@ export function Business() {
               />
             </div>
 
-            {trend.length > 0 ? (
-              <div data-chart="">
-                <TrendChart
-                  points={trend}
-                  label="Revenue"
-                  format={(v) => money(v, displayCurrency)}
-                />
-              </div>
+            {/* The caption names the SELECTED tile, not "Revenue" — it used
+                to say Revenue over a chart that could only ever be revenue,
+                and a caption that cannot be wrong is a caption that is not
+                doing anything. `activeKey` is null only when nothing is
+                plottable, and then there is no chart to caption. */}
+            {activeKey ? (
+              <>
+                <p data-chart-label="">
+                  <small>
+                    {plotLabel(activeKey)}{" "}
+                    {board.useDaily
+                      ? "by day, last 30 days"
+                      : `by month, last ${p.window.months} months`}
+                  </small>
+                </p>
+                <div data-chart="">
+                  <TrendChart
+                    points={board.pointsFor(activeKey)}
+                    label={plotLabel(activeKey)}
+                    format={
+                      activeKey === "margin"
+                        ? percent
+                        : (v) => money(v, displayCurrency)
+                    }
+                    formatDate={(iso) =>
+                      new Date(iso).toLocaleDateString(
+                        undefined,
+                        board.useDaily
+                          ? { month: "short", day: "numeric", timeZone: "UTC" }
+                          : { month: "short", year: "2-digit", timeZone: "UTC" },
+                      )
+                    }
+                  />
+                </div>
+              </>
             ) : null}
           </section>
 
