@@ -1,0 +1,272 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { ApiError, apiFetch, useBrand, useSession } from "@ballisticbrands/frontend-shared";
+import { Shell } from "./Shell";
+
+/**
+ * The valuation wizard — full screen, one question at a time.
+ *
+ * 🚨 THE SERVER DRIVES THE FORM. Every answer POSTs to /valuation/preview,
+ * which returns both the new number AND the questions that are visible for
+ * those answers. Branching is survey-core's expression language and stays on
+ * the backend: shipping the rules here would mean shipping their evaluator
+ * and owning the drift between two answers to "what comes next". The round
+ * trip is already paid for by the live number.
+ *
+ * The number is the point. It moves on every answer, above the question, so
+ * answering visibly does something — which is the whole reason a seller
+ * fills this in rather than abandoning it.
+ */
+
+interface Choice { value: string; text: string }
+interface Question {
+  name: string;
+  type: string;
+  title: string;
+  description?: string;
+  isRequired: boolean;
+  choices: Choice[];
+  page: string;
+  answered: boolean;
+}
+interface Adjustment { label: string; delta: number }
+interface Preview {
+  value: number | null;
+  multiple: number | null;
+  netProfitTtm: number | null;
+  adjustments: Adjustment[];
+  questions: Question[];
+  completeness: { complete: boolean; missing: string[]; required: number; answered: number };
+}
+
+type Answers = Record<string, unknown>;
+
+function money(n: number | null): string {
+  if (n === null) return "—";
+  return new Intl.NumberFormat(undefined, {
+    style: "currency", currency: "USD", maximumFractionDigits: 0,
+  }).format(n);
+}
+
+export function Valuation() {
+  const { slug = "" } = useParams();
+  const brand = useBrand();
+  const { status } = useSession();
+  const navigate = useNavigate();
+
+  const [connectionId, setConnectionId] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [index, setIndex] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [denied, setDenied] = useState(false);
+
+  useEffect(() => {
+    document.title = `Value your business — ${brand.displayName}`;
+  }, [brand.displayName]);
+
+  /* Ownership, the same way the business page resolves it: from the caller's
+     OWN profiles and connection list, so nothing here can answer a question
+     about somebody else's business. */
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { listProfiles, fetchConnectionOptions } = await import(
+          "@ballisticbrands/frontend-shared"
+        );
+        const profiles = await listProfiles();
+        for (const p of profiles) {
+          const opts = (await fetchConnectionOptions(p.id)) as Array<{ id: string; slug?: string }>;
+          const found = opts.find((o) => o.slug === slug);
+          if (found && !cancelled) {
+            setConnectionId(found.id);
+            return;
+          }
+        }
+        if (!cancelled) setDenied(true);
+      } catch {
+        if (!cancelled) setDenied(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [status, slug]);
+
+  /* Load whatever they answered before, so the wizard is resumable rather
+     than all-or-nothing — half a questionnaire is worth keeping. */
+  useEffect(() => {
+    if (!connectionId) return;
+    let cancelled = false;
+    apiFetch<{ answers: Answers }>(`/v1/connections/${connectionId}/questionnaire`)
+      .then((r) => { if (!cancelled) setAnswers(r.answers ?? {}); })
+      .catch(() => { /* start empty */ });
+    return () => { cancelled = true; };
+  }, [connectionId]);
+
+  /* One request per answer, debounced. Returns the number and the form. */
+  const seq = useRef(0);
+  const refresh = useCallback(async (next: Answers) => {
+    if (!connectionId) return;
+    const mine = ++seq.current;
+    try {
+      const p = await apiFetch<Preview>(`/v1/connections/${connectionId}/valuation/preview`, {
+        method: "POST",
+        body: JSON.stringify({ answers: next }),
+      });
+      /* Out-of-order guard: a slow early request must not overwrite the
+         answer to a later one. */
+      if (mine === seq.current) setPreview(p);
+    } catch (err) {
+      if (mine === seq.current) setError(err instanceof ApiError ? err.message : "Could not value that.");
+    }
+  }, [connectionId]);
+
+  useEffect(() => { void refresh(answers); }, [connectionId, refresh]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const questions = preview?.questions ?? [];
+  const current = questions[Math.min(index, Math.max(0, questions.length - 1))];
+
+  function answer(name: string, value: unknown) {
+    const next = { ...answers, [name]: value };
+    setAnswers(next);
+    void refresh(next);
+  }
+
+  async function finish() {
+    if (!connectionId) return;
+    setSaving(true);
+    try {
+      await apiFetch(`/v1/connections/${connectionId}/questionnaire`, {
+        method: "PUT",
+        body: JSON.stringify({ answers }),
+      });
+      navigate(`/business/${slug}`);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not save.");
+      setSaving(false);
+    }
+  }
+
+  if (status === "loading") return <Shell width="wide"><p>Loading…</p></Shell>;
+  if (status !== "authenticated" || denied) {
+    return (
+      <Shell width="wide">
+        <div className="vm-form">
+          <h1>Not your business</h1>
+          <p>Only the owner of a business can value it. <Link to={`/business/${slug}`}>Back to the business</Link>.</p>
+        </div>
+      </Shell>
+    );
+  }
+  if (!preview) return <Shell width="wide"><p>Loading…</p></Shell>;
+
+  const answeredCount = questions.filter((q) => q.answered).length;
+  const pct = questions.length ? Math.round((answeredCount / questions.length) * 100) : 0;
+
+  return (
+    <Shell width="wide">
+      <div data-valuation="">
+        <header data-val-head="">
+          <div>
+            <p data-val-label="">Estimated value</p>
+            {/* The number leads, and moves on every answer. A wizard whose
+                reward is only at the end is a wizard people abandon. */}
+            <p data-val-number="" aria-live="polite">{money(preview.value)}</p>
+            <p data-val-sub="">
+              {preview.multiple
+                ? `${preview.multiple}× net profit of ${money(preview.netProfitTtm)}`
+                : "Connect costs to see a value"}
+              {" · "}
+              <span data-val-basis="">on net profit, not SDE — brokers quote SDE, which is higher</span>
+            </p>
+          </div>
+          <Link to={`/business/${slug}`} data-val-exit="">Save and exit</Link>
+        </header>
+
+        <div data-val-progress=""><span style={{ width: `${pct}%` }} /></div>
+        <p data-val-count="">{answeredCount} of {questions.length} answered</p>
+
+        <div data-val-body="">
+          {current ? (
+            <section data-val-question="">
+              <h1>{current.title}</h1>
+              {current.description ? <p data-val-desc="">{current.description}</p> : null}
+              <div data-val-choices="">
+                {current.choices.map((c) => {
+                  const selected =
+                    current.type === "checkbox"
+                      ? Array.isArray(answers[current.name]) &&
+                        (answers[current.name] as string[]).includes(c.value)
+                      : answers[current.name] === c.value;
+                  return (
+                    <button
+                      key={c.value}
+                      type="button"
+                      data-val-choice=""
+                      data-selected={selected ? "" : undefined}
+                      onClick={() => {
+                        if (current.type === "checkbox") {
+                          const cur = Array.isArray(answers[current.name])
+                            ? (answers[current.name] as string[])
+                            : [];
+                          answer(
+                            current.name,
+                            cur.includes(c.value) ? cur.filter((x) => x !== c.value) : [...cur, c.value],
+                          );
+                        } else {
+                          answer(current.name, c.value);
+                          /* Single-choice advances itself; multi-select cannot,
+                             because there is no way to know they are done. */
+                          setIndex((i) => Math.min(i + 1, questions.length - 1));
+                        }
+                      }}
+                    >
+                      {c.text}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ) : (
+            <p>No questions to answer.</p>
+          )}
+
+          <aside data-val-adjustments="">
+            <h2>What is moving it</h2>
+            {preview.adjustments.length === 0 ? (
+              <p data-val-empty="">Nothing yet. Answer a question.</p>
+            ) : (
+              <ul>
+                {preview.adjustments.map((a) => (
+                  <li key={a.label} data-dir={a.delta > 0 ? "up" : "down"}>
+                    <span>{a.label}</span>
+                    <b>{a.delta > 0 ? "+" : ""}{a.delta}×</b>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </aside>
+        </div>
+
+        {error ? <p data-error="" role="alert">{error}</p> : null}
+
+        <footer data-val-nav="">
+          <button type="button" onClick={() => setIndex((i) => Math.max(0, i - 1))} disabled={index === 0}>
+            Back
+          </button>
+          {index < questions.length - 1 ? (
+            <button type="button" data-primary="" onClick={() => setIndex((i) => i + 1)}>
+              Next
+            </button>
+          ) : (
+            <button type="button" data-primary="" onClick={() => void finish()} disabled={saving}>
+              {saving ? "Saving…" : preview.completeness.complete ? "Finish" : "Save what I have"}
+            </button>
+          )}
+        </footer>
+      </div>
+    </Shell>
+  );
+}

@@ -93,8 +93,17 @@ const PLATFORM_LABEL: Record<string, string> = {
   own_site: "Own site",
 };
 
+interface BusinessValuation {
+  value?: number | null;
+  multiple?: number | null;
+  netProfitTtm?: number | null;
+  complete?: boolean;
+  computedAt?: string;
+}
+
 interface BusinessPayload {
   facts?: BusinessFacts;
+  valuation?: BusinessValuation;
   slug: string;
   name: string;
   /** `Connection.provider` — where the numbers came from. */
@@ -660,6 +669,8 @@ export function Business() {
           {/* The backend's own caveats, verbatim. It is the only thing that
               knows why a figure is missing, and paraphrasing them here would
               be a second voice on the honesty this product sells. */}
+          <BusinessValuationStrip slug={p.slug} valuation={p.valuation} isOwner={Boolean(mine)} />
+
           <BusinessFactsSection
             facts={p.facts}
             connectionId={mine}
@@ -963,5 +974,64 @@ function FactsForm({
         </button>
       </div>
     </form>
+  );
+}
+
+
+/**
+ * The valuation, and the way in to producing one.
+ *
+ * For an OWNER with no valuation this is the whole pitch: a button, and the
+ * reason to press it. For an owner with one it is the number plus a way back
+ * in — a valuation goes stale as the questions grow, and "update" has to be
+ * one click rather than a hunt.
+ *
+ * A stranger sees a valuation only when it is COMPLETE. A half-answered
+ * questionnaire produces a real number, and it is the right number to show
+ * the person answering — but publishing it to everyone else would put a
+ * figure derived from four answers next to figures derived from Amazon.
+ */
+function BusinessValuationStrip({
+  slug,
+  valuation,
+  isOwner,
+}: {
+  slug: string;
+  valuation?: BusinessValuation;
+  isOwner: boolean;
+}) {
+  const v = valuation ?? {};
+  // The backend publishes a valuation only once the questionnaire is complete
+  // (see buildPublicBusiness), so anything that arrives here is publishable as
+  // it stands — there is no partial case to hide in the browser.
+  const hasNumber = typeof v.value === "number" && v.value > 0;
+
+  if (!isOwner && !hasNumber) return null;
+
+  const money = (n: number) =>
+    new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+
+  return (
+    <section data-biz-valuation="">
+      <div>
+        <p data-facts-legend="">Estimated value</p>
+        <p data-biz-val-figure="">{hasNumber ? money(v.value as number) : "Not valued yet"}</p>
+        <p data-biz-val-note="">
+          {hasNumber ? (
+            <>
+              {v.multiple}× net profit{v.netProfitTtm ? ` of ${money(v.netProfitTtm)}` : ""} · on net
+              profit, not SDE — brokers quote SDE, which is higher
+            </>
+          ) : (
+            "Nine questions. We already know your numbers, reviews, marketplaces and niche."
+          )}
+        </p>
+      </div>
+      {isOwner ? (
+        <Link to={`/business/${slug}/value`} data-biz-val-cta="">
+          {hasNumber ? "Update valuation" : "Value this business"}
+        </Link>
+      ) : null}
+    </section>
   );
 }

@@ -13,6 +13,7 @@ import { Settings } from "@/pages/Settings";
 import { Shell } from "@/pages/Shell";
 import { PublicProfile } from "@/pages/PublicProfile";
 import { Business } from "@/pages/Business";
+import { Valuation } from "@/pages/Valuation";
 import { Demo } from "./pages/Demo";
 import { DemoIndex } from "./pages/DemoIndex";
 import { ProfileRedirect } from "@/pages/ProfileRedirect";
@@ -165,6 +166,10 @@ export default function App() {
           index.html per published business instead, exactly as
           build-profiles.mjs does for profiles. */}
       <Route path="/business/:slug" element={<Business />} />
+      {/* The valuation wizard. Two segments, so it cannot be shadowed by the
+          /:username catch-all — but declared before it anyway, in keeping
+          with the ordering rule this file relies on. */}
+      <Route path="/business/:slug/value" element={<Valuation />} />
       <Route path="/:username" element={<PublicProfile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
