@@ -698,6 +698,32 @@ a, button, [role="button"] {
 .vm-profile [data-profile-head] h1 { margin: 0; }
 .vm-profile [data-profile-head] p { margin: 0; }
 
+/* A qualifier on a FIGURE — "unverified" beside the Margin label.
+ *
+ * 🚨 QUIET, NOT ALARMING. BRANDING.md §4.3: red is for errors, and an
+ * unverified margin is not an error — it is a real number whose cost side the
+ * seller supplied. So this is muted type in a hairline pill, the visual weight
+ * of a footnote: enough that a reader cannot mistake it for a checked figure,
+ * not so much that it reads as a warning about the business.
+ *
+ * `cursor: help` because the hover explainer is the point (BRANDING.md §5: a
+ * badge that cannot be interrogated is decoration), and a plain `title` gives
+ * no affordance that there is anything to hover.
+ */
+.vm-profile [data-stat-tag] {
+  flex-shrink: 0;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  cursor: help;
+  white-space: nowrap;
+}
+
 /* ─── The profile dashboard ───────────────────────────────────────────
  *
  * Tiles + one chart, built from the shared StatTile/TrendChart primitives —

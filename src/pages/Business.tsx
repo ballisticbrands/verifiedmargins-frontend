@@ -13,6 +13,7 @@ import {
   VerificationBadge,
   ShareButton,
   AMAZON_MARK_SRC,
+  UNVERIFIED_MARGIN_TAG,
 } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -408,10 +409,24 @@ export function Business() {
                     : undefined
                 }
               />
+              {/* 🚨 An unverified margin says so, ON the tile. Only
+                  `verified_margin` means we checked the cost side;
+                  `verified_revenue` means the REVENUE came from Amazon and the
+                  margin was modelled from a percentage the seller supplied, so
+                  it is theirs rather than ours. Without this the two render
+                  identically and a checked figure vouches for an unchecked
+                  one. Twin of the Margin tile in the shared package's profile
+                  dashboard — keep the two in step. */}
               <StatTile
                 label="Margin"
                 value={percent(last30?.margin_pct ?? null)}
                 hint={p.metrics.margin_note ?? undefined}
+                tag={
+                  p.verification.tier !== "verified_margin" &&
+                  last30?.margin_pct != null
+                    ? UNVERIFIED_MARGIN_TAG
+                    : undefined
+                }
               />
               {/* PPC — advertising spend, beside the margin it eats into.
                   🚨 THE ONE TILE THAT DISAPPEARS rather than showing a dash:
