@@ -724,17 +724,30 @@ a, button, [role="button"] {
  * badge that cannot be interrogated is decoration), and a plain `title` gives
  * no affordance that there is anything to hover.
  */
+/* 🚨 THE RUNG'S OWN COLOUR, not a neutral grey. This tag only ever appears
+   on a `verified_revenue` figure, and --partial is the amber that rung
+   already wears in the header pill (see [data-verification]) — so the badge
+   at the top of the page and the qualifier on the tile it applies to are
+   visibly the same claim, rather than two unrelated marks the reader has to
+   connect. Red (--unverified) would be wrong: the revenue IS verified, only
+   the cost side is the seller's own number.
+
+   `cursor: inherit`, NOT `help`: the tag sits INSIDE the tile's <button>, so
+   a help cursor over a region that selects the chart would promise a
+   different interaction than the one a click performs. The hover explainer
+   is the `title` and survives either way. */
 .vm-profile [data-stat-tag] {
   flex-shrink: 0;
   padding: 0.05rem 0.35rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--partial);
   border-radius: 999px;
   font-size: 0.5625rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--muted-foreground);
-  cursor: help;
+  background: var(--partial-tint);
+  color: var(--partial);
+  cursor: inherit;
   white-space: nowrap;
 }
 
