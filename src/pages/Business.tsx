@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ApiError,
@@ -57,7 +57,44 @@ import { useCurrency } from "@/currency";
  * somebody else's business exists.
  */
 
+/** Two provenances, and the page must never render them alike. `derived` was
+ *  read from Amazon and carries when; `declared` was typed by the seller. */
+interface BusinessFacts {
+  declared: {
+    foundedYear?: number | null;
+    strategy?: string | null;
+    differentiation?: string | null;
+    otherPlatforms?: string[];
+    supplierCountries?: string[];
+    supplierCount?: number | null;
+    teamSize?: number | null;
+    brandRegistry?: boolean | null;
+    updatedAt?: string;
+  };
+  derived: {
+    marketplaces?: string[];
+    channels?: "fba" | "fbm" | "both" | null;
+    derivedAt?: string;
+  };
+}
+
+const CHANNEL_LABEL: Record<string, string> = {
+  fba: "FBA",
+  fbm: "FBM",
+  both: "FBA and FBM",
+};
+
+const PLATFORM_LABEL: Record<string, string> = {
+  shopify: "Shopify",
+  tiktok: "TikTok Shop",
+  walmart: "Walmart",
+  etsy: "Etsy",
+  ebay: "eBay",
+  own_site: "Own site",
+};
+
 interface BusinessPayload {
+  facts?: BusinessFacts;
   slug: string;
   name: string;
   /** `Connection.provider` — where the numbers came from. */
@@ -197,12 +234,28 @@ export function Business() {
   const { promptUnlock } = useAddBusiness();
   /** `true` once we have confirmed this slug is one of the caller's own.
    *  Only ever consulted on the 404 path. */
-  const [mine, setMine] = useState(false);
+  /** The caller's connection id for THIS business, or null when it is not
+   *  theirs. An id rather than a boolean because editing facts is scoped to
+   *  the connection. */
+  const [mine, setMine] = useState<string | null>(null);
+
+  /* A refetch that deliberately does NOT reset `mine` or flash the loading
+     state: it runs after the owner saves their own facts, and blanking the
+     page they are editing to prove the save worked is a worse answer than
+     the numbers arriving a beat later. */
+  const reload = useCallback(async () => {
+    try {
+      const payload = await fetchBusiness(slug, currency, windowKey);
+      setLoad({ state: "found", payload });
+    } catch {
+      /* Leave the page as it was — the save already succeeded. */
+    }
+  }, [slug, currency, windowKey]);
 
   useEffect(() => {
     let cancelled = false;
     setLoad({ state: "loading" });
-    setMine(false);
+    setMine(null);
     fetchBusiness(slug, currency, windowKey)
       .then((payload) => {
         if (!cancelled) setLoad({ state: "found", payload });
@@ -229,7 +282,10 @@ export function Business() {
      during the static build (there is no session there), so the prerendered
      copy is always the public one. */
   useEffect(() => {
-    if (load.state !== "missing" || status !== "authenticated") return;
+    /* Runs whenever signed in, not only on a missing page: ownership now
+       decides whether the FACTS below are editable, not just whether to
+       explain an empty one. */
+    if (status !== "authenticated") return;
     let cancelled = false;
     (async () => {
       try {
@@ -240,11 +296,14 @@ export function Business() {
           // routes/profiles.ts) but not yet in the shared package's
           // ConnectionOption type. Widened here rather than republishing
           // frontend-shared for one optional field.
-          const found = (
-            options as Array<ConnectionOption & { slug?: string }>
-          ).some((o) => o.slug === slug);
+          const found = (options as Array<ConnectionOption & { slug?: string }>).find(
+            (o) => o.slug === slug,
+          );
           if (found) {
-            if (!cancelled) setMine(true);
+            /* Keep the id: PATCHing facts is scoped to the CONNECTION, and
+               re-deriving it from the slug later would mean asking the same
+               question twice. */
+            if (!cancelled) setMine(found.id);
             return;
           }
         }
@@ -601,6 +660,12 @@ export function Business() {
           {/* The backend's own caveats, verbatim. It is the only thing that
               knows why a figure is missing, and paraphrasing them here would
               be a second voice on the honesty this product sells. */}
+          <BusinessFactsSection
+            facts={p.facts}
+            connectionId={mine}
+            onSaved={() => void reload()}
+          />
+
           {p.notes.length > 0 ? (
             <section data-notes="">
               {p.notes.map((note) => (
@@ -618,5 +683,285 @@ export function Business() {
         </main>
       </div>
     </Shell>
+  );
+}
+
+
+// ─── What this business IS ───────────────────────────────────────────
+//
+// 🚨 TWO PROVENANCES, RENDERED APART. `derived` was read from Amazon and
+// carries when; `declared` was typed by the seller and nobody checked it.
+// The backend keeps them in two columns and ships them as two objects
+// precisely so this page can show the difference — collapsing them into one
+// tidy list here would undo that at the last step, on a site whose product is
+// knowing which figures are checkable.
+
+const FACT_FIELDS = [
+  { key: "foundedYear", label: "Founded", kind: "year" },
+  { key: "teamSize", label: "Team size", kind: "number" },
+  { key: "supplierCount", label: "Suppliers", kind: "number" },
+  { key: "supplierCountries", label: "Supplier countries", kind: "codes" },
+  { key: "otherPlatforms", label: "Also sells on", kind: "platforms" },
+  { key: "brandRegistry", label: "Brand Registry", kind: "bool" },
+  { key: "strategy", label: "Strategy", kind: "text" },
+  { key: "differentiation", label: "Differentiation", kind: "text" },
+] as const;
+
+function yearsSince(year: number): string {
+  const n = new Date().getUTCFullYear() - year;
+  if (n <= 0) return "this year";
+  return `${year} · ${n} ${n === 1 ? "year" : "years"}`;
+}
+
+function BusinessFactsSection({
+  facts,
+  connectionId,
+  onSaved,
+}: {
+  facts?: BusinessFacts;
+  /** Non-null ⇒ the viewer owns this business and may edit. */
+  connectionId: string | null;
+  onSaved: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const declared = facts?.declared ?? {};
+  const derived = facts?.derived ?? {};
+
+  const derivedRows: Array<[string, string]> = [];
+  if (derived.marketplaces?.length) {
+    derivedRows.push(["Marketplaces", derived.marketplaces.map((m) => m.toUpperCase()).join(" · ")]);
+  }
+  if (derived.channels) derivedRows.push(["Fulfilment", CHANNEL_LABEL[derived.channels] ?? derived.channels]);
+
+  const declaredRows: Array<[string, string]> = [];
+  for (const f of FACT_FIELDS) {
+    const v = (declared as Record<string, unknown>)[f.key];
+    if (v === null || v === undefined || v === "") continue;
+    if (Array.isArray(v) && v.length === 0) continue;
+    if (f.kind === "year") declaredRows.push([f.label, yearsSince(Number(v))]);
+    else if (f.kind === "bool") declaredRows.push([f.label, v ? "Yes" : "No"]);
+    else if (f.kind === "codes") declaredRows.push([f.label, (v as string[]).join(" · ")]);
+    else if (f.kind === "platforms") {
+      declaredRows.push([f.label, (v as string[]).map((x) => PLATFORM_LABEL[x] ?? x).join(" · ")]);
+    } else declaredRows.push([f.label, String(v)]);
+  }
+
+  /* An owner always gets the section — the empty state is where they start.
+     A stranger only sees it when there is something in it. */
+  if (!connectionId && derivedRows.length === 0 && declaredRows.length === 0) return null;
+
+  return (
+    <section data-business-facts="">
+      <div data-facts-head="">
+        <h2>About this business</h2>
+        {connectionId && !editing ? (
+          <button type="button" data-facts-edit="" onClick={() => setEditing(true)}>
+            Edit
+          </button>
+        ) : null}
+      </div>
+
+      {derivedRows.length > 0 ? (
+        <div data-facts-group="" data-provenance="derived">
+          <p data-facts-legend="">
+            From Amazon
+            {derived.derivedAt ? <span> · read {derived.derivedAt.slice(0, 10)}</span> : null}
+          </p>
+          <dl data-facts-list="">
+            {derivedRows.map(([k, v]) => (
+              <div key={k}>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ) : null}
+
+      {editing && connectionId ? (
+        <FactsForm
+          connectionId={connectionId}
+          initial={declared}
+          onDone={() => {
+            setEditing(false);
+            onSaved();
+          }}
+          onCancel={() => setEditing(false)}
+        />
+      ) : declaredRows.length > 0 ? (
+        <div data-facts-group="" data-provenance="declared">
+          {/* Says who said it. These are unverified, and a page that renders
+              them in the same voice as the Amazon-read ones would be lending
+              them credibility they have not earned. */}
+          <p data-facts-legend="">Stated by the seller</p>
+          <dl data-facts-list="">
+            {declaredRows.map(([k, v]) => (
+              <div key={k}>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ) : connectionId ? (
+        <p data-facts-empty="">
+          Nothing stated yet. <button type="button" data-link-button="" onClick={() => setEditing(true)}>Add details</button>
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+
+const PLATFORM_CHOICES = ["shopify", "tiktok", "walmart", "etsy", "ebay", "own_site"] as const;
+
+/**
+ * The declared-facts editor.
+ *
+ * PATCHes only what changed. The endpoint's semantics are: an absent key is
+ * left alone, an explicit null clears — so sending the whole form every time
+ * would work, but sending only the diff means a field this form does not know
+ * about yet cannot be blanked by an older client.
+ */
+function FactsForm({
+  connectionId,
+  initial,
+  onDone,
+  onCancel,
+}: {
+  connectionId: string;
+  initial: BusinessFacts["declared"];
+  onDone: () => void;
+  onCancel: () => void;
+}) {
+  const [foundedYear, setFoundedYear] = useState(initial.foundedYear?.toString() ?? "");
+  const [teamSize, setTeamSize] = useState(initial.teamSize?.toString() ?? "");
+  const [supplierCount, setSupplierCount] = useState(initial.supplierCount?.toString() ?? "");
+  const [supplierCountries, setSupplierCountries] = useState(
+    (initial.supplierCountries ?? []).join(", "),
+  );
+  const [platforms, setPlatforms] = useState<string[]>(initial.otherPlatforms ?? []);
+  const [brandRegistry, setBrandRegistry] = useState<string>(
+    initial.brandRegistry === true ? "yes" : initial.brandRegistry === false ? "no" : "",
+  );
+  const [strategy, setStrategy] = useState(initial.strategy ?? "");
+  const [differentiation, setDifferentiation] = useState(initial.differentiation ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  /* "" means CLEARED, which the endpoint spells as null — not as absent,
+     which would leave the old value in place. A blank box the seller emptied
+     on purpose has to actually empty the field. */
+  const numOrNull = (v: string) => (v.trim() === "" ? null : Number(v));
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    try {
+      await apiFetch(`/v1/connections/${encodeURIComponent(connectionId)}/facts`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          foundedYear: numOrNull(foundedYear),
+          teamSize: numOrNull(teamSize),
+          supplierCount: numOrNull(supplierCount),
+          supplierCountries: supplierCountries
+            .split(/[,\s]+/)
+            .map((c) => c.trim())
+            .filter(Boolean),
+          otherPlatforms: platforms,
+          brandRegistry: brandRegistry === "" ? null : brandRegistry === "yes",
+          strategy: strategy.trim() === "" ? null : strategy,
+          differentiation: differentiation.trim() === "" ? null : differentiation,
+        }),
+      });
+      onDone();
+    } catch (err) {
+      /* The backend's own message, not a generic one: it names the field and
+         the rule ("foundedYear must be a year between 1994 and 2026"), which
+         is the only thing that tells the seller what to change. */
+      setError(err instanceof ApiError ? err.message : "Could not save. Please try again.");
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form data-facts-form="" onSubmit={submit}>
+      <p data-facts-legend="">
+        Stated by you. We publish these as your words — nothing here is verified.
+      </p>
+
+      <div data-facts-grid="">
+        <label>
+          <span>Founded (year)</span>
+          <input type="number" inputMode="numeric" min={1994} max={new Date().getUTCFullYear()}
+            placeholder="2019" value={foundedYear} onChange={(e) => setFoundedYear(e.target.value)} />
+        </label>
+        <label>
+          <span>Team size</span>
+          <input type="number" inputMode="numeric" min={0} placeholder="6"
+            value={teamSize} onChange={(e) => setTeamSize(e.target.value)} />
+        </label>
+        <label>
+          <span>Number of suppliers</span>
+          <input type="number" inputMode="numeric" min={0} placeholder="4"
+            value={supplierCount} onChange={(e) => setSupplierCount(e.target.value)} />
+        </label>
+        <label>
+          <span>Supplier countries</span>
+          <input type="text" placeholder="CN, VN" value={supplierCountries}
+            onChange={(e) => setSupplierCountries(e.target.value)} />
+        </label>
+        <label>
+          <span>Brand Registry</span>
+          <select value={brandRegistry} onChange={(e) => setBrandRegistry(e.target.value)}>
+            {/* Three states, not a checkbox: "not saying" is not "no". */}
+            <option value="">Not saying</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+      </div>
+
+      <fieldset data-facts-platforms="">
+        <legend>Also sells on</legend>
+        {PLATFORM_CHOICES.map((pf) => (
+          <label key={pf}>
+            <input
+              type="checkbox"
+              checked={platforms.includes(pf)}
+              onChange={(e) =>
+                setPlatforms((cur) =>
+                  e.target.checked ? [...cur, pf] : cur.filter((x) => x !== pf),
+                )
+              }
+            />
+            <span>{PLATFORM_LABEL[pf] ?? pf}</span>
+          </label>
+        ))}
+      </fieldset>
+
+      <label data-facts-text="">
+        <span>Strategy</span>
+        <textarea rows={3} maxLength={2000} placeholder="How this business wins."
+          value={strategy} onChange={(e) => setStrategy(e.target.value)} />
+      </label>
+      <label data-facts-text="">
+        <span>Differentiation</span>
+        <textarea rows={3} maxLength={2000} placeholder="What makes it hard to copy."
+          value={differentiation} onChange={(e) => setDifferentiation(e.target.value)} />
+      </label>
+
+      {error ? <p data-error="" role="alert">{error}</p> : null}
+
+      <div data-facts-actions="">
+        <button type="submit" data-primary="" disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </button>
+        <button type="button" onClick={onCancel} disabled={saving}>
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }

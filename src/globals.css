@@ -2856,3 +2856,93 @@ h2[data-heading-badges] {
 }
 [data-business-add]:hover { border-color: var(--muted-foreground); color: var(--foreground); }
 [data-business-add-plus] { font-size: 1.5rem; line-height: 1; }
+
+/* ── "About this business": two provenances, visibly apart ───────────── */
+
+[data-business-facts] { margin-top: 2rem; }
+[data-facts-head] { display: flex; align-items: baseline; gap: 0.75rem; }
+[data-facts-head] h2 { margin: 0; }
+[data-facts-edit] {
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+[data-facts-edit]:hover { color: var(--foreground); border-color: var(--muted-foreground); }
+
+[data-facts-group] { margin-top: 1rem; }
+/* The legend is the whole point of the split: a reader has to be able to tell
+   "Amazon says" from "the seller says" without reading the values. */
+[data-facts-legend] {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+[data-facts-group][data-provenance="derived"] [data-facts-legend] { color: var(--verified, #15803d); }
+
+[data-facts-list] { margin: 0; display: grid; gap: 0.35rem 1.25rem; }
+[data-facts-list] > div {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+[data-facts-list] dt { color: var(--muted-foreground); font-size: 0.85rem; }
+[data-facts-list] dd { margin: 0; font-size: 0.9rem; }
+
+[data-facts-form] { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.9rem; }
+[data-facts-grid] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+}
+[data-facts-form] label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; }
+[data-facts-form] input,
+[data-facts-form] select,
+[data-facts-form] textarea {
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+}
+[data-facts-platforms] {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+[data-facts-platforms] legend { font-size: 0.75rem; color: var(--muted-foreground); padding: 0 0.3rem; }
+[data-facts-platforms] label { flex-direction: row; align-items: center; gap: 0.35rem; }
+[data-facts-actions] { display: flex; gap: 0.5rem; }
+[data-facts-actions] button {
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--foreground);
+  font: inherit;
+  cursor: pointer;
+}
+[data-facts-actions] button[data-primary] {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+  font-weight: 600;
+}
+[data-facts-actions] button:disabled { opacity: 0.5; cursor: default; }
+[data-facts-empty] { color: var(--muted-foreground); font-size: 0.88rem; }
+[data-link-button] {
+  border: 0; background: none; padding: 0;
+  color: var(--foreground); font: inherit; text-decoration: underline; cursor: pointer;
+}
