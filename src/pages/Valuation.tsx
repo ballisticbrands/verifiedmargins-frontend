@@ -104,16 +104,6 @@ export function Valuation() {
     return () => { cancelled = true; };
   }, [status, slug]);
 
-  /* Load whatever they answered before, so the wizard is resumable rather
-     than all-or-nothing — half a questionnaire is worth keeping. */
-  useEffect(() => {
-    if (!connectionId) return;
-    let cancelled = false;
-    apiFetch<{ answers: Answers }>(`/v1/connections/${connectionId}/questionnaire`)
-      .then((r) => { if (!cancelled) setAnswers(r.answers ?? {}); })
-      .catch(() => { /* start empty */ });
-    return () => { cancelled = true; };
-  }, [connectionId]);
 
   /* One request per answer, debounced. Returns the number and the form. */
   const seq = useRef(0);
@@ -133,7 +123,38 @@ export function Valuation() {
     }
   }, [connectionId]);
 
-  useEffect(() => { void refresh(answers); }, [connectionId, refresh]); // eslint-disable-line react-hooks/exhaustive-deps
+  /* Load whatever they answered before, THEN price it — in that order, in one
+     effect.
+     🚨 These were two effects, and they raced. The preview fired as soon as
+     the connection resolved, capturing `answers` from that render — an empty
+     object, because the load had not come back yet — and it never re-ran,
+     since making it depend on `answers` would have fired a request per
+     keystroke. So a returning seller's stored answers landed in state and were
+     never sent anywhere: the wizard said "0 of 10 answered", never reached
+     complete, and the write-up step it gates stayed invisible. The answers
+     were in the database the whole time.
+     Sequencing them is the fix. It also means the FIRST preview already
+     carries their answers, which is what the resume-position effect below
+     reads to decide where to open. */
+  useEffect(() => {
+    if (!connectionId) return;
+    let cancelled = false;
+    void (async () => {
+      let loaded: Answers = {};
+      try {
+        const r = await apiFetch<{ answers: Answers }>(
+          `/v1/connections/${connectionId}/questionnaire`,
+        );
+        loaded = r.answers ?? {};
+      } catch {
+        /* Start empty — an unanswered wizard is still a usable one. */
+      }
+      if (cancelled) return;
+      setAnswers(loaded);
+      await refresh(loaded);
+    })();
+    return () => { cancelled = true; };
+  }, [connectionId, refresh]);
 
   const questions = preview?.questions ?? [];
 
