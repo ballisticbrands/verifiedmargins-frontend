@@ -3011,14 +3011,28 @@ h2[data-heading-badges] {
   align-items: flex-start;
   justify-content: space-between;
   gap: 2rem;
-  margin: 1.5rem 0;
+  /* THE RULE BELONGS TO THE ROW, not to each column. Both children are
+     `.vm-form section`, which draws its own border-top and 2rem of margin —
+     so they were two separate hairlines, and because only the deep-dive had
+     its margin zeroed they sat 2rem apart. One border on the row is the only
+     way two side-by-side sections share one line. */
+  margin: 2rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+/* (0,2,1) — beats `.vm-form section` (0,1,1), which is what draws the twin
+   hairlines these two must not have. */
+.vm-form [data-headline-row] > section {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 /* Both children can render nothing — no approved deep-dive, and a stranger
    looking at an unvalued business. An empty flex row still carries its 1.5rem
    of margin and reads on the page as a band of dead space, which is the same
    bug the category section had. */
 [data-headline-row]:empty { display: none; }
-[data-headline-row] > [data-deep-dive] { flex: 1 1 24rem; min-width: 0; margin-top: 0; }
+[data-headline-row] > [data-deep-dive] { flex: 1 1 24rem; min-width: 0; }
 [data-headline-row] > [data-biz-valuation] { flex: 0 0 auto; }
 /* When the deep-dive is locked its first line sits inside a padded, bordered
    box, so the value has to drop by exactly that much to stay level with it.
@@ -3179,3 +3193,36 @@ h2[data-heading-badges] {
 [data-stars] svg { width: 5.6rem; height: 1.12rem; display: block; }
 [data-star-bg] { fill: var(--border); }
 [data-star-fg] { fill: #f0a020; }
+
+/* ─── The valuation wizard's section label ────────────────────────────
+ *
+ * One question at a time is easy to answer and impossible to place. This is
+ * the "where am I" line above the question: which section, and how far
+ * through it — counted from the questions this seller's answers actually
+ * surfaced, since the form branches.
+ *
+ * Quiet: it orients, it does not compete with the question itself.
+ */
+[data-val-section] {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+[data-val-section-count] {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  /* NOT --border: that is a colour chosen for 1px rules, and at this size it
+     renders text you have to hunt for (BRANDING.md §7.1 makes the same point
+     about the breadcrumb separator). */
+  color: var(--muted-foreground);
+  opacity: 0.75;
+}

@@ -27,6 +27,8 @@ interface Question {
   isRequired: boolean;
   choices: Choice[];
   page: string;
+  /** The section's title — "How you source", "How hard it is to copy". */
+  section: string;
   answered: boolean;
 }
 interface Adjustment { label: string; delta: number }
@@ -307,6 +309,17 @@ export function Valuation() {
   const answeredCount = questions.filter((q) => q.answered).length;
   const pct = questions.length ? Math.round((answeredCount / questions.length) * 100) : 0;
 
+  /* Where this question sits WITHIN its section. Computed from the visible
+     list rather than from the definition: the form branches, so "question 2
+     of 4" is only true for the questions this seller's own answers surfaced. */
+  const sectionQuestions = current
+    ? questions.filter((q) => q.section === current.section)
+    : [];
+  const sectionPosition = {
+    at: current ? sectionQuestions.findIndex((q) => q.name === current.name) + 1 : 0,
+    of: sectionQuestions.length,
+  };
+
   return (
     <Shell width="wide">
       <div data-valuation="">
@@ -333,6 +346,18 @@ export function Valuation() {
         <div data-val-body="">
           {current ? (
             <section data-val-question="">
+              {/* Which part of the form this is. One question at a time is
+                  easy to answer and impossible to place: without this, a
+                  seller three questions in has no idea whether they are near
+                  the end or have just started a new subject. */}
+              {current.section ? (
+                <p data-val-section="">
+                  {current.section}
+                  <span data-val-section-count="">
+                    {sectionPosition.at} of {sectionPosition.of}
+                  </span>
+                </p>
+              ) : null}
               <h1>{current.title}</h1>
               {current.description ? <p data-val-desc="">{current.description}</p> : null}
               <div data-val-choices="">
