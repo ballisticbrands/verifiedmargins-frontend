@@ -36,7 +36,7 @@ export function Demo() {
   }
 
   if (demo.kind === "leaderboard") return <DemoLeaderboard slug={slug} demo={demo} />;
-  /* A group is reached at /demo/group/<slug> (DemoGroupRoute), never here —
+  /* A group is reached at /demo/g/<slug> (DemoGroupRoute), never here —
      but the union has three members, so this arm keeps the switch total and
      stops a group registered under a bare key rendering as a profile. */
   if (demo.kind === "group") return <DemoGroup demo={demo} />;

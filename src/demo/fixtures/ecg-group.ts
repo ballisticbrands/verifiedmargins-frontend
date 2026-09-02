@@ -1,8 +1,8 @@
-/* Demo fixture: the ECG Wholesale GROUP board — /demo/group/ecgwholesale.
+/* Demo fixture: the ECG Wholesale GROUP board — /demo/g/ecgwholesale.
  *
  * 🚧 A GROUP IS A FEATURE THE PRODUCT DOES NOT HAVE. Every other demo renders
  * a real page against fixture data; this one renders a page that does not
- * exist yet, which is why it lives behind /demo/group/ and why the component
+ * exist yet, which is why it lives behind /demo/g/ and why the component
  * beside it is demo-only. What it argues: a coach, an agency or a mastermind
  * has one page where their people are listed with figures somebody checked,
  * instead of screenshots on a sales page.
@@ -12,21 +12,26 @@
  * page it links to. See ./leaderboard.ts for why that property matters more
  * than the code it costs.
  *
- * ── RANKED BY REVENUE, and that is not the usual board ───────────────────
+ * ── RANKED BY PROFIT, like the real board ────────────────────────────────
  *
- * The real leaderboard ranks by PROFIT, deliberately: margin ranks a hobby
- * above a business, and revenue ranks size rather than skill. But nobody in
- * this group published a profit — not Dan, not one student — so a profit
- * ranking here would be five rows of "—" in rank order of nothing. Revenue is
- * the only figure every member actually published, so it is what this board
- * ranks, and the page says so in as many words.
+ * It ranked by revenue while these profiles carried no margin. Every business
+ * in the group now has a verified 15% margin (GROUP_MARGIN_PCT — 🚨 ours, not
+ * theirs; see ./ecgwholesale.ts), so profit is computable and this board ranks
+ * on it like every other. The order is identical either way while the rate is
+ * uniform, which is exactly why the rate being uniform is worth stating.
  */
 
 import { danBoufford, ecgCameron, ecgDanny, ecgUbaldo } from "./ecgwholesale";
 
 /** The group, in the order they are introduced on ecgwholesale.com/pdf.
- *  The owner first — the board sorts, this is only the source list. */
-const MEMBERS = [danBoufford, ecgCameron, ecgDanny, ecgUbaldo];
+ *  The owner first — the board sorts, this is only the source list.
+ *  `role` labels a member on the board; only the admin has one. */
+const MEMBERS = [
+  { build: danBoufford, role: "Admin" },
+  { build: ecgCameron, role: null },
+  { build: ecgDanny, role: null },
+  { build: ecgUbaldo, role: null },
+];
 
 /** The slice of a profile payload a board row needs. Same narrow read the
  *  demo leaderboard does; see its ProfilePayload for why it is asserted
@@ -37,14 +42,14 @@ interface Member {
   avatar_url: string | null;
   metrics: {
     display: { currency: string };
-    last_30d: { revenue: number };
+    last_30d: { revenue: number; profit: number; margin_pct: number };
     businesses: Array<{ label: string; markets: string[]; seller_type: string | null }>;
   };
 }
 
 export function ecgGroup(mode: "founder" | "business", _currency: string) {
-  const rows = MEMBERS.map((build) => build(12, "USD") as unknown as Member).sort(
-    (a, b) => b.metrics.last_30d.revenue - a.metrics.last_30d.revenue,
+  const rows = MEMBERS.map((m) => ({ ...m, p: m.build(12, "USD") as unknown as Member })).sort(
+    (a, b) => b.p.metrics.last_30d.profit - a.p.metrics.last_30d.profit,
   );
 
   /* Both tabs, because the page renders both and a "By business" tab showing
@@ -57,7 +62,7 @@ export function ecgGroup(mode: "founder" | "business", _currency: string) {
   return {
     mode,
     window_days: 30,
-    entries: rows.map((m, i) => ({
+    entries: rows.map(({ p: m, role }, i) => ({
       rank: i + 1,
       username: m.username,
       display_name: m.display_name,
@@ -75,16 +80,20 @@ export function ecgGroup(mode: "founder" | "business", _currency: string) {
           }
         : null,
       business_count: byBusiness ? null : m.metrics.businesses.length,
-      /* NULL for everyone, because nobody in this group published a profit or
-         a cost of goods. The board renders "—", which is the honest answer and
-         is also why this page ranks on revenue instead. */
-      margin_pct: null,
-      profit: null,
+      margin_pct: m.metrics.last_30d.margin_pct,
+      profit: m.metrics.last_30d.profit,
+      /* No prior window exists for any of these people — their sources give
+         one figure each — so there is no change to report and none is shown.
+         A hashed number here would be the only invented movement on a page
+         whose whole argument is that the figures are checked. */
       profit_change_pct: null,
       rank_delta: null,
       revenue: m.metrics.last_30d.revenue,
       currency: m.metrics.display.currency,
-      verification: { tier: "verified_revenue", label: "Verified revenue" },
+      /* Every business in the group is verified at the group rate. */
+      verification: { tier: "verified_margin", label: "Verified margins" },
+      /* Board-only, and only the admin has one. */
+      role,
     })),
     /* 🚨 The two students who are NOT on this board, named rather than
        silently dropped. Their absence is a fact about what they published,

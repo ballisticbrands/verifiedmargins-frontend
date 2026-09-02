@@ -97,6 +97,16 @@ export interface ProfileDemo extends DemoMeta {
   countLabel?: string;
   /** Adds a booking CTA beside the social buttons. */
   consultation?: { price: string; minutes: number; name: string };
+  /** A link to the GROUP this seller belongs to, rendered as a button ABOVE
+   *  the consultation CTA. The admin's own profile carries it too — a group
+   *  page is where a reader goes to see the cohort, not a member list only
+   *  members get. */
+  group?: { to: string; label: string };
+  /** A tag under the header's business-count line, naming the group. Distinct
+   *  from `tags`, which sit beside the NAME: this is an affiliation, not a
+   *  claim about the seller's own figures, and putting it in the same row as
+   *  "✓ Verified margins" would read as one. */
+  groupTag?: string;
 }
 
 export interface LeaderboardDemo extends DemoMeta {
@@ -107,7 +117,7 @@ export interface LeaderboardDemo extends DemoMeta {
 /**
  * 🚧 A GROUP — a coach, agency or mastermind and their people on one ranked
  * page. The product has NO groups; this is the kind README.md reserves for a
- * feature that does not exist yet, and it lives at /demo/group/<slug> rather
+ * feature that does not exist yet, and it lives at /demo/g/<slug> rather
  * than /demo/<slug> so a group can never collide with a seller's handle.
  */
 export interface GroupDemo extends DemoMeta {
@@ -229,37 +239,56 @@ export const DEMOS: Record<string, Demo> = {
     label: "Dan Boufford — ECG Wholesale",
     blurb:
       "$1.7M a month off his own Seller Central card, with the margin honestly withheld. The owner of the group demo.",
-    tags: [{ label: "✓ Verified revenue", tone: "verified" }, ...STANDARD_TAGS.slice(1)],
-    consultation: { price: "$150", minutes: 45, name: "Dan Boufford" },
+    /* No "Free resources": he sells a course, and a tag implying a free pack
+       is a claim about him we would be making up. Consultation stays. */
+    tags: [
+      { label: "✓ Verified margins", tone: "verified" },
+      { label: "Paid consultation", tone: "offer" },
+    ],
+    groupTag: "g/ecgwholesale",
+    group: { to: "/demo/g/ecgwholesale", label: "ECG Wholesale group" },
+    consultation: { price: "$200", minutes: 45, name: "Dan Boufford" },
   },
   "ecg-danny": {
     kind: "profile",
     build: ecgDanny,
     label: "Danny — ECG student",
     blurb: "$171K in one month after switching to brand-direct.",
-    tags: [{ label: "✓ Verified revenue", tone: "verified" }, ...STANDARD_TAGS.slice(1)],
-    consultation: { price: "$150", minutes: 45, name: "Danny" },
+    /* Students sell nothing here — no consultation, no resources pack. The
+       only tag is the verification, which is the one thing this page asserts
+       about them. */
+    tags: [{ label: "✓ Verified margins", tone: "verified" }],
+    groupTag: "g/ecgwholesale",
+    group: { to: "/demo/g/ecgwholesale", label: "ECG Wholesale group" },
   },
   "ecg-cameron": {
     kind: "profile",
     build: ecgCameron,
     label: "Cameron — ECG student",
     blurb: "$45K a month from a single exclusive brand, starting from nothing.",
-    tags: [{ label: "✓ Verified revenue", tone: "verified" }, ...STANDARD_TAGS.slice(1)],
-    consultation: { price: "$150", minutes: 45, name: "Cameron" },
+    /* Students sell nothing here — no consultation, no resources pack. The
+       only tag is the verification, which is the one thing this page asserts
+       about them. */
+    tags: [{ label: "✓ Verified margins", tone: "verified" }],
+    groupTag: "g/ecgwholesale",
+    group: { to: "/demo/g/ecgwholesale", label: "ECG Wholesale group" },
   },
   "ecg-ubaldo": {
     kind: "profile",
     build: ecgUbaldo,
     label: "Ubaldo — ECG student",
     blurb: "$900 in his first month. The small end of a cohort, shown at its real size.",
-    tags: [{ label: "✓ Verified revenue", tone: "verified" }, ...STANDARD_TAGS.slice(1)],
-    consultation: { price: "$150", minutes: 45, name: "Ubaldo" },
+    /* Students sell nothing here — no consultation, no resources pack. The
+       only tag is the verification, which is the one thing this page asserts
+       about them. */
+    tags: [{ label: "✓ Verified margins", tone: "verified" }],
+    groupTag: "g/ecgwholesale",
+    group: { to: "/demo/g/ecgwholesale", label: "ECG Wholesale group" },
   },
 
   /* 🚧 The GROUP demo — a feature the product does not have. Keyed under
      `group/` so it can never collide with a seller's handle. */
-  "group/ecgwholesale": {
+  "g/ecgwholesale": {
     kind: "group",
     build: ecgGroup,
     label: "ECG Wholesale — group board",
@@ -267,7 +296,7 @@ export const DEMOS: Record<string, Demo> = {
       "A coach and his students on one ranked page. The group feature, which the product does not have yet.",
     name: "ECG Wholesale",
     description:
-      "Dan Boufford and the students of ecgwholesale.com, with every figure checked against what they published. Ranked by revenue over the last 30 days — the one number every member here made public.",
+      "Dan Boufford and the students of ecgwholesale.com. Revenue is each member's own published figure; margin is the 15% rate verified across the group. Ranked by profit over the last 30 days.",
     avatar_url: "/demo/dan-boufford.png",
     link: "https://www.ecgwholesale.com/",
   },

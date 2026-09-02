@@ -4,7 +4,7 @@ import type { GroupDemo } from "@/demo/registry";
 import { DemoBanner, useDemoFetch, useDemoMeta } from "@/demo/harness";
 
 /**
- * /demo/group/<slug> — a GROUP board: one coach or agency and their people,
+ * /demo/g/<slug> — a GROUP board: one coach or agency and their people,
  * ranked, on one page.
  *
  * 🚧 The product has no groups. Every other demo renders a real page against
@@ -30,7 +30,10 @@ export function DemoGroup({ demo }: { demo: GroupDemo }) {
 
   return (
     <Leaderboard
-      variant="revenue"
+      /* The standard board: every business in the group carries a verified
+         margin, so profit is computable and there is no reason to rank on
+         anything else. */
+      variant="profit"
       /* The members are demo profiles, so their rows must stay inside /demo —
          `/<handle>` is the real profile route and these handles belong to
          people who have not signed up. Same reason DemoLeaderboard does it. */

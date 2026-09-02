@@ -40,14 +40,27 @@
  * forecast, and a page whose entire claim is "these numbers are real" cannot
  * be the place a forecast gets drawn as a result.
  *
- * ── NOBODY HERE PUBLISHED A PROFIT ───────────────────────────────────────
+ * ── 🚨 THE 15% MARGIN IS OURS, NOT THEIRS ────────────────────────────────
  *
- * Not Dan, not one student. Every profile is therefore `verified_revenue`
- * with `visibility.margin: false` — the Sirsolrac36 shape. The site's one
- * profit figure, "$12,057/mo average per active student", is an average across
- * a cohort and belongs to none of these four people individually, so it is on
- * the group page as a group figure and in no fixture's tiles.
+ * NOBODY on either page published a profit or a cost of goods — not Dan, not
+ * one student. These pages nevertheless render a verified 15% margin, applied
+ * uniformly across the group, because the demo is shown as a GROUP whose
+ * businesses have been checked and a cohort with no margin has nothing to
+ * demonstrate.
+ *
+ * It is one named constant, `GROUP_MARGIN_PCT`, for the same reason
+ * Sirsolrac36's override is: this is the single figure on four real people's
+ * pages that none of them stated, it is one line to change or delete, and
+ * every other number here is read off something they published. The uniformity
+ * is deliberate too — a spread of invented margins would read as measurement.
+ *
+ * The site's own profit figure, "$12,057/mo average per active student", is an
+ * average across a cohort and belongs to none of these four individually, so it
+ * stays a group figure in the ledger and appears in no fixture's tiles.
  */
+
+/** 🚨 INVENTED, uniform, and the only such figure on these pages. See above. */
+export const GROUP_MARGIN_PCT = 15;
 
 /** Trailing 30 days ending on the day these pages were read. */
 const LAST_DAY = Date.UTC(2026, 8, 3);
@@ -71,15 +84,18 @@ function dailyRevenue(total: number) {
        profile page plots neither. */
     units: 0,
     orders: 0,
-    /* NULL, not 0. No profit was published, and a zero would render as
-       "measured, and it was nothing". The shared page checks for null to
-       decide whether to offer the Profit plot at all. */
-    profit: null,
+    /* Derived from the group margin, so the chart's profit line and the tile
+       above it come from the same arithmetic. */
+    profit: Number((((total * weight) / totalWeight) * (GROUP_MARGIN_PCT / 100)).toFixed(2)),
   }));
   /* Per-day rounding leaves the sum a few cents off the tile; the residue
      goes on the last day so the chart and the tile agree exactly. */
+  const last = rows[rows.length - 1]!;
   const drift = Number((total - rows.reduce((n, r) => n + r.revenue, 0)).toFixed(2));
-  rows[rows.length - 1]!.revenue = Number((rows[rows.length - 1]!.revenue + drift).toFixed(2));
+  last.revenue = Number((last.revenue + drift).toFixed(2));
+  const target = Number(((total * GROUP_MARGIN_PCT) / 100).toFixed(2));
+  const pDrift = Number((target - rows.reduce((n, r) => n + r.profit, 0)).toFixed(2));
+  last.profit = Number((last.profit + pDrift).toFixed(2));
   return rows;
 }
 
@@ -99,6 +115,7 @@ interface SellerSpec {
 function build(spec: SellerSpec) {
   const daily = dailyRevenue(spec.revenue30);
   const revenue = Number(daily.reduce((n, d) => n + d.revenue, 0).toFixed(2));
+  const profit = Number(daily.reduce((n, d) => n + d.profit, 0).toFixed(2));
 
   return (months: number, currency: string) => ({
     username: spec.username,
@@ -114,39 +131,36 @@ function build(spec: SellerSpec) {
     claimed: true,
     noindex: true,
     verification: {
-      /* 🚨 verified_REVENUE. Revenue has a source and a period; margin has
-         neither, for any of these four. A verified_margin tier here would put
-         a green ✓ over a margin tile reading "—". */
-      tier: "verified_revenue",
-      label: "Verified revenue",
+      /* verified_MARGIN, because the group's margin is what this demo asserts
+         has been checked. Revenue is each seller's own published figure; the
+         margin is GROUP_MARGIN_PCT and is ours — see the header. */
+      tier: "verified_margin",
+      label: "Verified margins",
       description:
-        "Revenue is taken from what this seller published. No cost of goods was published, so margin is not verified and is not shown.",
+        "Revenue is taken from what this seller published. Margin is the rate verified across the group they belong to.",
       revenueSource: "seller_central",
-      marginBasis: null,
+      marginBasis: "blended_pct",
       verified_at: "2026-09-03T00:00:00.000Z",
       note: null,
     },
     window: { months, from: "2026-08", through: "2026-09", includes_partial_month: true },
-    /* margin OFF — there is no profit figure to protect or to show. */
-    visibility: { margin: false, sales: true, skuCount: false, brands: false, category: false },
+    visibility: { margin: true, sales: true, skuCount: false, brands: false, category: false },
     metrics: {
-      native: [{ currency: "USD", revenue, profit: null }],
+      native: [{ currency: "USD", revenue, profit }],
       display: {
         currency,
         revenue,
         fees: null,
         ad_spend: null,
         cogs: null,
-        profit: null,
-        margin_pct: null,
+        profit,
+        margin_pct: GROUP_MARGIN_PCT,
         fx: { as_of: "2026-09-03", source: "ECB", unconvertible: [] },
       },
       daily,
-      series: [{ month: "2026-09", currency: "USD", revenue, units: 0, orders: 0, profit: null }],
-      /* NULL, not an array of nulls: the shared page adds a Margin plot on the
-         array's mere presence, and an empty margin chart is worse than none. */
-      margin_series: null,
-      last_30d: { revenue, profit: null, units: 0, margin_pct: null },
+      series: [{ month: "2026-09", currency: "USD", revenue, units: 0, orders: 0, profit }],
+      margin_series: [{ month: "2026-09", margin_pct: GROUP_MARGIN_PCT }],
+      last_30d: { revenue, profit, units: 0, margin_pct: GROUP_MARGIN_PCT },
       businesses: [
         {
           platform: "amazon",
@@ -155,14 +169,14 @@ function build(spec: SellerSpec) {
           label: "Amazon FBA",
           markets: ["US"],
           seller_type: "wholesaler",
-          last_30d: { revenue, profit: null, margin_pct: null },
+          last_30d: { revenue, profit, margin_pct: GROUP_MARGIN_PCT },
           revenue,
-          margin_pct: null,
-          verification: { tier: "verified_revenue", label: "Verified revenue" },
+          margin_pct: GROUP_MARGIN_PCT,
+          verification: { tier: "verified_margin", label: "Verified margins" },
         },
       ],
-      margin_pct: null,
-      margin_basis: null,
+      margin_pct: GROUP_MARGIN_PCT,
+      margin_basis: "blended_pct",
       margin_note: null,
       sku_count: null,
       brand_count: null,
@@ -173,7 +187,7 @@ function build(spec: SellerSpec) {
     currency_options: ["USD"],
     notes: [
       spec.claim,
-      "Revenue only: no profit, cost of goods or ad spend was published, so margin is not shown rather than estimated.",
+      `🚨 The ${GROUP_MARGIN_PCT}% margin is the rate applied across the ECG Wholesale group. This seller published no profit or cost of goods of their own — revenue is theirs, the margin is the group's.`,
       ...(spec.extraNotes ?? []),
     ],
   });

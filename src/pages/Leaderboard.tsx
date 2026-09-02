@@ -60,6 +60,10 @@ interface Entry {
   profit: number | null;
   /** Change in profit vs the previous 30 days, as a percentage. */
   profit_change_pct: number | null;
+  /** 🚧 GROUP BOARDS ONLY (/demo/g/*): what this member is to the group —
+   *  "Admin" and nothing else today. Absent on the real board, where a row is
+   *  a seller and there is no group to hold a role in. */
+  role?: string | null;
   /** Positions gained (+) or lost (−) since the previous 30 days. Null for an
    *  entry that did not place then — a newcomer has not moved. */
   rank_delta: number | null;
@@ -178,7 +182,7 @@ export function Leaderboard({
    *
    * `revenue` — size, which the other two exist to avoid ranking. It is here
    * for one case and should stay there: a GROUP whose members published
-   * revenue and nothing else (/demo/group/*). Ranking them on profit would be
+   * revenue and nothing else (/demo/g/*). Ranking them on profit would be
    * a column of "—" in the rank order of nothing, and ranking on margin the
    * same. A board has to rank on a number its rows actually carry.
    */
@@ -375,6 +379,11 @@ export function Leaderboard({
                         The ladder itself — state, glyph, tooltip — still has
                         exactly one definition, in the package. */}
                     <BoardBadge verification={e.verification} />
+                    {/* 🚧 Group boards only. Deliberately NOT in the
+                        verification colour — a role is who someone is to the
+                        group, not a claim about their numbers, and the green
+                        on this page means "we checked it". */}
+                    {e.role ? <span data-board-role="">{e.role}</span> : null}
                   </span>
                   <span data-board-sub="">
                     {/* "By @handle" — the founder, under the business that is

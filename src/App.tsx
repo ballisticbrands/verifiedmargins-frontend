@@ -158,7 +158,7 @@ export default function App() {
       {/* 🚧 Group demos are two segments deep, so they need their own
           route BEFORE /demo/:slug — otherwise "group" is read as a slug
           and the index says there is no demo called "group". */}
-      <Route path="/demo/group/:slug" element={<DemoGroupRoute />} />
+      <Route path="/demo/g/:slug" element={<DemoGroupRoute />} />
       <Route path="/demo/:slug" element={<Demo />} />
       {/* ONE business, rather than the seller's whole portfolio — the page the
           add-business wizard lands on and the natural thing to share. Two

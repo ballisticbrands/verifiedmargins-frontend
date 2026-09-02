@@ -2191,7 +2191,24 @@ dialog[data-add-business]::backdrop {
   color: var(--verified, #15803d);
 }
 
-/* ── /demo/group/<slug> — the group header ────────────────────────────
+/* A member's role on a group board ("Admin"). Neutral on purpose: the green
+   badge beside it means a figure was verified, and a role is not a figure. */
+[data-board-role] {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--border, rgba(127, 127, 127, 0.35));
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ── /demo/g/<slug> — the group header ────────────────────────────
    🚧 A group is a feature the product does not have; this is the only part of
    that page which is not the real Leaderboard component. Sits above the board
    through Leaderboard's `banner` prop. */
@@ -2271,6 +2288,31 @@ dialog[data-add-business]::backdrop {
   white-space: nowrap;
 }
 [data-demo-cta]:hover { opacity: 0.88; }
+/* The group link above the booking button. Outlined rather than filled: two
+   solid buttons stacked read as two primary actions, and the booking one is
+   the primary action. */
+[data-demo-cta][data-variant="quiet"] {
+  border-color: var(--border, rgba(127, 127, 127, 0.35));
+  background: transparent;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+/* The group affiliation, under the header's business-count line. */
+[data-demo-grouptag] {
+  display: inline-block;
+  margin-top: 0.35rem;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border, rgba(127, 127, 127, 0.35));
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-decoration: none;
+}
+[data-demo-grouptag]:hover { color: var(--foreground); }
 
 [data-demo-overlay] {
   position: fixed;

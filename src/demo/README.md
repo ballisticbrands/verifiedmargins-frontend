@@ -26,7 +26,7 @@ inside an existing demo page.
 
 ### `group` — the one kind that shows a feature we do not have
 
-`/demo/group/<slug>` is a coach, agency or mastermind and their people on one
+`/demo/g/<slug>` is a coach, agency or mastermind and their people on one
 ranked page. **The product has no groups**, so unlike every other demo there is
 no real page it could drift from.
 
@@ -34,7 +34,7 @@ Three things it does differently, all of them deliberate:
 
 - **Two path segments**, so it needs its own `<Route>` (`DemoGroupRoute`) BEFORE
   `/demo/:slug` — otherwise "group" is read as a slug — and its registry key
-  carries the prefix (`group/ecgwholesale`). A group can therefore never
+  carries the prefix (`g/ecgwholesale`). A group can therefore never
   collide with a seller's handle.
 - **It is still the real `Leaderboard`.** The board a group needs is the board
   the product already has, pointed at a subset. Only the header above it is

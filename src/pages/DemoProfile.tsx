@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { PublicProfilePage, useBrand } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
@@ -78,11 +79,37 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
             identity,
           )
         : null}
-      {actionsRow && demo.consultation
+      {/* 🚧 The group's tag, UNDER the header's business-count line rather than
+          beside the name. A group is an affiliation, not a claim about this
+          seller's own figures, and sharing a row with "✓ Verified margins"
+          would read as one. Portalled into [data-profile-identity], which is
+          the count line's own parent, so it lands after it. */}
+      {identity?.parentElement && demo.groupTag
         ? createPortal(
-            <button type="button" data-demo-cta="" onClick={() => setBooking(true)}>
-              Paid consultation — {demo.consultation.price}
-            </button>,
+            <Link data-demo-grouptag="" to={demo.group?.to ?? "#"}>
+              {demo.groupTag}
+            </Link>,
+            identity.parentElement,
+          )
+        : null}
+      {/* Both CTAs in ONE portal so their order is ours: the group link sits
+          ABOVE the booking button. Two portals into the same node would order
+          by mount, which is not something to leave to chance on the one
+          control a reader is meant to press. */}
+      {actionsRow && (demo.group || demo.consultation)
+        ? createPortal(
+            <>
+              {demo.group ? (
+                <Link data-demo-cta="" data-variant="quiet" to={demo.group.to}>
+                  {demo.group.label}
+                </Link>
+              ) : null}
+              {demo.consultation ? (
+                <button type="button" data-demo-cta="" onClick={() => setBooking(true)}>
+                  Paid consultation — {demo.consultation.price}
+                </button>
+              ) : null}
+            </>,
             actionsRow,
           )
         : null}
