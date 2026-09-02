@@ -26,6 +26,10 @@ interface Question {
   description?: string;
   isRequired: boolean;
   choices: Choice[];
+  /** Present on scale questions (the profit-share slider) only. */
+  min?: number;
+  max?: number;
+  step?: number;
   page: string;
   /** The section's title — "How you source", "How hard it is to copy". */
   section: string;
@@ -48,6 +52,25 @@ function money(n: number | null): string {
   return new Intl.NumberFormat(undefined, {
     style: "currency", currency: "USD", maximumFractionDigits: 0,
   }).format(n);
+}
+
+/** Split a choice into the answer and the explanation of it.
+ *
+ *  The questionnaire writes these as one string — "Private label — your own
+ *  brand on a product whose spec you control" — because that is one fact, and
+ *  splitting it into two JSON fields would let the halves drift apart. The
+ *  SPLIT is presentation: the seller is choosing between "private label" and
+ *  "wholesale", and burying those two words mid-sentence makes six options
+ *  look like six paragraphs.
+ *
+ *  Deliberately the EM dash, and deliberately the first one only. Ranges use
+ *  an en dash ("5–10 hours a week") and must not split; explanations that
+ *  contain their own em dash keep it in the explanation.
+ */
+function splitChoice(text: string): { label: string; hint?: string } {
+  const at = text.indexOf(" — ");
+  if (at === -1) return { label: text };
+  return { label: text.slice(0, at), hint: text.slice(at + 3) };
 }
 
 export function Valuation() {
@@ -320,6 +343,13 @@ export function Valuation() {
     of: sectionQuestions.length,
   };
 
+  /* Every section, in order, so the seller can see the whole shape of the
+     form and not just the step they are on. Derived from the visible
+     questions rather than from the definition, so a section only appears if
+     this seller's own answers actually lead there. */
+  const sections: string[] = [];
+  for (const q of questions) if (q.section && !sections.includes(q.section)) sections.push(q.section);
+
   return (
     <Shell width="wide">
       <div data-valuation="">
@@ -350,16 +380,45 @@ export function Valuation() {
                   easy to answer and impossible to place: without this, a
                   seller three questions in has no idea whether they are near
                   the end or have just started a new subject. */}
-              {current.section ? (
-                <p data-val-section="">
-                  {current.section}
-                  <span data-val-section-count="">
-                    {sectionPosition.at} of {sectionPosition.of}
-                  </span>
-                </p>
+              {sections.length ? (
+                <nav data-val-sections="" aria-label="Sections">
+                  {sections.map((name, i) => {
+                    const here = name === current.section;
+                    return (
+                      <span
+                        key={name}
+                        data-val-section-item=""
+                        data-current={here ? "" : undefined}
+                        aria-current={here ? "step" : undefined}
+                      >
+                        {i > 0 ? (
+                          <span data-val-section-sep="" aria-hidden="true">
+                            →
+                          </span>
+                        ) : null}
+                        <span data-val-section-name="">{name}</span>
+                        {/* The count belongs to the section you are IN. On the
+                            others it would be a number about a place you have
+                            not reached. */}
+                        {here ? (
+                          <span data-val-section-count="">
+                            {sectionPosition.at} of {sectionPosition.of}
+                          </span>
+                        ) : null}
+                      </span>
+                    );
+                  })}
+                </nav>
               ) : null}
               <h1>{current.title}</h1>
               {current.description ? <p data-val-desc="">{current.description}</p> : null}
+              {current.type === "slider" ? (
+                <ScaleAnswer
+                  question={current}
+                  value={answers[current.name]}
+                  onChange={(v) => answer(current.name, v)}
+                />
+              ) : (
               <div data-val-choices="">
                 {current.choices.map((c) => {
                   const selected =
@@ -390,11 +449,20 @@ export function Valuation() {
                         }
                       }}
                     >
-                      {c.text}
+                      {(() => {
+                        const { label, hint } = splitChoice(c.text);
+                        return (
+                          <>
+                            <span data-val-choice-label="">{label}</span>
+                            {hint ? <span data-val-choice-hint="">{hint}</span> : null}
+                          </>
+                        );
+                      })()}
                     </button>
                   );
                 })}
               </div>
+              )}
             </section>
           ) : (
             <p>No questions to answer.</p>
@@ -446,3 +514,53 @@ export function Valuation() {
     </Shell>
   );
 }
+
+/**
+ * A percentage, on a line.
+ *
+ * 🚨 It does not auto-advance, and it does not answer itself. Every other
+ * question here commits when you click a choice; a slider has a position
+ * before anyone touches it, so committing that position would record a number
+ * the seller never chose — on a question that is asking them to size part of
+ * their own business. Until they move it, the value reads "—" and the
+ * question counts as unanswered.
+ */
+function ScaleAnswer({
+  question,
+  value,
+  onChange,
+}: {
+  question: Question;
+  value: unknown;
+  onChange: (v: number) => void;
+}) {
+  const min = question.min ?? 0;
+  const max = question.max ?? 100;
+  const step = question.step ?? 1;
+  const answered = typeof value === "number";
+  const shown = answered ? (value as number) : Math.round((min + max) / 2);
+
+  return (
+    <div data-val-scale="">
+      <output data-val-scale-value="" data-empty={answered ? undefined : ""}>
+        {answered ? `${shown}%` : "—"}
+      </output>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={shown}
+        aria-label={question.title}
+        aria-valuetext={answered ? `${shown}%` : "not set"}
+        onChange={(e) => onChange(Number(e.target.value))}
+      />
+      <div data-val-scale-ends="">
+        <span>{min}%</span>
+        <span>{max}%</span>
+      </div>
+      {!answered ? <p data-val-scale-hint="">Drag to set a share, then continue.</p> : null}
+    </div>
+  );
+}
+

@@ -341,17 +341,21 @@ const VAL_QUESTIONS_FRESH = [
   {
     "name": "diffTooling",
     "type": "radiogroup",
-    "title": "Does your product need custom tooling, a mould or complex engineering to make \u2014 or does it have patent or trademark protection a competitor can't legally copy?",
+    "title": "Does it need custom tooling, a mould or complex engineering to make \u2014 or does it have patent or trademark protection a competitor can't legally copy?",
     "description": "Answer for your single best-selling product. Answer honestly: this is a factual checklist, not a self-rating. Most products land in the middle.",
     "isRequired": true,
     "choices": [
       {
         "value": "yes",
-        "text": "Yes"
+        "text": "Yes \u2014 the product I'm answering for is protected this way"
+      },
+      {
+        "value": "some",
+        "text": "Some of my products are \u2014 but not the one I'm answering for"
       },
       {
         "value": "no",
-        "text": "No"
+        "text": "No \u2014 nothing that would stop a competitor copying it"
       }
     ],
     "page": "differentiation",
@@ -646,7 +650,7 @@ const VAL_QUESTIONS_MIDWAY = [
     "name": "secondaryMethods",
     "type": "checkbox",
     "title": "Does any other method make up a meaningful part of your revenue?",
-    "description": "Not something you tried once or twice. Select all that apply, or move on.",
+    "description": "Not something you tried once or twice. Select all that apply.",
     "isRequired": false,
     "choices": [
       {
@@ -676,6 +680,10 @@ const VAL_QUESTIONS_MIDWAY = [
       {
         "value": "kdp",
         "text": "Amazon KDP \u2014 Amazon's publishing programme: books, journals and the like."
+      },
+      {
+        "value": "none",
+        "text": "None \u2014 this is the only way I source"
       }
     ],
     "page": "method",
@@ -748,8 +756,461 @@ const VAL_QUESTIONS_MIDWAY = [
   {
     "name": "diffTooling",
     "type": "radiogroup",
-    "title": "Does your product need custom tooling, a mould or complex engineering to make \u2014 or does it have patent or trademark protection a competitor can't legally copy?",
+    "title": "Does it need custom tooling, a mould or complex engineering to make \u2014 or does it have patent or trademark protection a competitor can't legally copy?",
     "description": "Answer for your flagship \u2014 the product the rest of the catalogue supports. Answer honestly: this is a factual checklist, not a self-rating. Most products land in the middle.",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "yes",
+        "text": "Yes \u2014 the product I'm answering for is protected this way"
+      },
+      {
+        "value": "some",
+        "text": "Some of my products are \u2014 but not the one I'm answering for"
+      },
+      {
+        "value": "no",
+        "text": "No \u2014 nothing that would stop a competitor copying it"
+      }
+    ],
+    "page": "differentiation",
+    "section": "How hard it is to copy",
+    "answered": false
+  },
+  {
+    "name": "supplierCount",
+    "type": "radiogroup",
+    "title": "How many suppliers do you rely on?",
+    "description": "One supplier is the single most common reason a sale falls through.",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "1",
+        "text": "One"
+      },
+      {
+        "value": "2to3",
+        "text": "Two or three"
+      },
+      {
+        "value": "4plus",
+        "text": "Four or more"
+      }
+    ],
+    "page": "supply",
+    "section": "Your suppliers",
+    "answered": false
+  },
+  {
+    "name": "supplierCountries",
+    "type": "checkbox",
+    "title": "Where are they?",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "CN",
+        "text": "China"
+      },
+      {
+        "value": "IN",
+        "text": "India"
+      },
+      {
+        "value": "VN",
+        "text": "Vietnam"
+      },
+      {
+        "value": "US",
+        "text": "United States"
+      },
+      {
+        "value": "EU",
+        "text": "Europe"
+      },
+      {
+        "value": "other",
+        "text": "Elsewhere"
+      }
+    ],
+    "page": "supply",
+    "section": "Your suppliers",
+    "answered": false
+  },
+  {
+    "name": "supplierTerms",
+    "type": "radiogroup",
+    "title": "What is the relationship?",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "exclusive",
+        "text": "Exclusive supply agreement"
+      },
+      {
+        "value": "contract",
+        "text": "A written contract"
+      },
+      {
+        "value": "informal",
+        "text": "Repeat orders, nothing signed"
+      },
+      {
+        "value": "reseller",
+        "text": "I buy stock others can also buy"
+      }
+    ],
+    "page": "supply",
+    "section": "Your suppliers",
+    "answered": false
+  },
+  {
+    "name": "hoursPerWeek",
+    "type": "radiogroup",
+    "title": "How many hours a week does this business take you?",
+    "description": "A buyer is buying your time back. This moves the number more than almost anything else.",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "under5",
+        "text": "Under 5"
+      },
+      {
+        "value": "5to10",
+        "text": "5 to 10"
+      },
+      {
+        "value": "10to20",
+        "text": "10 to 20"
+      },
+      {
+        "value": "over20",
+        "text": "More than 20"
+      }
+    ],
+    "page": "operations",
+    "section": "Your week",
+    "answered": false
+  },
+  {
+    "name": "team",
+    "type": "radiogroup",
+    "title": "Who else works on it?",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "none",
+        "text": "Just me"
+      },
+      {
+        "value": "vas",
+        "text": "Contractors or VAs"
+      },
+      {
+        "value": "employees",
+        "text": "Employees"
+      }
+    ],
+    "page": "operations",
+    "section": "Your week",
+    "answered": false
+  },
+  {
+    "name": "tasks",
+    "type": "checkbox",
+    "title": "What does the weekly work actually consist of?",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "inventory",
+        "text": "Watching inventory and reordering"
+      },
+      {
+        "value": "ppc",
+        "text": "Reviewing advertising"
+      },
+      {
+        "value": "suppliers",
+        "text": "Supplier and freight coordination"
+      },
+      {
+        "value": "support",
+        "text": "Customer messages"
+      },
+      {
+        "value": "listings",
+        "text": "Listing and content updates"
+      },
+      {
+        "value": "newProducts",
+        "text": "Developing new products"
+      }
+    ],
+    "page": "operations",
+    "section": "Your week",
+    "answered": false
+  },
+  {
+    "name": "brandRegistry",
+    "type": "radiogroup",
+    "title": "Are you in Amazon Brand Registry?",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "yes",
+        "text": "Yes"
+      },
+      {
+        "value": "no",
+        "text": "No"
+      }
+    ],
+    "page": "moat",
+    "section": "Brand and risk",
+    "answered": false
+  },
+  {
+    "name": "issues",
+    "type": "radiogroup",
+    "title": "Anything hanging over the account?",
+    "description": "Suspensions, IP complaints, disputes. A buyer will find these in diligence, and a surprise costs more than a disclosure.",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "none",
+        "text": "Nothing"
+      },
+      {
+        "value": "resolved",
+        "text": "Something, now resolved"
+      },
+      {
+        "value": "open",
+        "text": "Something open"
+      }
+    ],
+    "page": "moat",
+    "section": "Brand and risk",
+    "answered": false
+  },
+  {
+    "name": "sellIntent",
+    "type": "radiogroup",
+    "title": "Would you sell it at the right price?",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "yes",
+        "text": "Yes"
+      },
+      {
+        "value": "maybe",
+        "text": "Maybe"
+      },
+      {
+        "value": "no",
+        "text": "Not for sale"
+      }
+    ],
+    "page": "intent",
+    "section": "Selling",
+    "answered": false
+  }
+];
+const VAL_QUESTIONS_SHARE = [
+  {
+    "name": "primaryMethod",
+    "type": "radiogroup",
+    "title": "Where does the majority of your revenue come from?",
+    "description": "Choose the one method that generates most of your sales. An estimate is fine.",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "private_label",
+        "text": "Private label \u2014 your own brand on a product whose spec you control. Nobody else sells your exact listing."
+      },
+      {
+        "value": "wholesale",
+        "text": "Wholesale \u2014 you buy an existing brand in bulk and resell it. Other sellers can list the same product."
+      },
+      {
+        "value": "dropship",
+        "text": "Dropship \u2014 you never hold the stock; a third party ships to the customer when an order comes in."
+      },
+      {
+        "value": "arbitrage",
+        "text": "Arbitrage \u2014 you buy branded stock from shops or sites at a discount and resell at a markup. No ongoing supplier."
+      },
+      {
+        "value": "handmade",
+        "text": "Handmade or artisan \u2014 you or a small team physically make it. Not mass-manufactured in a factory."
+      },
+      {
+        "value": "pod",
+        "text": "Print on demand \u2014 a third-party service fulfils a listing you own and price."
+      },
+      {
+        "value": "merch",
+        "text": "Amazon Merch on Demand \u2014 you upload designs, Amazon sets the price and fulfils, you take a royalty."
+      },
+      {
+        "value": "kdp",
+        "text": "Amazon KDP \u2014 Amazon's publishing programme: books, journals and the like."
+      }
+    ],
+    "page": "method",
+    "section": "How you source",
+    "answered": true
+  },
+  {
+    "name": "secondaryMethods",
+    "type": "checkbox",
+    "title": "Does any other method make up a meaningful part of your revenue?",
+    "description": "Not something you tried once or twice. Select all that apply.",
+    "isRequired": false,
+    "choices": [
+      {
+        "value": "wholesale",
+        "text": "Wholesale \u2014 you buy an existing brand in bulk and resell it. Other sellers can list the same product."
+      },
+      {
+        "value": "dropship",
+        "text": "Dropship \u2014 you never hold the stock; a third party ships to the customer when an order comes in."
+      },
+      {
+        "value": "arbitrage",
+        "text": "Arbitrage \u2014 you buy branded stock from shops or sites at a discount and resell at a markup. No ongoing supplier."
+      },
+      {
+        "value": "handmade",
+        "text": "Handmade or artisan \u2014 you or a small team physically make it. Not mass-manufactured in a factory."
+      },
+      {
+        "value": "pod",
+        "text": "Print on demand \u2014 a third-party service fulfils a listing you own and price."
+      },
+      {
+        "value": "merch",
+        "text": "Amazon Merch on Demand \u2014 you upload designs, Amazon sets the price and fulfils, you take a royalty."
+      },
+      {
+        "value": "kdp",
+        "text": "Amazon KDP \u2014 Amazon's publishing programme: books, journals and the like."
+      },
+      {
+        "value": "none",
+        "text": "None \u2014 this is the only way I source"
+      }
+    ],
+    "page": "method",
+    "section": "How you source",
+    "answered": true
+  },
+  {
+    "name": "catalogStructure",
+    "type": "radiogroup",
+    "title": "Which of these best describes your catalogue?",
+    "description": "Pick the one that fits most of it \u2014 perfect precision isn't needed.",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "broad",
+        "text": "Broad catalogue, low volume each \u2014 many SKUs, each taking a small slice of search demand. Hundreds of poster designs that add up to real revenue."
+      },
+      {
+        "value": "flagship",
+        "text": "Flagship plus complementary \u2014 one dominant product drives most revenue, with adjacent products sold alongside it. A bestselling yoga mat, plus blocks, straps and a carry bag."
+      },
+      {
+        "value": "concentrated",
+        "text": "Concentrated bets, few SKUs \u2014 a handful of products, each significant on its own, with no filler around them. Six or eight SKUs, each a top seller in its own right."
+      },
+      {
+        "value": "dominance",
+        "text": "Category dominance \u2014 most or all major variations within one narrow category. Every case style, colour and size for one phone model."
+      },
+      {
+        "value": "churn",
+        "text": "Trend or seasonal churn \u2014 deliberately high-turnover: launch against a trend, ride it, retire it, launch the next one."
+      },
+      {
+        "value": "generalist",
+        "text": "Generalist portfolio \u2014 products spread across unrelated niches with no single anchor. Phone cases, kitchen gadgets and pet toys under one account."
+      },
+      {
+        "value": "not_sure",
+        "text": "Not sure"
+      }
+    ],
+    "page": "catalog",
+    "section": "What you sell",
+    "answered": true
+  },
+  {
+    "name": "skuStrategy",
+    "type": "radiogroup",
+    "title": "Where is the catalogue heading?",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "expanding",
+        "text": "Adding products"
+      },
+      {
+        "value": "stable",
+        "text": "Holding steady"
+      },
+      {
+        "value": "consolidating",
+        "text": "Cutting back to the winners"
+      }
+    ],
+    "page": "catalog",
+    "section": "What you sell",
+    "answered": true
+  },
+  {
+    "name": "diffTooling",
+    "type": "radiogroup",
+    "title": "Does it need custom tooling, a mould or complex engineering to make \u2014 or does it have patent or trademark protection a competitor can't legally copy?",
+    "description": "Answer for your flagship \u2014 the product the rest of the catalogue supports. Answer honestly: this is a factual checklist, not a self-rating. Most products land in the middle.",
+    "isRequired": true,
+    "choices": [
+      {
+        "value": "yes",
+        "text": "Yes \u2014 the product I'm answering for is protected this way"
+      },
+      {
+        "value": "some",
+        "text": "Some of my products are \u2014 but not the one I'm answering for"
+      },
+      {
+        "value": "no",
+        "text": "No \u2014 nothing that would stop a competitor copying it"
+      }
+    ],
+    "page": "differentiation",
+    "section": "How hard it is to copy",
+    "answered": true
+  },
+  {
+    "name": "diffToolingShare",
+    "type": "slider",
+    "title": "Roughly what share of your profit comes from those protected products?",
+    "description": "An estimate is fine. It decides how much of the business the protection actually covers.",
+    "isRequired": true,
+    "choices": [],
+    "min": 0,
+    "max": 100,
+    "step": 5,
+    "page": "differentiation",
+    "section": "How hard it is to copy",
+    "answered": false
+  },
+  {
+    "name": "diffCustom",
+    "type": "radiogroup",
+    "title": "Is it custom-made, with several real changes from the generic version \u2014 form, features, functionality, performance or materials?",
+    "description": "Not just a colour. Copying it should mean re-sourcing or re-engineering, not asking the same factory for a variant.",
     "isRequired": true,
     "choices": [
       {
@@ -1141,6 +1602,15 @@ const PAGES = [
       { click: "[data-val-nav] button:last-of-type" },
       { click: "[data-val-nav] button:last-of-type" },
     ],
+  },
+  {
+    route: "/business/paramint-us/value",
+    auth: true,
+    name: "valuation-share",
+    valQuestions: VAL_QUESTIONS_SHARE,
+    /* The profit-share scale — the one question here that is not a list, and
+       the only one that can be looked at without being answered. */
+    steps: Array.from({ length: 5 }, () => ({ click: "[data-val-nav] button:last-of-type" })),
   },
   { route: "/leaderboard", auth: false, name: "add-business", click: "[data-nav-cta]" },
   /* The wizard's later steps. Each needs the one before it completed, so the

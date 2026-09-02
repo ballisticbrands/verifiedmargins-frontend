@@ -3239,16 +3239,35 @@ h2[data-heading-badges] {
  *
  * Quiet: it orients, it does not compete with the question itself.
  */
-[data-val-section] {
+/* The whole trail, not just the step you are on: seven sections named in
+   order, so a seller can see the shape of what they agreed to fill in. The
+   current one is the only one in full colour and weight — the rest are
+   context, and if they compete with it the trail is worse than no trail. */
+[data-val-sections] {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.5rem;
-  margin: 0 0 0.35rem;
+  gap: 0.3rem 0.4rem;
+  margin: 0 0 0.5rem;
   font-size: 0.75rem;
-  font-weight: 550;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+[data-val-section-item] {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  opacity: 0.55;
+}
+[data-val-section-item][data-current] {
+  opacity: 1;
+  color: var(--foreground);
+  font-weight: 700;
+}
+[data-val-section-sep] {
+  color: var(--muted-foreground);
+  opacity: 0.6;
 }
 [data-val-section-count] {
   font-family: var(--font-mono);
@@ -3261,4 +3280,77 @@ h2[data-heading-badges] {
      about the breadcrumb separator). */
   color: var(--muted-foreground);
   opacity: 0.75;
+}
+
+/* ─── Choice buttons: the answer, then the reasoning ──────────────────
+ *
+ * A choice is a decision between "private label" and "wholesale". Rendering
+ * the whole sentence at one size turned six options into six paragraphs and
+ * made the seller read all of it to find the two words they were choosing
+ * between. The answer leads; the explanation is under it, smaller.
+ */
+[data-val-choice] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  text-align: left;
+}
+[data-val-choice-label] {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+[data-val-choice-hint] {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+}
+/* Selected: the hint has to stay legible against the filled state, so it
+   inherits rather than keeping a colour picked for a white background. */
+[data-val-choice][data-selected] [data-val-choice-hint] { color: inherit; opacity: 0.75; }
+
+/* ─── The percentage scale ────────────────────────────────────────────
+ *
+ * The one question here that is not a list. The value is the loud part — it
+ * is the number the seller is being asked to estimate — and it reads "—"
+ * until they move the slider, because a slider that answers itself would
+ * record a share of their business they never chose.
+ */
+[data-val-scale] { margin-top: 0.6rem; max-width: 30rem; }
+[data-val-scale-value] {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+/* Before it is touched, the value is a PLACEHOLDER, not a reading. At full
+   weight the em dash reads as a stray mark sitting above the slider rather
+   than as "nothing here yet". */
+[data-val-scale-value][data-empty] {
+  color: var(--muted-foreground);
+  opacity: 0.5;
+  font-weight: 400;
+}
+[data-val-scale] input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+[data-val-scale-ends] {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+}
+[data-val-scale-hint] {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
 }
