@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ApiError,
@@ -72,8 +72,20 @@ interface BusinessFacts {
   derived: {
     marketplaces?: string[];
     channels?: "fba" | "fbm" | "both" | null;
+    /** Distinct SKUs sold in the last 12 months — a fact about the business,
+     *  unlike `metrics.sku_count`, which is a single day within the window. */
+    skuCount?: number | null;
+    keepa?: KeepaFacts;
     derivedAt?: string;
   };
+}
+
+/** What Keepa reads off the public catalogue. Weighted by revenue across the
+ *  business's top ASINs, not a flat average of every listing it has ever had. */
+interface KeepaFacts {
+  ratingWeighted?: number | null;
+  reviewTotal?: number | null;
+  rolledUpAt?: string;
 }
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -516,10 +528,22 @@ export function Business() {
                         to={`/${p.profile.username}`}
                         {...(p.profile.is_ghost ? { "data-business-anon": "" } : {})}
                       >
-                        {p.profile.is_ghost ? "anonymous founder" : owner}
+                        {/* The HANDLE, not the display name. It is the
+                            address — /ggballas is where the link goes and what
+                            the reader will type again — and a display name can
+                            be changed to anything, including someone else's. */}
+                        {p.profile.is_ghost ? "anonymous founder" : `@${p.profile.username}`}
                       </Link>
                     </p>
                   ) : null}
+                  <BusinessSignals
+                    skuCount={
+                      typeof p.facts?.derived?.skuCount === "number"
+                        ? (p.facts.derived.skuCount as number)
+                        : null
+                    }
+                    keepa={p.facts?.derived?.keepa as KeepaFacts | undefined}
+                  />
                 </span>
               </span>
             </span>
@@ -612,14 +636,12 @@ export function Business() {
               {last30?.ad_spend != null ? (
                 <StatTile label="PPC" value={money(last30.ad_spend, displayCurrency)} />
               ) : null}
-              <StatTile
-                label="SKUs"
-                value={
-                  p.metrics.sku_count === null
-                    ? "—"
-                    : p.metrics.sku_count.toLocaleString()
-                }
-              />
+              {/* The SKUs tile was here. It sat among four windowed figures
+                  while being COUNT(DISTINCT sku) for a single day — so it
+                  moved when the reader changed the window and understated any
+                  catalogue whose SKUs do not all sell at once. Catalogue size
+                  is a fact about the business, not about the window, so it
+                  moved up to the bio as a 12-month distinct count. */}
             </div>
 
             {/* The caption names the SELECTED tile, not "Revenue" — it used
@@ -1224,5 +1246,88 @@ function DeepDiveUnlock({
         </button>
       )}
     </div>
+  );
+}
+
+
+/**
+ * Catalogue size and customer signal, under the founder line.
+ *
+ * These sit in the bio rather than among the tiles because none of them move
+ * when the reader changes the window — they are facts about the business, and
+ * a figure that ignores the picker above it does not belong in a row of
+ * figures that obey it.
+ */
+function BusinessSignals({
+  skuCount,
+  keepa,
+}: {
+  skuCount: number | null;
+  keepa?: KeepaFacts;
+}) {
+  const rating = typeof keepa?.ratingWeighted === "number" ? keepa.ratingWeighted : null;
+  const reviews = typeof keepa?.reviewTotal === "number" ? keepa.reviewTotal : null;
+  if (skuCount === null && rating === null) return null;
+
+  return (
+    <p data-business-signals="">
+      {skuCount !== null ? (
+        <span data-signal="">
+          <b>{skuCount.toLocaleString()}</b> SKUs
+        </span>
+      ) : null}
+      {rating !== null ? (
+        <span data-signal="">
+          <Stars value={rating} />
+          <span data-signal-rating="">{rating.toFixed(1)}</span>
+          {reviews !== null ? (
+            <span data-signal-reviews="">({reviews.toLocaleString()} reviews)</span>
+          ) : null}
+        </span>
+      ) : null}
+    </p>
+  );
+}
+
+/**
+ * Five stars, filled / half / empty — the shape every Amazon seller already
+ * reads without thinking.
+ *
+ * One <svg> with a clip, rather than five glyphs: a half star has to be a
+ * real half. Rounding 4.72 up to five full stars would overstate it and
+ * rounding down to four would understate it, and on a page selling verified
+ * numbers the star row has to be as honest as the figure beside it.
+ */
+function Stars({ value }: { value: number }) {
+  /* The clip id must be unique per instance. A fixed one works only while
+     exactly one star row exists on the page — the moment a second renders
+     (a leaderboard, a list of businesses) both would clip to whichever
+     definition the document resolved last, and every rating on the page
+     would show the same fill. */
+  const clipId = `vm-stars-${useId()}`;
+  const filled = Math.max(0, Math.min(1, value / 5)) * 120;
+  const star =
+    "M12 2.6l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.4l-5.8 3.06 1.1-6.46-4.69-4.58 6.49-.94z";
+  return (
+    <span data-stars="" role="img" aria-label={`${value.toFixed(1)} out of 5 stars`}>
+      <svg viewBox="0 0 120 24" aria-hidden="true" focusable="false">
+        <defs>
+          {/* User units, not a percentage: inside a clipPath a percentage
+              resolves against the viewport, which is a different thing from
+              the 120-unit row it looks like it means. */}
+          <clipPath id={clipId}>
+            <rect x="0" y="0" width={filled} height="24" />
+          </clipPath>
+        </defs>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <path key={i} d={star} transform={`translate(${i * 24} 0)`} data-star-bg="" />
+        ))}
+        <g clipPath={`url(#${clipId})`}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <path key={i} d={star} transform={`translate(${i * 24} 0)`} data-star-fg="" />
+          ))}
+        </g>
+      </svg>
+    </span>
   );
 }
