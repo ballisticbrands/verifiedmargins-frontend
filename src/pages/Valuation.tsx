@@ -58,13 +58,10 @@ export function Valuation() {
   const [answers, setAnswers] = useState<Answers>({});
   const [preview, setPreview] = useState<Preview | null>(null);
   const [index, setIndex] = useState(0);
-  /* Set ONCE, from the first preview — not on every refresh, or answering a
-     question would yank you somewhere else mid-wizard. */
-  const resumed = useRef(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
-  /* "questions" until the last one is answered, then the write-up they are
+  /* "questions" until the last one is answered, then the deep-dive they are
      asked to approve. A separate stage rather than a final question, because
      approving prose we generated is a different kind of act from answering a
      question about your own business, and it has its own refusal. */
@@ -131,7 +128,7 @@ export function Valuation() {
      since making it depend on `answers` would have fired a request per
      keystroke. So a returning seller's stored answers landed in state and were
      never sent anywhere: the wizard said "0 of 10 answered", never reached
-     complete, and the write-up step it gates stayed invisible. The answers
+     complete, and the deep-dive step it gates stayed invisible. The answers
      were in the database the whole time.
      Sequencing them is the fix. It also means the FIRST preview already
      carries their answers, which is what the resume-position effect below
@@ -158,18 +155,12 @@ export function Valuation() {
 
   const questions = preview?.questions ?? [];
 
-  /* Land where the work is. Someone returning to a half-finished
-     questionnaire resumes at their first unanswered question; someone whose
-     answers are already complete lands on the last one, where the write-up
-     button is. Starting everyone at question one made a returning seller
-     click Next through ten questions they had already answered to reach
-     anything new — which is how the write-up step became invisible. */
-  useEffect(() => {
-    if (resumed.current || !preview || questions.length === 0) return;
-    resumed.current = true;
-    const firstUnanswered = questions.findIndex((q) => !q.answered);
-    setIndex(firstUnanswered === -1 ? questions.length - 1 : firstUnanswered);
-  }, [preview, questions]);
+  /* 🚨 ALWAYS QUESTION ONE, deliberately — this used to resume at the first
+     unanswered question. A seller re-entering the wizard is usually there to
+     revisit what they said, not to be dropped in the middle of a deck with no
+     sense of what came before; and now that "Review your deep-dive" shows
+     from any question once the answers are complete, starting at the top
+     costs a returning seller nothing. `resumed` is gone with it. */
   const current = questions[Math.min(index, Math.max(0, questions.length - 1))];
 
   function answer(name: string, value: unknown) {
@@ -179,7 +170,7 @@ export function Valuation() {
   }
 
   /** Store the answers. Called on the way OUT of the questions, whether or
-   *  not they go on to approve a write-up — the number they just watched
+   *  not they go on to approve a deep-dive — the number they just watched
    *  move is theirs either way, and losing it because they closed the tab on
    *  the approval screen would be the worst moment to lose it. */
   async function saveAnswers(): Promise<boolean> {
@@ -216,10 +207,10 @@ export function Valuation() {
       setApprovedAt(r.approved?.approvedAt ?? null);
       setStage("approve");
     } catch (err) {
-      /* The write-up is a bonus, not the deliverable. If it cannot be fetched
+      /* The deep-dive is a bonus, not the deliverable. If it cannot be fetched
          the valuation is still saved, so send them to it rather than stranding
          them on a screen about a paragraph. */
-      setError(err instanceof ApiError ? err.message : "Could not load the write-up.");
+      setError(err instanceof ApiError ? err.message : "Could not load the deep-dive.");
       navigate(`/business/${slug}`);
       return;
     }
@@ -278,9 +269,9 @@ export function Valuation() {
           </header>
 
           <div data-val-approve="">
-            <h1>Your write-up</h1>
+            <h1>Your business deep-dive</h1>
             <p data-val-desc="">
-              This is what appears on your business page, under your name. Readers
+              This is the business deep-dive on your page, under your name. Readers
               who have valued a business of their own see all of it; everyone else
               sees the first couple of sentences.
               {approvedAt ? " You approved a version of this before." : ""}
@@ -412,13 +403,13 @@ export function Valuation() {
               Next
             </button>
           ) : null}
-          {/* Once every required answer is in, the write-up is one click away
+          {/* Once every required answer is in, the deep-dive is one click away
               from WHEREVER they are — not only from the last question. Hiding
               it behind the end of the deck meant a seller who had already
               finished could not find it at all. */}
           {preview.completeness.complete ? (
             <button type="button" data-primary="" onClick={() => void toApproval()} disabled={saving}>
-              {saving ? "Saving…" : "Review your write-up"}
+              {saving ? "Saving…" : "Review your deep-dive"}
             </button>
           ) : index === questions.length - 1 ? (
             <button type="button" data-primary="" onClick={() => void finish()} disabled={saving}>

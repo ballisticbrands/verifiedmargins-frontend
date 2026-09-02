@@ -2750,6 +2750,7 @@ h2[data-heading-badges] {
   justify-content: flex-start;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 }
 [data-window-picker] { position: relative; }
 
@@ -2992,18 +2993,28 @@ h2[data-heading-badges] {
 [data-val-nav] button[data-primary] { background: var(--foreground); color: var(--background); border-color: var(--foreground); font-weight: 600; }
 [data-val-nav] button:disabled { opacity: 0.45; cursor: default; }
 
-/* The valuation strip on the business page. */
-[data-biz-valuation] { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-  margin-top: 1.5rem; padding: 1rem 1.15rem; border: 1px solid var(--border); border-radius: 12px; }
-[data-biz-val-figure] { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
-[data-biz-val-note] { margin: 0.15rem 0 0; font-size: 0.8rem; color: var(--muted-foreground); }
-/* 🚨 `.vm-form [data-…]`, not the bare attribute selector. The business page
-   wraps itself in .vm-form, and `.vm-form a { color: var(--foreground) }`
-   (0,1,1) outranks a lone attribute selector (0,1,0) — which painted this
-   button's label near-black on its own near-black fill and made it invisible.
-   Matching that specificity is the fix; --accent/--accent-foreground is the
-   site's own primary-action pair and the thing it should have used first. */
-.vm-form [data-biz-val-cta],
+/* The valuation, riding hard right in the window-picker's row.
+ *
+ * Deliberately NOT a card any more. It used to be a full-width bordered band
+ * of its own below the chart, which read as one more windowed metric — and it
+ * is the opposite of that: it is the only figure on the page that does not
+ * change when you change the window. Sitting it beside the picker, unboxed,
+ * says "this is the number, and the control next to it does not move it". */
+[data-biz-valuation] {
+  margin-left: auto;
+  display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap;
+  text-align: right;
+}
+[data-biz-valuation] [data-facts-legend] { margin: 0; }
+[data-biz-val-figures] { display: flex; flex-direction: column; align-items: flex-end; gap: 0.05rem; }
+@media (max-width: 640px) { [data-biz-val-figures] { align-items: flex-start; } }
+[data-biz-val-figure] { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
+[data-biz-val-note] { margin: 0; font-size: 0.72rem; color: var(--muted-foreground); }
+/* On a narrow screen it drops under the picker and re-reads left-to-right;
+   a right-aligned block hugging the left edge looks like a mistake. */
+@media (max-width: 640px) {
+  [data-biz-valuation] { margin-left: 0; width: 100%; text-align: left; }
+}
 [data-biz-val-cta] {
   display: inline-block;
   padding: 0.5rem 1rem; border-radius: 9px;

@@ -530,6 +530,8 @@ export function Business() {
             </span>
           </header>
 
+          <DeepDiveSection slug={p.slug} teaser={p.deep_dive ?? null} isOwner={Boolean(mine)} />
+
           <section data-profile-dashboard="">
             {/* THE PICKER IS THE HEADING — the same arrangement as a founder
                 profile, and the same control (WindowPicker, from the shared
@@ -549,6 +551,11 @@ export function Business() {
                    it is worse than not showing it. */
                 onLockedPick={() => promptUnlock()}
               />
+              {/* The value rides in the PICKER'S row, hard right. It is the
+                  headline number on the page and it does not move with the
+                  window — every other figure here does — so giving it its own
+                  band below implied it was another windowed metric. */}
+              <BusinessValuationStrip slug={p.slug} valuation={p.valuation} isOwner={Boolean(mine)} />
             </div>
 
             <div data-tiles="">
@@ -676,10 +683,6 @@ export function Business() {
           {/* The backend's own caveats, verbatim. It is the only thing that
               knows why a figure is missing, and paraphrasing them here would
               be a second voice on the honesty this product sells. */}
-          <BusinessValuationStrip slug={p.slug} valuation={p.valuation} isOwner={Boolean(mine)} />
-
-          <DeepDiveSection slug={p.slug} teaser={p.deep_dive ?? null} isOwner={Boolean(mine)} />
-
           <BusinessFactsSection
             facts={p.facts}
             connectionId={mine}
@@ -1022,23 +1025,30 @@ function BusinessValuationStrip({
 
   return (
     <section data-biz-valuation="">
-      <div>
+      <div data-biz-val-figures="">
         <p data-facts-legend="">Estimated value</p>
         <p data-biz-val-figure="">{hasNumber ? money(v.value as number) : "Not valued yet"}</p>
-        <p data-biz-val-note="">
+        {/* Short, because this now shares a line with the window picker. The
+            SDE caveat stays — it is the difference between our number and the
+            one a broker would quote, and dropping it to save eight characters
+            would be the wrong eight characters to save — but `title` carries
+            the long form rather than wrapping it across the row. */}
+        <p
+          data-biz-val-note=""
+          title={hasNumber ? "Brokers quote SDE, which adds back the owner's salary and is higher." : undefined}
+        >
           {hasNumber ? (
             <>
-              {v.multiple}× net profit{v.netProfitTtm ? ` of ${money(v.netProfitTtm)}` : ""} · on net
-              profit, not SDE — brokers quote SDE, which is higher
+              {v.multiple}× net profit{v.netProfitTtm ? ` of ${money(v.netProfitTtm)}` : ""} · not SDE
             </>
           ) : (
-            "Nine questions. We already know your numbers, reviews, marketplaces and niche."
+            "Nine questions. We know your numbers already."
           )}
         </p>
       </div>
       {isOwner ? (
         <Link to={`/business/${slug}/value`} data-biz-val-cta="">
-          {hasNumber ? "Update valuation" : "Value this business"}
+          {hasNumber ? "Update" : "Value this business"}
         </Link>
       ) : null}
     </section>
@@ -1047,8 +1057,8 @@ function BusinessValuationStrip({
 
 
 /**
- * The deep dive — two sentences for everyone, the rest for readers who have
- * valued a business of their own.
+ * The business deep-dive — two sentences for everyone, the rest for readers
+ * who have valued a business of their own.
  *
  * 🚨 THE BLUR IS NOT THE GATE. The public payload carries only the teaser and
  * a sentence count; the blurred block below it is filler, not the real text
@@ -1099,7 +1109,7 @@ function DeepDiveSection({
 
   return (
     <section data-deep-dive="" data-locked={unlocked ? undefined : ""}>
-      <h2 data-facts-legend="">The write-up</h2>
+      <h2 data-facts-legend="">Business deep-dive</h2>
 
       {full ? (
         <p data-deep-dive-text="">{full}</p>
@@ -1146,7 +1156,7 @@ function DeepDiveUnlock({
   if (tier === undefined) {
     return (
       <div data-deep-dive-cta="">
-        <p>Sellers who value their own business read the whole write-up.</p>
+        <p>Sellers who value their own business read the whole deep-dive.</p>
       </div>
     );
   }
@@ -1154,7 +1164,7 @@ function DeepDiveUnlock({
   if (tier === 1 && valueHref) {
     return (
       <div data-deep-dive-cta="">
-        <p>You have a business here. Value it and you can read every write-up on the site.</p>
+        <p>You have a business here. Value it and you can read every business deep-dive on the site.</p>
         <Link to={valueHref} data-deep-dive-button="">Value your business</Link>
       </div>
     );
@@ -1162,7 +1172,7 @@ function DeepDiveUnlock({
 
   return (
     <div data-deep-dive-cta="">
-      <p>Add your business and value it to read every write-up on the site.</p>
+      <p>Add your business and value it to read every business deep-dive on the site.</p>
       <button type="button" data-deep-dive-button="" onClick={onAdd}>
         Add your business
       </button>

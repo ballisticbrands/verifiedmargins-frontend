@@ -35,11 +35,11 @@ export function useUnlockedWindows(): readonly WindowKey[] | undefined {
  *
  *   0  signed out, or signed in with nothing connected  → 30 days only
  *   1  at least one connection                          → every window
- *   2  at least one connection with a COMPLETE valuation → the write-ups
+ *   2  at least one connection with a COMPLETE valuation → the deep-dives
  *
  * The rule is the same one all the way up: you see what you show. Connecting
  * an account buys the long windows; finishing your own questionnaire buys
- * other people's write-ups.
+ * other people's deep-dives.
  *
  * 🚨 Tier 2 is a PROMPT, not a permission. The deep-dive text itself never
  * comes down to a locked reader — the public payload carries two sentences
