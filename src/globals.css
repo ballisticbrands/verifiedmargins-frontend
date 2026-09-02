@@ -3062,6 +3062,27 @@ h2[data-heading-badges] {
    [data-facts-legend] itself, which would have quietly restyled the two
    provenance labels down in the facts section as well. */
 [data-headline-row] [data-facts-legend] { font-weight: 600; }
+
+[data-biz-valuation] {
+  display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap;
+  text-align: right;
+}
+/* Most businesses have no approved deep-dive yet, so the value is often alone
+   in this row. A lone number shoved right across an empty row reads as a
+   layout bug, so on its own it aligns left like any other block. */
+[data-headline-row] > [data-biz-valuation]:only-child { text-align: left; }
+[data-headline-row] > [data-biz-valuation]:only-child [data-biz-val-figures] { align-items: flex-start; }
+[data-biz-valuation] [data-facts-legend] { margin: 0; }
+[data-biz-val-figures] { display: flex; flex-direction: column; align-items: flex-end; gap: 0.05rem; }
+
+[data-biz-val-figure] { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
+[data-biz-val-note] { margin: 0; font-size: 0.72rem; color: var(--muted-foreground); }
+
+/* 🚨 THIS BLOCK MUST STAY BELOW the [data-biz-valuation] rules above.
+   A media query adds NO specificity — at equal specificity source order
+   decides, so while this sat higher up, `text-align: right` and
+   `align-items: flex-end` from the base rules simply won and the value block
+   stayed right-aligned on a phone. Measured, not assumed. */
 @media (max-width: 720px) {
   [data-headline-row] { flex-direction: column; gap: 1.25rem; }
   /* 🚨 `flex: 1 1 24rem` sets the basis on the MAIN axis, and the main axis is
@@ -3078,21 +3099,6 @@ h2[data-heading-badges] {
   [data-biz-val-figures] { align-items: flex-start; }
   [data-deep-dive-offer] { max-width: none; }
 }
-
-[data-biz-valuation] {
-  display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap;
-  text-align: right;
-}
-/* Most businesses have no approved deep-dive yet, so the value is often alone
-   in this row. A lone number shoved right across an empty row reads as a
-   layout bug, so on its own it aligns left like any other block. */
-[data-headline-row] > [data-biz-valuation]:only-child { text-align: left; }
-[data-headline-row] > [data-biz-valuation]:only-child [data-biz-val-figures] { align-items: flex-start; }
-[data-biz-valuation] [data-facts-legend] { margin: 0; }
-[data-biz-val-figures] { display: flex; flex-direction: column; align-items: flex-end; gap: 0.05rem; }
-
-[data-biz-val-figure] { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
-[data-biz-val-note] { margin: 0; font-size: 0.72rem; color: var(--muted-foreground); }
 /* On a narrow screen it drops under the picker and re-reads left-to-right;
    a right-aligned block hugging the left edge looks like a mistake. */
 
