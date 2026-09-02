@@ -61,6 +61,13 @@ export function Valuation() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
+  /* "questions" until the last one is answered, then the write-up they are
+     asked to approve. A separate stage rather than a final question, because
+     approving prose we generated is a different kind of act from answering a
+     question about your own business, and it has its own refusal. */
+  const [stage, setStage] = useState<"questions" | "approve">("questions");
+  const [draft, setDraft] = useState<string | null>(null);
+  const [approvedAt, setApprovedAt] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = `Value your business — ${brand.displayName}`;
@@ -134,13 +141,61 @@ export function Valuation() {
     void refresh(next);
   }
 
-  async function finish() {
-    if (!connectionId) return;
-    setSaving(true);
+  /** Store the answers. Called on the way OUT of the questions, whether or
+   *  not they go on to approve a write-up — the number they just watched
+   *  move is theirs either way, and losing it because they closed the tab on
+   *  the approval screen would be the worst moment to lose it. */
+  async function saveAnswers(): Promise<boolean> {
+    if (!connectionId) return false;
     try {
       await apiFetch(`/v1/connections/${connectionId}/questionnaire`, {
         method: "PUT",
         body: JSON.stringify({ answers }),
+      });
+      return true;
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not save.");
+      return false;
+    }
+  }
+
+  async function finish() {
+    setSaving(true);
+    if (await saveAnswers()) navigate(`/business/${slug}`);
+    else setSaving(false);
+  }
+
+  /* Banks the answers, then fetches the paragraph to put in front of them. */
+  async function toApproval() {
+    if (!connectionId) return;
+    setSaving(true);
+    setError(null);
+    if (!(await saveAnswers())) { setSaving(false); return; }
+    try {
+      const r = await apiFetch<{ draft: { text: string }; approved: { text?: string; approvedAt?: string } }>(
+        `/v1/connections/${connectionId}/deep-dive`,
+      );
+      setDraft(r.draft.text);
+      setApprovedAt(r.approved?.approvedAt ?? null);
+      setStage("approve");
+    } catch (err) {
+      /* The write-up is a bonus, not the deliverable. If it cannot be fetched
+         the valuation is still saved, so send them to it rather than stranding
+         them on a screen about a paragraph. */
+      setError(err instanceof ApiError ? err.message : "Could not load the write-up.");
+      navigate(`/business/${slug}`);
+      return;
+    }
+    setSaving(false);
+  }
+
+  async function approve() {
+    if (!connectionId || !draft) return;
+    setSaving(true);
+    try {
+      await apiFetch(`/v1/connections/${connectionId}/deep-dive/approve`, {
+        method: "POST",
+        body: JSON.stringify({ text: draft }),
       });
       navigate(`/business/${slug}`);
     } catch (err) {
@@ -161,6 +216,65 @@ export function Valuation() {
     );
   }
   if (!preview) return <Shell width="wide"><p>Loading…</p></Shell>;
+
+  /* ── The consent screen ──────────────────────────────────────────────
+   *
+   * They read what we would publish under their name, and they approve it or
+   * they don't. "Not now" is a real button on purpose: consent you cannot
+   * refuse is not consent, and the valuation is already saved by the time
+   * this renders, so refusing costs them nothing they earned.
+   *
+   * The paragraph is a placeholder today — the same text for every business.
+   * The flow around it is the part worth building first: when a model starts
+   * writing these, it will be dropping into something that already refuses
+   * to publish a word the seller has not read. */
+  if (stage === "approve" && draft) {
+    return (
+      <Shell width="wide">
+        <div data-valuation="">
+          <header data-val-head="">
+            <div>
+              <p data-val-label="">Estimated value</p>
+              <p data-val-number="">{money(preview.value)}</p>
+              <p data-val-sub="">Saved. One last thing.</p>
+            </div>
+          </header>
+
+          <div data-val-approve="">
+            <h1>Your write-up</h1>
+            <p data-val-desc="">
+              This is what appears on your business page, under your name. Readers
+              who have valued a business of their own see all of it; everyone else
+              sees the first couple of sentences.
+              {approvedAt ? " You approved a version of this before." : ""}
+            </p>
+
+            <blockquote data-val-draft="">{draft}</blockquote>
+
+            <p data-val-fineprint="">
+              Written from your answers and your verified numbers. It says nothing
+              we have not read from your account or been told by you, and you can
+              change your mind later.
+            </p>
+          </div>
+
+          {error ? <p data-error="" role="alert">{error}</p> : null}
+
+          <footer data-val-nav="">
+            <button type="button" onClick={() => { setStage("questions"); setError(null); }} disabled={saving}>
+              Back to the questions
+            </button>
+            <button type="button" onClick={() => navigate(`/business/${slug}`)} disabled={saving}>
+              Not now
+            </button>
+            <button type="button" data-primary="" onClick={() => void approve()} disabled={saving}>
+              {saving ? "Publishing…" : "Approve and publish"}
+            </button>
+          </footer>
+        </div>
+      </Shell>
+    );
+  }
 
   const answeredCount = questions.filter((q) => q.answered).length;
   const pct = questions.length ? Math.round((answeredCount / questions.length) * 100) : 0;
@@ -260,9 +374,13 @@ export function Valuation() {
             <button type="button" data-primary="" onClick={() => setIndex((i) => i + 1)}>
               Next
             </button>
+          ) : preview.completeness.complete ? (
+            <button type="button" data-primary="" onClick={() => void toApproval()} disabled={saving}>
+              {saving ? "Saving…" : "Review your write-up"}
+            </button>
           ) : (
             <button type="button" data-primary="" onClick={() => void finish()} disabled={saving}>
-              {saving ? "Saving…" : preview.completeness.complete ? "Finish" : "Save what I have"}
+              {saving ? "Saving…" : "Save what I have"}
             </button>
           )}
         </footer>

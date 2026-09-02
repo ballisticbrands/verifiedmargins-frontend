@@ -2997,5 +2997,78 @@ h2[data-heading-badges] {
   margin-top: 1.5rem; padding: 1rem 1.15rem; border: 1px solid var(--border); border-radius: 12px; }
 [data-biz-val-figure] { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
 [data-biz-val-note] { margin: 0.15rem 0 0; font-size: 0.8rem; color: var(--muted-foreground); }
-[data-biz-val-cta] { padding: 0.5rem 1rem; border-radius: 9px; background: var(--foreground); color: var(--background);
-  font-size: 0.88rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+/* 🚨 `.vm-form [data-…]`, not the bare attribute selector. The business page
+   wraps itself in .vm-form, and `.vm-form a { color: var(--foreground) }`
+   (0,1,1) outranks a lone attribute selector (0,1,0) — which painted this
+   button's label near-black on its own near-black fill and made it invisible.
+   Matching that specificity is the fix; --accent/--accent-foreground is the
+   site's own primary-action pair and the thing it should have used first. */
+.vm-form [data-biz-val-cta],
+[data-biz-val-cta] {
+  display: inline-block;
+  padding: 0.5rem 1rem; border-radius: 9px;
+  background: var(--accent); color: var(--accent-foreground);
+  font-size: 0.88rem; font-weight: 600; text-decoration: none; white-space: nowrap;
+}
+.vm-form [data-biz-val-cta]:hover { opacity: 0.9; }
+
+
+/* ── The consent screen ──────────────────────────────────────────────── */
+
+[data-val-approve] { max-width: 42rem; margin-top: 1.25rem; }
+[data-val-approve] h1 { font-size: clamp(1.15rem, 3vw, 1.5rem); margin: 0 0 0.4rem; }
+[data-val-draft] {
+  margin: 1rem 0; padding: 1rem 1.15rem;
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: 10px; background: var(--muted);
+  font-size: 0.95rem; line-height: 1.65;
+}
+[data-val-fineprint] { margin: 0; font-size: 0.78rem; color: var(--muted-foreground); }
+.vm-form [data-val-nav] button[data-primary],
+[data-val-nav] button[data-primary] {
+  background: var(--accent); color: var(--accent-foreground); border-color: var(--accent);
+}
+
+/* ── The deep dive, and the blur over what has not been earned ───────── */
+
+[data-deep-dive] { margin-top: 1.75rem; }
+[data-deep-dive-text] { margin: 0.35rem 0 0; font-size: 0.95rem; line-height: 1.7; max-width: 42rem; }
+
+/* Filler, NOT the article — see DeepDiveSection. Blurring real text would
+   leave every word in the DOM, so these are empty bars that happen to look
+   like blurred prose. */
+[data-deep-dive-veil] {
+  display: flex; flex-direction: column; gap: 0.55rem;
+  margin-top: 0.55rem; max-width: 42rem;
+  filter: blur(4px); opacity: 0.5; user-select: none; pointer-events: none;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 100%);
+}
+[data-deep-dive-line] { display: block; height: 0.78rem; border-radius: 3px; background: var(--foreground); opacity: 0.32; }
+
+/* The invitation sits ON the fade, where the eye already is. */
+[data-deep-dive-cta] {
+  margin-top: -1.5rem; position: relative;
+  display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;
+  max-width: 42rem; padding: 0.9rem 1.05rem;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--background);
+}
+[data-deep-dive-cta] p { margin: 0; font-size: 0.86rem; color: var(--muted-foreground); flex: 1 1 16rem; }
+.vm-form [data-deep-dive-button],
+[data-deep-dive-button] {
+  display: inline-block; padding: 0.45rem 0.95rem; border-radius: 9px;
+  border: 1px solid var(--accent);
+  background: var(--accent); color: var(--accent-foreground);
+  font: inherit; font-size: 0.85rem; font-weight: 600;
+  text-decoration: none; white-space: nowrap; cursor: pointer;
+}
+.vm-form [data-deep-dive-button]:hover { opacity: 0.9; }
+
+/* Hovering the blur is itself the prompt: the veil lifts a little and the
+   invitation firms up, so reaching for it answers rather than just refuses. */
+[data-deep-dive-locked] { cursor: pointer; }
+[data-deep-dive][data-locked]:hover [data-deep-dive-veil] { opacity: 0.62; }
+[data-deep-dive][data-locked]:hover [data-deep-dive-cta] { border-color: var(--accent); }
+@media (prefers-reduced-motion: no-preference) {
+  [data-deep-dive-veil], [data-deep-dive-cta] { transition: opacity 160ms ease, border-color 160ms ease; }
+}

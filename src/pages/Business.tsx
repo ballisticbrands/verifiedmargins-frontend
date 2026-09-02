@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ApiError,
   StatTile,
@@ -23,7 +23,7 @@ import {
 } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { useAddBusiness } from "@/AddBusiness";
-import { useUnlockedWindows } from "@/lib/unlocked-windows";
+import { useUnlockedWindows, useViewerTier } from "@/lib/unlocked-windows";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { useCurrency } from "@/currency";
 
@@ -101,9 +101,16 @@ interface BusinessValuation {
   computedAt?: string;
 }
 
+interface DeepDiveTeaser {
+  teaser: string;
+  sentences: number;
+  locked: true;
+}
+
 interface BusinessPayload {
   facts?: BusinessFacts;
   valuation?: BusinessValuation;
+  deep_dive?: DeepDiveTeaser | null;
   slug: string;
   name: string;
   /** `Connection.provider` — where the numbers came from. */
@@ -671,6 +678,8 @@ export function Business() {
               be a second voice on the honesty this product sells. */}
           <BusinessValuationStrip slug={p.slug} valuation={p.valuation} isOwner={Boolean(mine)} />
 
+          <DeepDiveSection slug={p.slug} teaser={p.deep_dive ?? null} isOwner={Boolean(mine)} />
+
           <BusinessFactsSection
             facts={p.facts}
             connectionId={mine}
@@ -1033,5 +1042,130 @@ function BusinessValuationStrip({
         </Link>
       ) : null}
     </section>
+  );
+}
+
+
+/**
+ * The deep dive — two sentences for everyone, the rest for readers who have
+ * valued a business of their own.
+ *
+ * 🚨 THE BLUR IS NOT THE GATE. The public payload carries only the teaser and
+ * a sentence count; the blurred block below it is filler, not the real text
+ * with a CSS filter over it. That distinction is the whole feature: a
+ * paragraph blurred client-side is one devtools panel — or one `curl` — from
+ * being read, and unlocking it is the reason to value a business at all. The
+ * real text arrives from GET /v1/businesses/:slug/deep-dive, which checks the
+ * same rule server-side and is the only thing that can hand it over.
+ *
+ * What the reader is invited to do depends on where they already are, because
+ * "add your business" shown to someone who added one last week reads as an
+ * app that does not know them:
+ *
+ *   tier 0  no business connected   → add one
+ *   tier 1  connected, not valued   → value the one they have
+ *   tier 2  valued                  → nothing; they get the text
+ */
+function DeepDiveSection({
+  slug,
+  teaser,
+  isOwner,
+}: {
+  slug: string;
+  teaser: DeepDiveTeaser | null;
+  isOwner: boolean;
+}) {
+  const { tier, valueHref } = useViewerTier();
+  const { promptUnlock } = useAddBusiness();
+  const navigate = useNavigate();
+  const [full, setFull] = useState<string | null>(null);
+
+  const unlocked = isOwner || tier === 2;
+
+  /* Fetched only when it is actually theirs to read. A locked reader never
+     issues this request, and if they forged one the server answers 403. */
+  useEffect(() => {
+    if (!teaser || !unlocked) return;
+    let cancelled = false;
+    apiFetch<{ text: string }>(`/v1/businesses/${slug}/deep-dive`)
+      .then((r) => { if (!cancelled) setFull(r.text); })
+      .catch(() => { /* Leave the teaser standing; it is still true. */ });
+    return () => { cancelled = true; };
+  }, [slug, teaser, unlocked]);
+
+  if (!teaser) return null;
+
+  const hiddenSentences = Math.max(1, teaser.sentences - 2);
+
+  return (
+    <section data-deep-dive="" data-locked={unlocked ? undefined : ""}>
+      <h2 data-facts-legend="">The write-up</h2>
+
+      {full ? (
+        <p data-deep-dive-text="">{full}</p>
+      ) : (
+        <>
+          <p data-deep-dive-text="">{teaser.teaser}</p>
+          {/* Filler, not the article. aria-hidden and unselectable because it
+              carries no meaning — it exists to show how much more there is. */}
+          {/* Reaching for the blur IS the ask, so the whole hidden region
+              acts, not just the button under it — someone who clicks greyed
+              text is telling us they want it. The real focusable control is
+              still the button inside; this only saves the mouse a journey,
+              which is why there is no role or tabIndex on it. */}
+          <div
+            data-deep-dive-locked=""
+            onClick={tier === 1 && valueHref ? () => navigate(valueHref) : promptUnlock}
+          >
+            <div data-deep-dive-veil="" aria-hidden="true">
+              {Array.from({ length: hiddenSentences }).map((_, i) => (
+                <span key={i} data-deep-dive-line="" style={{ width: `${72 + ((i * 37) % 26)}%` }} />
+              ))}
+            </div>
+            <DeepDiveUnlock tier={tier} valueHref={valueHref} onAdd={promptUnlock} />
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+/** The invitation over the blur. One sentence and one button — the same
+ *  restraint the locked window picker shows, and for the same reason. */
+function DeepDiveUnlock({
+  tier,
+  valueHref,
+  onAdd,
+}: {
+  tier: 0 | 1 | 2 | undefined;
+  valueHref: string | null;
+  onAdd: () => void;
+}) {
+  /* While the tier is still resolving, say the neutral thing. Flashing "add
+     your business" at someone who has three is the worse mistake. */
+  if (tier === undefined) {
+    return (
+      <div data-deep-dive-cta="">
+        <p>Sellers who value their own business read the whole write-up.</p>
+      </div>
+    );
+  }
+
+  if (tier === 1 && valueHref) {
+    return (
+      <div data-deep-dive-cta="">
+        <p>You have a business here. Value it and you can read every write-up on the site.</p>
+        <Link to={valueHref} data-deep-dive-button="">Value your business</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div data-deep-dive-cta="">
+      <p>Add your business and value it to read every write-up on the site.</p>
+      <button type="button" data-deep-dive-button="" onClick={onAdd}>
+        Add your business
+      </button>
+    </div>
   );
 }
