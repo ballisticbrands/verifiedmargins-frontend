@@ -1210,7 +1210,6 @@ function DeepDiveUnlock({
   const body = (
     <>
       <div data-deep-dive-offer-head="">
-        <LockIcon />
         <h2>Learn how this business makes money!</h2>
       </div>
 
@@ -1238,10 +1237,12 @@ function DeepDiveUnlock({
       {body}
       {isTier1 && valueHref ? (
         <Link to={valueHref} data-deep-dive-button="">
+          <LockIcon />
           Unlock this business deep dive
         </Link>
       ) : (
         <button type="button" data-deep-dive-button="" onClick={onAdd}>
+          <LockIcon />
           Unlock this business deep dive
         </button>
       )}

@@ -2894,13 +2894,30 @@ h2[data-heading-badges] {
 }
 [data-facts-group][data-provenance="derived"] [data-facts-legend] { color: var(--verified, #15803d); }
 
-[data-facts-list] { margin: 0; display: grid; gap: 0.35rem 1.25rem; }
+/* 🚨 `.vm-profile [data-facts-list]` (0,2,0) is required to beat
+   `.vm-profile dl` (0,1,1), which sets `grid-template-columns: minmax(9rem,
+   max-content) 1fr`. This list never declared columns of its own, so it
+   inherited that two-column grid by accident and dropped its <div> pairs into
+   the two cells — side by side. On a phone that put two 11rem label columns
+   into ~358px and the fields overlapped and clipped: "FulfilMXent", "FBA" off
+   the edge. Now the columns are declared, and they collapse to one when there
+   is no room for two. Fourth instance of .vm-form/.vm-profile element rules
+   outranking bare attribute hooks — see the [data-biz-val-cta] comment. */
+.vm-profile [data-facts-list],
+[data-facts-list] {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.35rem 1.25rem;
+}
 [data-facts-list] > div {
   display: grid;
-  grid-template-columns: 11rem 1fr;
+  grid-template-columns: minmax(6.5rem, 9rem) 1fr;
   gap: 0.75rem;
   align-items: baseline;
+  min-width: 0;
 }
+[data-facts-list] dd { min-width: 0; overflow-wrap: anywhere; }
 [data-facts-list] dt { color: var(--muted-foreground); font-size: 0.85rem; }
 [data-facts-list] dd { margin: 0; font-size: 0.9rem; }
 
@@ -3047,6 +3064,19 @@ h2[data-heading-badges] {
 [data-headline-row] [data-facts-legend] { font-weight: 600; }
 @media (max-width: 720px) {
   [data-headline-row] { flex-direction: column; gap: 1.25rem; }
+  /* 🚨 `flex: 1 1 24rem` sets the basis on the MAIN axis, and the main axis is
+     now vertical — so the deep-dive column was 24rem TALL, leaving ~200px of
+     dead white between the offer box and the value below it. */
+  [data-headline-row] > [data-deep-dive] { flex: 0 1 auto; }
+  /* The value goes FIRST on a phone. It is the headline number, and a reader
+     who has to scroll past a sales box to reach it has been shown the pitch
+     before the fact it is about. */
+  [data-headline-row] > [data-biz-valuation] { order: -1; }
+  /* Stacked, it reads left-to-right like everything else — right-alignment
+     only makes sense while it is hugging the right edge of a row. */
+  [data-biz-valuation] { width: 100%; text-align: left; }
+  [data-biz-val-figures] { align-items: flex-start; }
+  [data-deep-dive-offer] { max-width: none; }
 }
 
 [data-biz-valuation] {
@@ -3060,14 +3090,12 @@ h2[data-heading-badges] {
 [data-headline-row] > [data-biz-valuation]:only-child [data-biz-val-figures] { align-items: flex-start; }
 [data-biz-valuation] [data-facts-legend] { margin: 0; }
 [data-biz-val-figures] { display: flex; flex-direction: column; align-items: flex-end; gap: 0.05rem; }
-@media (max-width: 640px) { [data-biz-val-figures] { align-items: flex-start; } }
+
 [data-biz-val-figure] { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
 [data-biz-val-note] { margin: 0; font-size: 0.72rem; color: var(--muted-foreground); }
 /* On a narrow screen it drops under the picker and re-reads left-to-right;
    a right-aligned block hugging the left edge looks like a mistake. */
-@media (max-width: 640px) {
-  [data-biz-valuation] { margin-left: 0; width: 100%; text-align: left; }
-}
+
 /* 🚨 `.vm-form [data-…]` IS LOAD-BEARING — do not "simplify" it to the bare
    attribute selector. The page wraps itself in .vm-form, and
    `.vm-form a { color: var(--foreground) }` (0,1,1) outranks a lone attribute
@@ -3145,7 +3173,9 @@ h2[data-heading-badges] {
 [data-deep-dive-offer-head] h2 {
   margin: 0; font-size: 0.98rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25;
 }
-[data-deep-dive-lock] { width: 1.05rem; height: 1.05rem; flex: none; color: var(--accent); }
+/* On the BUTTON, not the heading: the lock is what the button undoes, so it
+   belongs where the action is rather than decorating a sentence. */
+[data-deep-dive-lock] { width: 0.95rem; height: 0.95rem; flex: none; color: currentColor; }
 
 /* Two columns, because five short phrases stacked made the box twice as tall
    as it needed to be — and this box exists to stay out of the way of the
