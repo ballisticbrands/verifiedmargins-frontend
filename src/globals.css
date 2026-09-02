@@ -3035,13 +3035,23 @@ h2[data-heading-badges] {
 @media (max-width: 640px) {
   [data-biz-valuation] { margin-left: 0; width: 100%; text-align: left; }
 }
+/* 🚨 `.vm-form [data-…]` IS LOAD-BEARING — do not "simplify" it to the bare
+   attribute selector. The page wraps itself in .vm-form, and
+   `.vm-form a { color: var(--foreground) }` (0,1,1) outranks a lone attribute
+   selector (0,1,0), repainting this button's label to the same near-black as
+   its own fill. That has now shipped invisible TWICE: once when the rule was
+   first written, and again when a later edit to the block above silently ate
+   this selector's first line. The :hover rule below kept its prefix and was
+   the only survivor, which is why the two looked inconsistent. */
+.vm-form [data-biz-val-cta],
 [data-biz-val-cta] {
   display: inline-block;
   padding: 0.5rem 1rem; border-radius: 9px;
   background: var(--accent); color: var(--accent-foreground);
   font-size: 0.88rem; font-weight: 600; text-decoration: none; white-space: nowrap;
 }
-.vm-form [data-biz-val-cta]:hover { opacity: 0.9; }
+.vm-form [data-biz-val-cta]:hover,
+[data-biz-val-cta]:hover { opacity: 0.9; }
 
 
 /* ── The consent screen ──────────────────────────────────────────────── */
@@ -3064,6 +3074,24 @@ h2[data-heading-badges] {
 
 [data-deep-dive] { margin-top: 1.75rem; }
 [data-deep-dive-text] { margin: 0.35rem 0 0; font-size: 0.95rem; line-height: 1.7; max-width: 42rem; }
+
+/* Two lines until asked. The tiles and the chart are what this page is for,
+   and a paragraph that pushes them under the fold costs more than it gives —
+   so the unlocked text collapses to roughly the same height as the locked
+   teaser, and the page looks the same either way above the fold. */
+[data-deep-dive-text][data-clamped] {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.vm-form [data-deep-dive-toggle],
+[data-deep-dive-toggle] {
+  margin-top: 0.4rem; padding: 0;
+  border: 0; background: none; font: inherit; font-size: 0.8rem; font-weight: 600;
+  color: var(--accent); text-decoration: underline; text-underline-offset: 2px;
+  cursor: pointer;
+}
 
 /* Filler, NOT the article — see DeepDiveSection. Blurring real text would
    leave every word in the DOM, so these are empty bars that happen to look

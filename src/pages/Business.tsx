@@ -62,8 +62,6 @@ import { useCurrency } from "@/currency";
 interface BusinessFacts {
   declared: {
     foundedYear?: number | null;
-    strategy?: string | null;
-    differentiation?: string | null;
     otherPlatforms?: string[];
     supplierCountries?: string[];
     supplierCount?: number | null;
@@ -728,8 +726,10 @@ const FACT_FIELDS = [
   { key: "supplierCountries", label: "Supplier countries", kind: "codes" },
   { key: "otherPlatforms", label: "Also sells on", kind: "platforms" },
   { key: "brandRegistry", label: "Brand Registry", kind: "bool" },
-  { key: "strategy", label: "Strategy", kind: "text" },
-  { key: "differentiation", label: "Differentiation", kind: "text" },
+  /* Strategy and Differentiation were here. Removed 2026-09-03: free-text
+     the seller wrote once and never revisited, so it aged into a claim the
+     page could not stand behind. The questionnaire asks the same ground in
+     answerable form, and the deep-dive is where prose belongs now. */
 ] as const;
 
 function yearsSince(year: number): string {
@@ -869,8 +869,6 @@ function FactsForm({
   const [brandRegistry, setBrandRegistry] = useState<string>(
     initial.brandRegistry === true ? "yes" : initial.brandRegistry === false ? "no" : "",
   );
-  const [strategy, setStrategy] = useState(initial.strategy ?? "");
-  const [differentiation, setDifferentiation] = useState(initial.differentiation ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -896,8 +894,6 @@ function FactsForm({
             .filter(Boolean),
           otherPlatforms: platforms,
           brandRegistry: brandRegistry === "" ? null : brandRegistry === "yes",
-          strategy: strategy.trim() === "" ? null : strategy,
-          differentiation: differentiation.trim() === "" ? null : differentiation,
         }),
       });
       onDone();
@@ -965,17 +961,6 @@ function FactsForm({
           </label>
         ))}
       </fieldset>
-
-      <label data-facts-text="">
-        <span>Strategy</span>
-        <textarea rows={3} maxLength={2000} placeholder="How this business wins."
-          value={strategy} onChange={(e) => setStrategy(e.target.value)} />
-      </label>
-      <label data-facts-text="">
-        <span>Differentiation</span>
-        <textarea rows={3} maxLength={2000} placeholder="What makes it hard to copy."
-          value={differentiation} onChange={(e) => setDifferentiation(e.target.value)} />
-      </label>
 
       {error ? <p data-error="" role="alert">{error}</p> : null}
 
@@ -1091,6 +1076,12 @@ function DeepDiveSection({
   const { promptUnlock } = useAddBusiness();
   const navigate = useNavigate();
   const [full, setFull] = useState<string | null>(null);
+  /* Collapsed by default even for a reader who has earned the whole thing.
+     The numbers are what this page is for, and eight sentences of prose above
+     them pushed the cards and the chart below the fold — so the first thing a
+     visitor saw was an essay about a business whose figures they had not seen
+     yet. Two sentences and a button is enough to offer the rest. */
+  const [expanded, setExpanded] = useState(false);
 
   const unlocked = isOwner || tier === 2;
 
@@ -1114,7 +1105,12 @@ function DeepDiveSection({
       <h2 data-facts-legend="">Business deep-dive</h2>
 
       {full ? (
-        <p data-deep-dive-text="">{full}</p>
+        <>
+          <p data-deep-dive-text="" data-clamped={expanded ? undefined : ""}>{full}</p>
+          <button type="button" data-deep-dive-toggle="" onClick={() => setExpanded((e) => !e)}>
+            {expanded ? "Collapse" : "Expand"}
+          </button>
+        </>
       ) : (
         <>
           <p data-deep-dive-text="">{teaser.teaser}</p>
