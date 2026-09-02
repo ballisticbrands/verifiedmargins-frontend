@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   ApiError,
   StatTile,
@@ -1074,7 +1074,6 @@ function DeepDiveSection({
 }) {
   const { tier, valueHref } = useViewerTier();
   const { promptUnlock } = useAddBusiness();
-  const navigate = useNavigate();
   const [full, setFull] = useState<string | null>(null);
   /* Collapsed by default even for a reader who has earned the whole thing.
      The numbers are what this page is for, and eight sentences of prose above
@@ -1098,48 +1097,83 @@ function DeepDiveSection({
 
   if (!teaser) return null;
 
-  const hiddenSentences = Math.max(1, teaser.sentences - 2);
+  /* LOCKED: the box and nothing else.
+     No teaser, no blurred filler. Both were height spent on content the
+     reader cannot use — and the blurred lines in particular were a picture of
+     something withheld, which sells nothing. What sells is naming what is
+     behind the lock, so the whole section collapses to the offer and the
+     tiles stay above the fold. */
+  if (!unlocked) {
+    return (
+      <section data-deep-dive="" data-locked="">
+        <DeepDiveUnlock tier={tier} valueHref={valueHref} onAdd={promptUnlock} />
+      </section>
+    );
+  }
 
   return (
-    <section data-deep-dive="" data-locked={unlocked ? undefined : ""}>
+    <section data-deep-dive="">
       <h2 data-facts-legend="">Business deep-dive</h2>
-
+      <p data-deep-dive-text="" data-clamped={expanded ? undefined : ""}>
+        {full ?? teaser.teaser}
+      </p>
       {full ? (
-        <>
-          <p data-deep-dive-text="" data-clamped={expanded ? undefined : ""}>{full}</p>
-          <button type="button" data-deep-dive-toggle="" onClick={() => setExpanded((e) => !e)}>
-            {expanded ? "Collapse" : "Expand"}
-          </button>
-        </>
-      ) : (
-        <>
-          <p data-deep-dive-text="">{teaser.teaser}</p>
-          {/* Filler, not the article. aria-hidden and unselectable because it
-              carries no meaning — it exists to show how much more there is. */}
-          {/* Reaching for the blur IS the ask, so the whole hidden region
-              acts, not just the button under it — someone who clicks greyed
-              text is telling us they want it. The real focusable control is
-              still the button inside; this only saves the mouse a journey,
-              which is why there is no role or tabIndex on it. */}
-          <div
-            data-deep-dive-locked=""
-            onClick={tier === 1 && valueHref ? () => navigate(valueHref) : promptUnlock}
-          >
-            <div data-deep-dive-veil="" aria-hidden="true">
-              {Array.from({ length: hiddenSentences }).map((_, i) => (
-                <span key={i} data-deep-dive-line="" style={{ width: `${72 + ((i * 37) % 26)}%` }} />
-              ))}
-            </div>
-            <DeepDiveUnlock tier={tier} valueHref={valueHref} onAdd={promptUnlock} />
-          </div>
-        </>
-      )}
+        <button type="button" data-deep-dive-toggle="" onClick={() => setExpanded((e) => !e)}>
+          {expanded ? "Collapse" : "Expand"}
+        </button>
+      ) : null}
     </section>
   );
 }
 
-/** The invitation over the blur. One sentence and one button — the same
- *  restraint the locked window picker shows, and for the same reason. */
+/** A lock, drawn rather than typed. An emoji lock renders as a different
+ *  object on every platform and at a size nobody chose — the same reason the
+ *  window picker's locks are SVG. */
+function LockIcon() {
+  return (
+    <svg data-deep-dive-lock="" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M7 10V7a5 5 0 0 1 10 0v3"
+        fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+      />
+      <rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg data-perk-check="" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M20 6 9 17l-5-5"
+        fill="none" stroke="currentColor" strokeWidth="3"
+        strokeLinecap="round" strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** What is actually behind the lock. Named, because "there is more" persuades
+ *  nobody — the specifics are the argument. */
+const DEEP_DIVE_PERKS = [
+  "Product strategy",
+  "Product differentiation",
+  "Traffic generation",
+  "PPC strategy",
+  "And more",
+] as const;
+
+/** The offer.
+ *
+ * One box, and it has to do all the persuading: the reader is being asked to
+ * expose their own numbers to see someone else's. So it names what it is
+ * hiding rather than gesturing at it, and the button says what pressing it
+ * gets you, not what it costs you.
+ *
+ * The heading and the button read the same at every tier; only the small line
+ * beneath changes, because "add your business" shown to someone who added one
+ * last week reads as an app that does not know them.
+ */
 function DeepDiveUnlock({
   tier,
   valueHref,
@@ -1149,31 +1183,46 @@ function DeepDiveUnlock({
   valueHref: string | null;
   onAdd: () => void;
 }) {
-  /* While the tier is still resolving, say the neutral thing. Flashing "add
-     your business" at someone who has three is the worse mistake. */
-  if (tier === undefined) {
-    return (
-      <div data-deep-dive-cta="">
-        <p>Sellers who value their own business read the whole deep-dive.</p>
-      </div>
-    );
-  }
+  const isTier1 = tier === 1 && Boolean(valueHref);
 
-  if (tier === 1 && valueHref) {
-    return (
-      <div data-deep-dive-cta="">
-        <p>You have a business here. Value it and you can read every business deep-dive on the site.</p>
-        <Link to={valueHref} data-deep-dive-button="">Value your business</Link>
+  const body = (
+    <>
+      <div data-deep-dive-offer-head="">
+        <LockIcon />
+        <h2>Learn how this business makes money!</h2>
       </div>
-    );
-  }
+
+      <ul data-deep-dive-perks="">
+        {DEEP_DIVE_PERKS.map((perk) => (
+          <li key={perk}>
+            <CheckIcon />
+            <span>{perk}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p data-deep-dive-why="">
+        {/* While the tier is still resolving, say the neutral thing — flashing
+            "add your business" at someone who has three is the worse mistake. */}
+        {isTier1
+          ? "You already have a business here. Value it to unlock every deep-dive on the site."
+          : "Add your business and value it to unlock every deep-dive on the site."}
+      </p>
+    </>
+  );
 
   return (
-    <div data-deep-dive-cta="">
-      <p>Add your business and value it to read every business deep-dive on the site.</p>
-      <button type="button" data-deep-dive-button="" onClick={onAdd}>
-        Add your business
-      </button>
+    <div data-deep-dive-offer="">
+      {body}
+      {isTier1 && valueHref ? (
+        <Link to={valueHref} data-deep-dive-button="">
+          Unlock this business deep dive
+        </Link>
+      ) : (
+        <button type="button" data-deep-dive-button="" onClick={onAdd}>
+          Unlock this business deep dive
+        </button>
+      )}
     </div>
   );
 }

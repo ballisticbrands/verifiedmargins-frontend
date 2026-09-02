@@ -3093,41 +3093,38 @@ h2[data-heading-badges] {
   cursor: pointer;
 }
 
-/* Filler, NOT the article — see DeepDiveSection. Blurring real text would
-   leave every word in the DOM, so these are empty bars that happen to look
-   like blurred prose. */
-[data-deep-dive-veil] {
-  display: flex; flex-direction: column; gap: 0.55rem;
-  margin-top: 0.55rem; max-width: 42rem;
-  filter: blur(4px); opacity: 0.5; user-select: none; pointer-events: none;
-  mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 100%);
+/* ── The offer, when the deep-dive is locked ─────────────────────────
+ *
+ * The blurred filler bars that used to live here are gone. They were a
+ * picture of something withheld, which persuades nobody, and they cost real
+ * height — pushing the tiles and the chart under the fold on the page whose
+ * whole job is showing numbers. What replaced them names what is behind the
+ * lock instead, in about a third of the space.
+ */
+[data-deep-dive-offer] {
+  max-width: 30rem;
+  padding: 1.15rem 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--muted);
 }
-[data-deep-dive-line] { display: block; height: 0.78rem; border-radius: 3px; background: var(--foreground); opacity: 0.32; }
+[data-deep-dive-offer-head] { display: flex; align-items: center; gap: 0.6rem; }
+[data-deep-dive-offer-head] h2 {
+  margin: 0; font-size: 1.02rem; font-weight: 700; letter-spacing: -0.01em;
+}
+[data-deep-dive-lock] { width: 1.15rem; height: 1.15rem; flex: none; color: var(--accent); }
 
-/* The invitation sits ON the fade, where the eye already is. */
-[data-deep-dive-cta] {
-  margin-top: -1.5rem; position: relative;
-  display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;
-  max-width: 42rem; padding: 0.9rem 1.05rem;
-  border: 1px solid var(--border); border-radius: 12px; background: var(--background);
+[data-deep-dive-perks] {
+  list-style: none; margin: 0.8rem 0 0; padding: 0;
+  display: flex; flex-direction: column; gap: 0.38rem;
 }
-[data-deep-dive-cta] p { margin: 0; font-size: 0.86rem; color: var(--muted-foreground); flex: 1 1 16rem; }
-.vm-form [data-deep-dive-button],
-[data-deep-dive-button] {
-  display: inline-block; padding: 0.45rem 0.95rem; border-radius: 9px;
-  border: 1px solid var(--accent);
-  background: var(--accent); color: var(--accent-foreground);
-  font: inherit; font-size: 0.85rem; font-weight: 600;
-  text-decoration: none; white-space: nowrap; cursor: pointer;
+[data-deep-dive-perks] li {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.88rem; line-height: 1.35;
 }
-.vm-form [data-deep-dive-button]:hover { opacity: 0.9; }
+[data-perk-check] { width: 0.9rem; height: 0.9rem; flex: none; color: var(--verified); }
 
-/* Hovering the blur is itself the prompt: the veil lifts a little and the
-   invitation firms up, so reaching for it answers rather than just refuses. */
-[data-deep-dive-locked] { cursor: pointer; }
-[data-deep-dive][data-locked]:hover [data-deep-dive-veil] { opacity: 0.62; }
-[data-deep-dive][data-locked]:hover [data-deep-dive-cta] { border-color: var(--accent); }
-@media (prefers-reduced-motion: no-preference) {
-  [data-deep-dive-veil], [data-deep-dive-cta] { transition: opacity 160ms ease, border-color 160ms ease; }
+[data-deep-dive-why] {
+  margin: 0.85rem 0 0.9rem;
+  font-size: 0.78rem; line-height: 1.5; color: var(--muted-foreground);
 }
