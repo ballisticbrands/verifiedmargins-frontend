@@ -2750,7 +2750,6 @@ h2[data-heading-badges] {
   justify-content: flex-start;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
-  flex-wrap: wrap;
 }
 [data-window-picker] { position: relative; }
 
@@ -2993,22 +2992,43 @@ h2[data-heading-badges] {
 [data-val-nav] button[data-primary] { background: var(--foreground); color: var(--background); border-color: var(--foreground); font-weight: 600; }
 [data-val-nav] button:disabled { opacity: 0.45; cursor: default; }
 
-/* The valuation, riding hard right in the window-picker's row.
+/* The headline row: the deep-dive on the left, the value on the right.
  *
- * Deliberately NOT a card any more. It used to be a full-width bordered band
- * of its own below the chart, which read as one more windowed metric — and it
- * is the opposite of that: it is the only figure on the page that does not
- * change when you change the window. Sitting it beside the picker, unboxed,
- * says "this is the number, and the control next to it does not move it". */
+ * Above the window picker, because neither of them moves when the window
+ * does — every figure below that picker is windowed and these two are not.
+ * Unboxed for the same reason the value stopped being a card: a bordered band
+ * of its own read as one more windowed metric. */
+[data-headline-row] {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  margin: 1.5rem 0;
+}
+/* Both children can render nothing — no approved deep-dive, and a stranger
+   looking at an unvalued business. An empty flex row still carries its 1.5rem
+   of margin and reads on the page as a band of dead space, which is the same
+   bug the category section had. */
+[data-headline-row]:empty { display: none; }
+[data-headline-row] > [data-deep-dive] { flex: 1 1 24rem; min-width: 0; margin-top: 0; }
+[data-headline-row] > [data-biz-valuation] { flex: 0 0 auto; }
+@media (max-width: 720px) {
+  [data-headline-row] { flex-direction: column; gap: 1.25rem; }
+}
+
 [data-biz-valuation] {
-  margin-left: auto;
-  display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap;
+  display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap;
   text-align: right;
 }
+/* Most businesses have no approved deep-dive yet, so the value is often alone
+   in this row. A lone number shoved right across an empty row reads as a
+   layout bug, so on its own it aligns left like any other block. */
+[data-headline-row] > [data-biz-valuation]:only-child { text-align: left; }
+[data-headline-row] > [data-biz-valuation]:only-child [data-biz-val-figures] { align-items: flex-start; }
 [data-biz-valuation] [data-facts-legend] { margin: 0; }
 [data-biz-val-figures] { display: flex; flex-direction: column; align-items: flex-end; gap: 0.05rem; }
 @media (max-width: 640px) { [data-biz-val-figures] { align-items: flex-start; } }
-[data-biz-val-figure] { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
+[data-biz-val-figure] { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
 [data-biz-val-note] { margin: 0; font-size: 0.72rem; color: var(--muted-foreground); }
 /* On a narrow screen it drops under the picker and re-reads left-to-right;
    a right-aligned block hugging the left edge looks like a mistake. */

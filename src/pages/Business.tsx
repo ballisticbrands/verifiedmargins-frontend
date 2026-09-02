@@ -530,7 +530,14 @@ export function Business() {
             </span>
           </header>
 
-          <DeepDiveSection slug={p.slug} teaser={p.deep_dive ?? null} isOwner={Boolean(mine)} />
+          {/* One row: the deep-dive reading left, the value hard right. They
+              belong together — the paragraph is the argument and the number is
+              its conclusion, and both sit ABOVE the window picker because
+              neither of them moves when you change the window. */}
+          <div data-headline-row="">
+            <DeepDiveSection slug={p.slug} teaser={p.deep_dive ?? null} isOwner={Boolean(mine)} />
+            <BusinessValuationStrip slug={p.slug} valuation={p.valuation} isOwner={Boolean(mine)} />
+          </div>
 
           <section data-profile-dashboard="">
             {/* THE PICKER IS THE HEADING — the same arrangement as a founder
@@ -551,11 +558,6 @@ export function Business() {
                    it is worse than not showing it. */
                 onLockedPick={() => promptUnlock()}
               />
-              {/* The value rides in the PICKER'S row, hard right. It is the
-                  headline number on the page and it does not move with the
-                  window — every other figure here does — so giving it its own
-                  band below implied it was another windowed metric. */}
-              <BusinessValuationStrip slug={p.slug} valuation={p.valuation} isOwner={Boolean(mine)} />
             </div>
 
             <div data-tiles="">
