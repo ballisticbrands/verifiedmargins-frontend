@@ -58,6 +58,9 @@ export function Valuation() {
   const [answers, setAnswers] = useState<Answers>({});
   const [preview, setPreview] = useState<Preview | null>(null);
   const [index, setIndex] = useState(0);
+  /* Set ONCE, from the first preview — not on every refresh, or answering a
+     question would yank you somewhere else mid-wizard. */
+  const resumed = useRef(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
@@ -133,6 +136,19 @@ export function Valuation() {
   useEffect(() => { void refresh(answers); }, [connectionId, refresh]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const questions = preview?.questions ?? [];
+
+  /* Land where the work is. Someone returning to a half-finished
+     questionnaire resumes at their first unanswered question; someone whose
+     answers are already complete lands on the last one, where the write-up
+     button is. Starting everyone at question one made a returning seller
+     click Next through ten questions they had already answered to reach
+     anything new — which is how the write-up step became invisible. */
+  useEffect(() => {
+    if (resumed.current || !preview || questions.length === 0) return;
+    resumed.current = true;
+    const firstUnanswered = questions.findIndex((q) => !q.answered);
+    setIndex(firstUnanswered === -1 ? questions.length - 1 : firstUnanswered);
+  }, [preview, questions]);
   const current = questions[Math.min(index, Math.max(0, questions.length - 1))];
 
   function answer(name: string, value: unknown) {
@@ -371,18 +387,23 @@ export function Valuation() {
             Back
           </button>
           {index < questions.length - 1 ? (
-            <button type="button" data-primary="" onClick={() => setIndex((i) => i + 1)}>
+            <button type="button" onClick={() => setIndex((i) => i + 1)}>
               Next
             </button>
-          ) : preview.completeness.complete ? (
+          ) : null}
+          {/* Once every required answer is in, the write-up is one click away
+              from WHEREVER they are — not only from the last question. Hiding
+              it behind the end of the deck meant a seller who had already
+              finished could not find it at all. */}
+          {preview.completeness.complete ? (
             <button type="button" data-primary="" onClick={() => void toApproval()} disabled={saving}>
               {saving ? "Saving…" : "Review your write-up"}
             </button>
-          ) : (
+          ) : index === questions.length - 1 ? (
             <button type="button" data-primary="" onClick={() => void finish()} disabled={saving}>
               {saving ? "Saving…" : "Save what I have"}
             </button>
-          )}
+          ) : null}
         </footer>
       </div>
     </Shell>
