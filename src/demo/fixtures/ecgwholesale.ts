@@ -109,6 +109,18 @@ interface SellerSpec {
   claim: string;
   avatar_url?: string | null;
   website_url?: string | null;
+  /** SKUs across the whole account. Omitted = not published, and the tile
+   *  renders "—" rather than a guess. */
+  sku_count?: number;
+  /** How the account splits into separate businesses, as [markets, share].
+   *  Shares must sum to 1. Omitted = one business holding everything.
+   *
+   *  🚨 A SPLIT IS STRUCTURE, AND STRUCTURE CAN BE INVENTED TOO. Dan published
+   *  ONE Seller Central card; five businesses is a shape this demo gives him,
+   *  not one he stated. The totals stay exactly his — the split only decides
+   *  how they are divided — and it is declared here rather than buried so it
+   *  reads as the choice it is. */
+  split?: Array<[markets: string[], share: number]>;
   extraNotes?: string[];
 }
 
@@ -116,6 +128,36 @@ function build(spec: SellerSpec) {
   const daily = dailyRevenue(spec.revenue30);
   const revenue = Number(daily.reduce((n, d) => n + d.revenue, 0).toFixed(2));
   const profit = Number(daily.reduce((n, d) => n + d.profit, 0).toFixed(2));
+
+  /* 🚨 The header's "<n> businesses with verified revenue" is COMPUTED from
+     this array's length by the shared page — the payload cannot set it — so
+     the count shown and the cards rendered are always the same number. See
+     ../README.md. */
+  const split = spec.split ?? [[["US"], 1]];
+  const businesses = split.map(([markets, share], i) => {
+    /* The last card absorbs the rounding, so the cards sum to the tile
+       exactly rather than to within a few cents of it. */
+    const last = i === split.length - 1;
+    const taken = split
+      .slice(0, i)
+      .reduce((n, [, sh]) => n + Number((revenue * sh).toFixed(2)), 0);
+    const r = last ? Number((revenue - taken).toFixed(2)) : Number((revenue * share).toFixed(2));
+    const pr = Number(((r * GROUP_MARGIN_PCT) / 100).toFixed(2));
+    return {
+      platform: "amazon",
+      /* A PLATFORM, never a brand name — the card blurs a literal
+         "Stealth Brand" above this line. Sibling cards therefore read alike
+         and `markets` is what tells them apart, which is the real page's
+         behaviour rather than a shortcut. */
+      label: "Amazon FBA",
+      markets,
+      seller_type: "wholesaler",
+      last_30d: { revenue: r, profit: pr, margin_pct: GROUP_MARGIN_PCT },
+      revenue: r,
+      margin_pct: GROUP_MARGIN_PCT,
+      verification: { tier: "verified_margin", label: "Verified margins" },
+    };
+  });
 
   return (months: number, currency: string) => ({
     username: spec.username,
@@ -144,7 +186,15 @@ function build(spec: SellerSpec) {
       note: null,
     },
     window: { months, from: "2026-08", through: "2026-09", includes_partial_month: true },
-    visibility: { margin: true, sales: true, skuCount: false, brands: false, category: false },
+    visibility: {
+      margin: true,
+      sales: true,
+      /* Only on for a seller who published a count. Off leaves the tile at
+         "—", which is the honest reading of "we do not know". */
+      skuCount: spec.sku_count !== undefined,
+      brands: false,
+      category: false,
+    },
     metrics: {
       native: [{ currency: "USD", revenue, profit }],
       display: {
@@ -161,24 +211,11 @@ function build(spec: SellerSpec) {
       series: [{ month: "2026-09", currency: "USD", revenue, units: 0, orders: 0, profit }],
       margin_series: [{ month: "2026-09", margin_pct: GROUP_MARGIN_PCT }],
       last_30d: { revenue, profit, units: 0, margin_pct: GROUP_MARGIN_PCT },
-      businesses: [
-        {
-          platform: "amazon",
-          /* A PLATFORM, never a brand name — the card blurs a literal
-             "Stealth Brand" above this line. */
-          label: "Amazon FBA",
-          markets: ["US"],
-          seller_type: "wholesaler",
-          last_30d: { revenue, profit, margin_pct: GROUP_MARGIN_PCT },
-          revenue,
-          margin_pct: GROUP_MARGIN_PCT,
-          verification: { tier: "verified_margin", label: "Verified margins" },
-        },
-      ],
+      businesses,
       margin_pct: GROUP_MARGIN_PCT,
       margin_basis: "blended_pct",
       margin_note: null,
-      sku_count: null,
+      sku_count: spec.sku_count ?? null,
       brand_count: null,
       brands_label: "Brands sold",
       category: null,
@@ -210,11 +247,23 @@ export const danBoufford = build({
   avatar_url: "/demo/dan-boufford.png",
   website_url: "https://www.ecgwholesale.com/",
   revenue30: DAN_30D,
+  sku_count: 1000,
+  /* Five businesses. Shares descend so the set reads as a portfolio rather
+     than a split of one number into equal parts; markets are what tell the
+     cards apart, since every label is "Amazon FBA". */
+  split: [
+    [["US"], 0.38],
+    [["US", "CA"], 0.24],
+    [["US", "UK"], 0.17],
+    [["US", "DE"], 0.13],
+    [["US", "CA", "MX"], 0.08],
+  ],
   claim:
     "Figures interpolated from the Seller Central card on ecgwholesale.com: PRODUCT SALES 20.73M USD, “Last 12 months” (Feb 1, 2024 to the date shown), 59% up on the previous period. Scaled to 30 days by 30/365.",
   extraNotes: [
     "His site separately claims “$70M+ in sales over the past seven years”. That is a lifetime total with no window and is not what this page renders — the 12-month card is, because it states its period and shows its source.",
     "The 59% year-on-year growth his card reports is not visible here: this page shows one 30-day window, and the daily shape within it is illustrative.",
+    "🚨 The five businesses are a SHAPE this demo gives him, not one he published — his card is a single Seller Central account. The totals are his; only the split between the five, and the 1,000 SKUs, are ours.",
   ],
 });
 

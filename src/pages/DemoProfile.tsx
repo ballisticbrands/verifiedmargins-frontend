@@ -100,9 +100,22 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
         ? createPortal(
             <>
               {demo.group ? (
-                <Link data-demo-cta="" data-variant="quiet" to={demo.group.to}>
+                /* A plain <a target="_blank">, not a router <Link>. The icon
+                   PROMISES a new tab, so the control has to actually open one
+                   — an arrow-out-of-box over an in-place navigation is a small
+                   lie, and this page is a demo of a product about not telling
+                   those. `rel` set because target="_blank" without it hands
+                   the new tab a window.opener reference. */
+                <a
+                  data-demo-cta=""
+                  data-variant="quiet"
+                  href={demo.group.to}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {demo.group.label}
-                </Link>
+                  <ExternalIcon />
+                </a>
               ) : null}
               {demo.consultation ? (
                 <button type="button" data-demo-cta="" onClick={() => setBooking(true)}>
@@ -151,4 +164,29 @@ function useHostNode(selector: string, resetKey: string): HTMLElement | null {
     return () => window.clearInterval(id);
   }, [selector, resetKey]);
   return node;
+}
+
+/**
+ * The same glyph the shared page puts on its outbound profile links, redrawn
+ * here rather than imported: `frontend-shared` does not export it, and a demo
+ * control that says "new tab" in a different hand than every other link on the
+ * page reads as a different kind of control.
+ */
+function ExternalIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="12"
+      height="12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M14 4.5h5.5V10M19 5l-8 8" />
+      <path d="M18 14.5v4A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6h4" />
+    </svg>
+  );
 }

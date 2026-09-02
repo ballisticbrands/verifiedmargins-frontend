@@ -2296,6 +2296,9 @@ dialog[data-add-business]::backdrop {
   background: transparent;
   color: var(--foreground);
   text-decoration: none;
+  /* The label and its new-tab glyph, with the gap the shared page's own
+     outbound links use. */
+  gap: 0.4rem;
 }
 
 /* The group affiliation, under the header's business-count line. */
