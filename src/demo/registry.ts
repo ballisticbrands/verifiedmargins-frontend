@@ -17,6 +17,13 @@ import { thickValuable4753 } from "./fixtures/thick-valuable-4753";
 import { tomNomYyz } from "./fixtures/tomnomyyz";
 import { pureZookeepergame } from "./fixtures/pure-zookeepergame";
 import { leaderboard } from "./fixtures/leaderboard";
+import { ecgGroup } from "./fixtures/ecg-group";
+import {
+  danBoufford,
+  ecgCameron,
+  ecgDanny,
+  ecgUbaldo,
+} from "./fixtures/ecgwholesale";
 
 /**
  * `kind` picks WHICH page renders the fixture, and each kind's fixture answers
@@ -26,7 +33,7 @@ import { leaderboard } from "./fixtures/leaderboard";
  * button it has nowhere to put, or a profile builder from being called with a
  * leaderboard's axis. src/pages/Demo.tsx switches on it.
  */
-export type Demo = ProfileDemo | LeaderboardDemo;
+export type Demo = ProfileDemo | LeaderboardDemo | GroupDemo;
 
 /** A tag beside the name.
  *
@@ -95,6 +102,27 @@ export interface ProfileDemo extends DemoMeta {
 export interface LeaderboardDemo extends DemoMeta {
   kind: "leaderboard";
   build: LeaderboardBuilder;
+}
+
+/**
+ * 🚧 A GROUP — a coach, agency or mastermind and their people on one ranked
+ * page. The product has NO groups; this is the kind README.md reserves for a
+ * feature that does not exist yet, and it lives at /demo/group/<slug> rather
+ * than /demo/<slug> so a group can never collide with a seller's handle.
+ */
+export interface GroupDemo extends DemoMeta {
+  kind: "group";
+  /** Answers the leaderboard endpoint with just this group's members. */
+  build: LeaderboardBuilder;
+  /** Shown as the board's heading — the group's name, not the owner's. */
+  name: string;
+  /** One or two sentences on who these people are. */
+  description: string;
+  /** The owner's photo, beside the description. Served locally, never
+   *  hotlinked — see the note on afrasiab's. */
+  avatar_url?: string | null;
+  /** Where the group comes from, linked under the description. */
+  link?: string;
 }
 
 /** Case-insensitive: a handle carries its case ("Pure_Zookeepergame_2") but a
@@ -189,6 +217,59 @@ export const DEMOS: Record<string, Demo> = {
       "A Canada-only arbitrage-to-wholesale seller's first $50K month, at the conservative end of the margin range he claimed.",
     tags: STANDARD_TAGS,
     consultation: { price: "$150", minutes: 45, name: "TomNomYYZ" },
+  },
+
+  /* ── ecgwholesale.com — a coach and his students ───────────────────────
+     Not from Reddit: built from his own marketing pages. Nobody in this set
+     published a profit, so every one is verified_revenue with the margin
+     withheld, and the group board ranks on revenue. See the fixtures. */
+  danboufford: {
+    kind: "profile",
+    build: danBoufford,
+    label: "Dan Boufford — ECG Wholesale",
+    blurb:
+      "$1.7M a month off his own Seller Central card, with the margin honestly withheld. The owner of the group demo.",
+    tags: [{ label: "✓ Verified revenue", tone: "verified" }, ...STANDARD_TAGS.slice(1)],
+    consultation: { price: "$150", minutes: 45, name: "Dan Boufford" },
+  },
+  "ecg-danny": {
+    kind: "profile",
+    build: ecgDanny,
+    label: "Danny — ECG student",
+    blurb: "$171K in one month after switching to brand-direct.",
+    tags: [{ label: "✓ Verified revenue", tone: "verified" }, ...STANDARD_TAGS.slice(1)],
+    consultation: { price: "$150", minutes: 45, name: "Danny" },
+  },
+  "ecg-cameron": {
+    kind: "profile",
+    build: ecgCameron,
+    label: "Cameron — ECG student",
+    blurb: "$45K a month from a single exclusive brand, starting from nothing.",
+    tags: [{ label: "✓ Verified revenue", tone: "verified" }, ...STANDARD_TAGS.slice(1)],
+    consultation: { price: "$150", minutes: 45, name: "Cameron" },
+  },
+  "ecg-ubaldo": {
+    kind: "profile",
+    build: ecgUbaldo,
+    label: "Ubaldo — ECG student",
+    blurb: "$900 in his first month. The small end of a cohort, shown at its real size.",
+    tags: [{ label: "✓ Verified revenue", tone: "verified" }, ...STANDARD_TAGS.slice(1)],
+    consultation: { price: "$150", minutes: 45, name: "Ubaldo" },
+  },
+
+  /* 🚧 The GROUP demo — a feature the product does not have. Keyed under
+     `group/` so it can never collide with a seller's handle. */
+  "group/ecgwholesale": {
+    kind: "group",
+    build: ecgGroup,
+    label: "ECG Wholesale — group board",
+    blurb:
+      "A coach and his students on one ranked page. The group feature, which the product does not have yet.",
+    name: "ECG Wholesale",
+    description:
+      "Dan Boufford and the students of ecgwholesale.com, with every figure checked against what they published. Ranked by revenue over the last 30 days — the one number every member here made public.",
+    avatar_url: "/demo/dan-boufford.png",
+    link: "https://www.ecgwholesale.com/",
   },
 
   /* The front door with a populated board. `/leaderboard` against an empty or

@@ -1565,6 +1565,11 @@ const PAGES = [
   { route: "/demo/SlickyTrick", auth: false, name: "demo-slickytrick" },
   { route: "/demo/Thick-Valuable-4753", auth: false, name: "demo-chickenboy" },
   { route: "/demo/TomNomYYZ", auth: false, name: "demo-tomnom" },
+  { route: "/demo/danboufford", auth: false, name: "demo-dan" },
+  { route: "/demo/ecg-ubaldo", auth: false, name: "demo-ubaldo" },
+  /* 🚧 The group board — a feature that does not exist. Worth a shot every
+     build precisely because nothing else in the app exercises this page. */
+  { route: "/demo/group/ecgwholesale", auth: false, name: "demo-group-ecg" },
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab-scheduler", click: "[data-demo-cta]" },
   { route: "/demo/leaderboard", auth: false, name: "demo-leaderboard" },
   /* The second axis. Its rows are the SAME businesses rolled up differently,

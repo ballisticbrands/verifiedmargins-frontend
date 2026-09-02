@@ -16,6 +16,7 @@ import { Business } from "@/pages/Business";
 import { Valuation } from "@/pages/Valuation";
 import { Demo } from "./pages/Demo";
 import { DemoIndex } from "./pages/DemoIndex";
+import { DemoGroupRoute } from "./pages/DemoGroupRoute";
 import { ProfileRedirect } from "@/pages/ProfileRedirect";
 import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
@@ -154,6 +155,10 @@ export default function App() {
           BEFORE /:username: "demo" is a path segment, not a handle, and the
           two-segment shape would otherwise fall through to the catch-all. */}
       <Route path="/demo" element={<DemoIndex />} />
+      {/* 🚧 Group demos are two segments deep, so they need their own
+          route BEFORE /demo/:slug — otherwise "group" is read as a slug
+          and the index says there is no demo called "group". */}
+      <Route path="/demo/group/:slug" element={<DemoGroupRoute />} />
       <Route path="/demo/:slug" element={<Demo />} />
       {/* ONE business, rather than the seller's whole portfolio — the page the
           add-business wizard lands on and the natural thing to share. Two

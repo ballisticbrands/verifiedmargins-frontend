@@ -19,9 +19,32 @@ Demos may show features that do not exist yet. They are `noindex` and
 | --- | --- | --- | --- |
 | `profile` | `PublicProfilePage` | `(months, currency) => payload` | `/v1/public/profiles/:username` |
 | `leaderboard` | `Leaderboard` | `(mode, currency) => payload` | `/v1/public/leaderboard?by=&currency=` |
+| `group` | `Leaderboard`, under a group header | `(mode, currency) => payload` | `/v1/public/leaderboard?by=&currency=` |
 
-A third kind is a case in `Demo.tsx` and a component beside it — not a branch
+A further kind is a case in `Demo.tsx` and a component beside it — not a branch
 inside an existing demo page.
+
+### `group` — the one kind that shows a feature we do not have
+
+`/demo/group/<slug>` is a coach, agency or mastermind and their people on one
+ranked page. **The product has no groups**, so unlike every other demo there is
+no real page it could drift from.
+
+Three things it does differently, all of them deliberate:
+
+- **Two path segments**, so it needs its own `<Route>` (`DemoGroupRoute`) BEFORE
+  `/demo/:slug` — otherwise "group" is read as a slug — and its registry key
+  carries the prefix (`group/ecgwholesale`). A group can therefore never
+  collide with a seller's handle.
+- **It is still the real `Leaderboard`.** The board a group needs is the board
+  the product already has, pointed at a subset. Only the header above it is
+  demo-only, and it rides in through `banner` — the prop that exists because
+  `Leaderboard` renders its own `Shell`.
+- **It may rank by `revenue`.** The real board ranks by profit on purpose; a
+  group whose members published revenue and nothing else would render a column
+  of "—" in the rank order of nothing. A board has to rank on a number its rows
+  actually carry. That is the whole reason the `revenue` variant exists — see
+  the comment on `variant` in `src/pages/Leaderboard.tsx`.
 
 ## Adding one
 

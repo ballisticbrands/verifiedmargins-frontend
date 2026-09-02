@@ -175,8 +175,14 @@ export function Leaderboard({
    * because it is three conditionals rather than a fork, and because the
    * choice between ranking efficiency and ranking size is one worth being
    * able to reverse without a rewrite. Nothing renders it today.
+   *
+   * `revenue` — size, which the other two exist to avoid ranking. It is here
+   * for one case and should stay there: a GROUP whose members published
+   * revenue and nothing else (/demo/group/*). Ranking them on profit would be
+   * a column of "—" in the rank order of nothing, and ranking on margin the
+   * same. A board has to rank on a number its rows actually carry.
    */
-  variant?: "margin" | "profit";
+  variant?: "margin" | "profit" | "revenue";
   /**
    * Where a row's name links to, given its handle. Defaults to the real
    * public profile at `/<handle>`.
@@ -255,7 +261,12 @@ export function Leaderboard({
       <div className="vm-form vm-profile">
         <h1>Leaderboard</h1>
         <p>
-          {variant === "profit" ? (
+          {variant === "revenue" ? (
+            <>
+              Ranked by revenue over the last 30 days — the only figure every
+              member here published. Margin is shown where it was.
+            </>
+          ) : variant === "profit" ? (
             <>Ranked by profit over the last 30 days.</>
           ) : (
             <>
@@ -418,7 +429,23 @@ export function Leaderboard({
                     The label is what makes the pair readable, so it is not
                     decoration and is not dropped on a narrow screen. */}
                 <span data-board-figures="">
-                  {variant === "profit" ? (
+                  {variant === "revenue" ? (
+                    <>
+                      {/* Revenue leads, and margin follows as the context that
+                          stops a big number reading as a good one. Both render
+                          "—" honestly when the figure was never published. */}
+                      <span data-board-figure="">
+                        <small data-board-unit="">Revenue</small>
+                        <b data-metric="">{money(e.revenue, e.currency)}</b>
+                      </span>
+                      <span data-board-figure="">
+                        <small data-board-unit="">Margin</small>
+                        <span data-board-revenue="">
+                          {e.margin_pct === null ? "—" : `${e.margin_pct.toFixed(1)}%`}
+                        </span>
+                      </span>
+                    </>
+                  ) : variant === "profit" ? (
                     <>
                       {/* Profit leads; revenue stays as the size context that
                           makes a profit figure readable. */}

@@ -3,6 +3,7 @@ import { Shell } from "./Shell";
 import { findDemo } from "@/demo/registry";
 import { DemoProfile } from "./DemoProfile";
 import { DemoLeaderboard } from "./DemoLeaderboard";
+import { DemoGroup } from "./DemoGroup";
 
 /**
  * /demo/<slug> — picks the page a demo renders through.
@@ -35,5 +36,9 @@ export function Demo() {
   }
 
   if (demo.kind === "leaderboard") return <DemoLeaderboard slug={slug} demo={demo} />;
+  /* A group is reached at /demo/group/<slug> (DemoGroupRoute), never here —
+     but the union has three members, so this arm keeps the switch total and
+     stops a group registered under a bare key rendering as a profile. */
+  if (demo.kind === "group") return <DemoGroup demo={demo} />;
   return <DemoProfile slug={slug} demo={demo} />;
 }
