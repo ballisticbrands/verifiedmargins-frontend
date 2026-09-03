@@ -1575,6 +1575,8 @@ const PAGES = [
   /* 🚧 The group board — a feature that does not exist. Worth a shot every
      build precisely because nothing else in the app exercises this page. */
   { route: "/demo/g/ecgwholesale", auth: false, name: "demo-group-ecg" },
+  { route: "/demo/g/passionatenetwork", auth: false, name: "demo-group-pn" },
+  { route: "/demo/Much-Experience-4197", auth: false, name: "demo-ahad" },
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab-scheduler", click: "[data-demo-cta]" },
   { route: "/demo/leaderboard", auth: false, name: "demo-leaderboard" },
   /* The second axis. Its rows are the SAME businesses rolled up differently,

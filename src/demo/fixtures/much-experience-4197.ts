@@ -131,7 +131,11 @@ export function muchExperience4197(months: number, currency: string) {
        already yours" cannot carry a placeholder where the bio goes. */
     bio: "Cofounder at Passionate Network an Amazon service provider agency.",
     avatar_url: null,
-    website_url: null,
+    /* His agency, supplied by the user and verified to resolve (2026-09-04).
+       passionatenetwork.COM — the one a search turns up — has no DNS at all,
+       which is exactly why a website on a real person's profile gets checked
+       rather than guessed. The shared page renders this as "Visit website". */
+    website_url: "https://passionatenetwork.net/",
     socials: { reddit: "https://www.reddit.com/user/Much-Experience-4197/" },
     seller_type: "private_label",
     type: "seller",

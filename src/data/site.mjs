@@ -100,6 +100,11 @@ export const DEMO_PAGES = [
   /* 🚧 A GROUP board — a feature the product does not have. Two path
      segments, so it needs its own <Route> in App.tsx as well as this stub. */
   '/demo/g/ecgwholesale',
+  '/demo/af-04812',
+  '/demo/af-27193',
+  '/demo/af-61207',
+  '/demo/af-83540',
+  '/demo/g/passionatenetwork',
   /* The front door with a board on it. NOT a duplicate of '/leaderboard' in
    * PUBLIC_PAGES above: that one is the real page and is indexable on
    * purpose, this one is the same page over invented figures and must carry

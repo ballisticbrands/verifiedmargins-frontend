@@ -19,6 +19,13 @@ import { pureZookeepergame } from "./fixtures/pure-zookeepergame";
 import { leaderboard } from "./fixtures/leaderboard";
 import { ecgGroup } from "./fixtures/ecg-group";
 import {
+  passionateNetworkGroup,
+  pnMember1,
+  pnMember2,
+  pnMember3,
+  pnMember4,
+} from "./fixtures/passionate-network";
+import {
   danBoufford,
   ecgCameron,
   ecgDanny,
@@ -176,6 +183,52 @@ export interface GroupDemo extends DemoMeta {
   link?: string;
 }
 
+/**
+ * The three-product consult menu, which three demos now carry.
+ *
+ * A factory rather than a third copy of the same literal: the prices are
+ * per-person but the WORDING is not, and pasted copies drift — one grows a
+ * sub-line the others lack, another keeps saying "Send question" on a
+ * subscription. Prices stay at each call site, because they are the part
+ * genuinely about that seller.
+ */
+function consultMenu(args: {
+  /** The name the page shows; the heading and the dialog both use it. */
+  name: string;
+  deepDive: string;
+  oneOff: string;
+  ongoing: string;
+  /** "Ongoing consultancy" for most; TomNomYYZ sells mentorship. */
+  ongoingLabel?: string;
+}): NonNullable<ProfileDemo["ask"]> {
+  const label = args.ongoingLabel ?? "Ongoing consultancy";
+  return {
+    name: args.name,
+    heading: `Consult with ${args.name}`,
+    items: [
+      {
+        q: "Product deep dive",
+        /* The question it answers, in a prospect's words. "Deep dive" is the
+           product name; this is what somebody is actually buying. */
+        note: "Is this product worth pursuing?",
+        price: args.deepDive,
+      },
+      { q: "One time question", price: args.oneOff },
+      {
+        q: label,
+        price: args.ongoing,
+        note: "Priority DMs, cancel anytime",
+        /* 🚨 Per ITEM: "Send question — $190/mo" is nonsense on a subscription,
+           and the confirmation has to answer what "cancel anytime" raises. */
+        cta: `Start ${label.replace(/^Ongoing /, "")} — ${args.ongoing}`,
+        sentHeading: "You're in",
+        sentLine:
+          "Your DMs go to the top of their list from now on. Cancel whenever — access runs to the end of the month you have paid for.",
+      },
+    ],
+  };
+}
+
 /** Case-insensitive: a handle carries its case ("Pure_Zookeepergame_2") but a
  *  URL gets typed, and a demo that 404s on the wrong shift key is a demo you
  *  cannot hand to anyone. */
@@ -214,27 +267,12 @@ export const DEMOS: Record<string, Demo> = {
        No rating or consultation count here, unlike TomNomYYZ. Those figures are
        invented, and inventing a second set unasked is how a page stops being
        about what its subject published. */
-    ask: {
+    ask: consultMenu({
       name: "boringfixesguy",
-      heading: "Consult with boringfixesguy",
-      items: [
-        {
-          q: "Product deep dive",
-          note: "Is this product worth pursuing?",
-          price: "$50",
-        },
-        { q: "One time question", price: "$30" },
-        {
-          q: "Ongoing consultancy",
-          price: "$190/mo",
-          note: "Priority DMs, cancel anytime",
-          cta: "Start consultancy — $190/mo",
-          sentHeading: "You're in",
-          sentLine:
-            "Your DMs go to the top of his list from now on. Cancel whenever — access runs to the end of the month you have paid for.",
-        },
-      ],
-    },
+      deepDive: "$50",
+      oneOff: "$30",
+      ongoing: "$190/mo",
+    }),
   },
   /* ── Built from public Reddit posts, one per person ────────────────────
      Every figure is the poster's own, with their own caveats; see each
@@ -257,7 +295,18 @@ export const DEMOS: Record<string, Demo> = {
     blurb:
       "A first private-label launch five months in: small numbers, verified margin, a real Sellerboard screenshot behind them.",
     tags: STANDARD_TAGS,
-    consultation: { price: "$150", minutes: 45, name: "Ahad" },
+    groupTag: "g/passionatenetwork",
+    group: { to: "/demo/g/passionatenetwork", label: "Passionate Network group" },
+    /* 🚩 Replaces his $150 booking CTA, like boringfixesguy's — two controls
+       both reading "paid consultation" at two prices, one opening a calendar
+       and one selling a subscription, is a choice no reader should face.
+       Same prices as boringfixesguy, which was the instruction. */
+    ask: consultMenu({
+      name: "Ahad",
+      deepDive: "$50",
+      oneOff: "$30",
+      ongoing: "$190/mo",
+    }),
   },
   Sirsolrac36: {
     kind: "profile",
@@ -310,34 +359,16 @@ export const DEMOS: Record<string, Demo> = {
        A menu of questions he has no standing to answer would be the profile
        overselling him, which on this site is the whole failure mode. */
     ask: {
-      name: "TomNomYYZ",
-      heading: "Consult with TomNomYYZ",
+      ...consultMenu({
+        name: "TomNomYYZ",
+        deepDive: "$20",
+        oneOff: "$10",
+        ongoing: "$100/mo",
+        ongoingLabel: "Ongoing mentorship",
+      }),
       /* 🚨 Invented — see the field's comment. He has sold nothing through us. */
       rating: 4.7,
       consultations: 53,
-      /* Three products, not six questions. The middle one is the cheap way in,
-         the first is the considered piece of work, and the third is the only
-         recurring thing on the page — so the prices climb with how much of his
-         time each actually costs him. */
-      items: [
-        {
-          q: "Product deep dive",
-          /* The question it answers, in his prospect's words. "Deep dive" is
-             the product name; this is what somebody is actually buying. */
-          note: "Is this product worth pursuing?",
-          price: "$20",
-        },
-        { q: "One time question", price: "$10" },
-        {
-          q: "Ongoing mentorship",
-          price: "$100/mo",
-          note: "Priority DMs, cancel anytime",
-          cta: "Start mentorship — $100/mo",
-          sentHeading: "You're in",
-          sentLine:
-            "Your DMs go to the top of his list from now on. Cancel whenever — access runs to the end of the month you have paid for.",
-        },
-      ],
     },
   },
 
@@ -396,6 +427,57 @@ export const DEMOS: Record<string, Demo> = {
     tags: [{ label: "✓ Verified margins", tone: "verified" }],
     groupTag: "g/ecgwholesale",
     group: { to: "/demo/g/ecgwholesale", label: "ECG Wholesale group" },
+  },
+
+  /* ── Passionate Network — Ahad's agency, and the businesses it manages ──
+     🚨 The members are ANONYMOUS and every figure is invented: he publishes no
+     client list, and inventing four plausible sellers to fill his board would
+     be fabricating people. See the fixture's header. */
+  "af-04812": {
+    kind: "profile",
+    build: pnMember1,
+    label: "Anonymous founder 04812",
+    blurb: "A managed business whose owner has not claimed it — the anonymous shape.",
+    tags: [{ label: "✓ Verified margins", tone: "verified" }],
+    groupTag: "g/passionatenetwork",
+    group: { to: "/demo/g/passionatenetwork", label: "Passionate Network group" },
+  },
+  "af-27193": {
+    kind: "profile",
+    build: pnMember2,
+    label: "Anonymous founder 27193",
+    blurb: "A managed business whose owner has not claimed it.",
+    tags: [{ label: "✓ Verified margins", tone: "verified" }],
+    groupTag: "g/passionatenetwork",
+    group: { to: "/demo/g/passionatenetwork", label: "Passionate Network group" },
+  },
+  "af-61207": {
+    kind: "profile",
+    build: pnMember3,
+    label: "Anonymous founder 61207",
+    blurb: "A managed business whose owner has not claimed it.",
+    tags: [{ label: "✓ Verified margins", tone: "verified" }],
+    groupTag: "g/passionatenetwork",
+    group: { to: "/demo/g/passionatenetwork", label: "Passionate Network group" },
+  },
+  "af-83540": {
+    kind: "profile",
+    build: pnMember4,
+    label: "Anonymous founder 83540",
+    blurb: "The smallest business on the Passionate Network board.",
+    tags: [{ label: "✓ Verified margins", tone: "verified" }],
+    groupTag: "g/passionatenetwork",
+    group: { to: "/demo/g/passionatenetwork", label: "Passionate Network group" },
+  },
+  "g/passionatenetwork": {
+    kind: "group",
+    build: passionateNetworkGroup,
+    label: "Passionate Network — group board",
+    blurb: "An agency and the businesses it manages, four of them still unclaimed and anonymous.",
+    name: "Passionate Network",
+    description:
+      "Ahad and the Amazon businesses Passionate Network manages. Four of them have not claimed their profiles yet, so they are listed anonymously — the shape an agency's board takes before its clients sign up.",
+    link: "https://passionatenetwork.net/",
   },
 
   /* 🚧 The GROUP demo — a feature the product does not have. Keyed under
