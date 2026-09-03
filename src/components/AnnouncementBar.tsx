@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const STORAGE_KEY = "vm_announcement_dismissed_v2";
+const STORAGE_KEY = "vm_announcement_dismissed_v1";
 
 /**
  * Site-wide anonymity notice.
@@ -14,14 +14,9 @@ const STORAGE_KEY = "vm_announcement_dismissed_v2";
  * audience this is written for — still always see it; only people who have read
  * it and closed it get it out of the way.
  *
- * 🔑 The key is versioned (`…_v2`). If the wording ever changes materially,
+ * 🔑 The key is versioned (`…_v1`). If the wording ever changes materially,
  * bump it so people who dismissed the old notice are shown the new one instead
  * of having it silently suppressed forever.
- *
- * v1 → v2: the notice went from "no brand-identifying information" to naming
- * the fear it is actually answering — that publishing your numbers hands a
- * competitor a map — and added that the niche is not revealed either. That is
- * a bigger promise than v1 made, so anyone who dismissed v1 has not read it.
  *
  * Coloured with --verified-tint / --verified rather than a warning palette:
  * this is reassurance, not a caution. 6.0:1, per the token comment in
@@ -53,10 +48,9 @@ export function AnnouncementBar() {
   return (
     <div data-announcement="" role="note">
       <p>
-        VerifiedMargins.com will <strong>NEVER</strong> post information that
-        will allow or incentivize others to compete with your business. All
-        information is completely anonymous and does not reveal your niche.
-        Only the raw numbers are shared.
+        VerifiedMargins.com will <strong>NEVER</strong> post brand-identifying
+        information. All information is completely anonymous. Only the raw
+        numbers are shared.
       </p>
       <button
         type="button"
