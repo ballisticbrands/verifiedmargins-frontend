@@ -219,7 +219,7 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
 
 
 /**
- * A slot of our own, inserted directly after the profile header.
+ * A slot of our own, inserted where the bio ends.
  *
  * 🚨 NOT a portal into `[data-profile-head]`. That element is `display: flex`
  * with the identity block and the actions column as its two items — appending
@@ -241,11 +241,18 @@ function useBioSlot(resetKey: string): HTMLElement | null {
     let tries = 0;
     let slot: HTMLElement | null = null;
     const id = window.setInterval(() => {
-      const head = document.querySelector<HTMLElement>("[data-profile-head]");
-      if (head?.parentElement) {
+      /* 🚨 AFTER the bio when there is one, after the header when there is
+         not. TomNomYYZ has no bio, so anchoring on the header looked right —
+         until this ran on a profile that does (Pure_Zookeepergame_2), where it
+         inserted the menu ABOVE the seller's own words and the two collided.
+         Both nodes come from the same render, so whichever exists is the right
+         anchor at the moment the header appears. */
+      const bio = document.querySelector<HTMLElement>("[data-profile-bio]");
+      const anchor = bio ?? document.querySelector<HTMLElement>("[data-profile-head]");
+      if (anchor?.parentElement) {
         slot = document.createElement("div");
         slot.setAttribute("data-demo-bio-slot", "");
-        head.parentElement.insertBefore(slot, head.nextSibling);
+        anchor.parentElement.insertBefore(slot, anchor.nextSibling);
         setNode(slot);
         window.clearInterval(id);
       } else if (++tries > 60) {

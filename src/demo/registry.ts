@@ -202,9 +202,39 @@ export const DEMOS: Record<string, Demo> = {
     blurb: "Built from their own r/AmazonFBA post. The outreach shape: one seller, their real handle, bio and figures.",
     tags: STANDARD_TAGS,
     /* The display name, not the handle — it is what the page shows, and a
-       booking dialog that addresses you by a different name than the profile
-       above it reads as a different person. */
-    consultation: { price: "$150", minutes: 45, name: "boringfixesguy" },
+       dialog that addresses you by a different name than the profile above it
+       reads as a different person.
+
+       🚩 This REPLACES his $150 booking CTA rather than sitting beside it. Two
+       controls that both read "paid consultation", at two different prices, ask
+       a reader to work out which one they want — and one of them opens a
+       calendar while the other sells a subscription. Priced well above
+       TomNomYYZ: he is the $765K seller of the two.
+
+       No rating or consultation count here, unlike TomNomYYZ. Those figures are
+       invented, and inventing a second set unasked is how a page stops being
+       about what its subject published. */
+    ask: {
+      name: "boringfixesguy",
+      heading: "Consult with boringfixesguy",
+      items: [
+        {
+          q: "Product deep dive",
+          note: "Is this product worth pursuing?",
+          price: "$50",
+        },
+        { q: "One time question", price: "$30" },
+        {
+          q: "Ongoing consultancy",
+          price: "$190/mo",
+          note: "Priority DMs, cancel anytime",
+          cta: "Start consultancy — $190/mo",
+          sentHeading: "You're in",
+          sentLine:
+            "Your DMs go to the top of his list from now on. Cancel whenever — access runs to the end of the month you have paid for.",
+        },
+      ],
+    },
   },
   /* ── Built from public Reddit posts, one per person ────────────────────
      Every figure is the poster's own, with their own caveats; see each

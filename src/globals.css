@@ -2213,7 +2213,9 @@ dialog[data-add-business]::backdrop {
    would be, and it has to share one screenshot with the avatar and the chart —
    that screenshot is the thing actually sent to the person the profile is
    about, so anything that pushes the chart below the fold defeats the page. */
-[data-demo-ask] { margin: 0.75rem 0 0; }
+/* Room on BOTH sides: this sits between a bio and a divider on a profile
+   that has one, and touching either reads as a layout fault. */
+[data-demo-ask] { margin: 0.9rem 0 0.2rem; }
 [data-demo-ask-head] {
   display: flex;
   flex-wrap: wrap;
