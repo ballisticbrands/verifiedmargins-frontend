@@ -114,7 +114,12 @@ interface BusinessValuation {
 interface DeepDiveTeaser {
   teaser: string;
   sentences: number;
-  locked: true;
+  locked: boolean;
+  /* 🚧 TEMPORARY. Present only for the one business whose deep dive the
+     backend publishes in full to everyone (PUBLICLY_UNLOCKED_DEEP_DIVE in
+     services/profiles/public-business.ts). Every other business sends the
+     teaser and nothing else. Remove with the constant. */
+  text?: string;
 }
 
 interface BusinessPayload {
@@ -1104,18 +1109,24 @@ function DeepDiveSection({
      yet. Two sentences and a button is enough to offer the rest. */
   const [expanded, setExpanded] = useState(false);
 
-  const unlocked = isOwner || tier === 2;
+  /* 🚧 TEMPORARY: the payload can arrive already unlocked for one hard-coded
+     business, so anyone — signed out included — reads the whole paragraph.
+     `teaser.text` only exists in that case; see the note on DeepDiveTeaser.
+     Remove this clause along with the backend constant. */
+  const publiclyOpen = teaser?.locked === false && Boolean(teaser.text);
+  const unlocked = isOwner || tier === 2 || publiclyOpen;
 
   /* Fetched only when it is actually theirs to read. A locked reader never
      issues this request, and if they forged one the server answers 403. */
   useEffect(() => {
-    if (!teaser || !unlocked) return;
+    // Nothing to fetch when the payload already carried the whole thing.
+    if (!teaser || !unlocked || publiclyOpen) return;
     let cancelled = false;
     apiFetch<{ text: string }>(`/v1/businesses/${slug}/deep-dive`)
       .then((r) => { if (!cancelled) setFull(r.text); })
       .catch(() => { /* Leave the teaser standing; it is still true. */ });
     return () => { cancelled = true; };
-  }, [slug, teaser, unlocked]);
+  }, [slug, teaser, unlocked, publiclyOpen]);
 
   if (!teaser) return null;
 
@@ -1137,9 +1148,9 @@ function DeepDiveSection({
     <section data-deep-dive="">
       <h2 data-facts-legend="">Business deep-dive</h2>
       <p data-deep-dive-text="" data-clamped={expanded ? undefined : ""}>
-        {full ?? teaser.teaser}
+        {full ?? teaser.text ?? teaser.teaser}
       </p>
-      {full ? (
+      {full ?? teaser.text ? (
         <button type="button" data-deep-dive-toggle="" onClick={() => setExpanded((e) => !e)}>
           {expanded ? "Collapse" : "Expand"}
         </button>
