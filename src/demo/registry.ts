@@ -112,6 +112,19 @@ export interface ProfileDemo extends DemoMeta {
      *  One field for both on purpose: a dialog titled differently from the
      *  section it opened from reads as a different feature. */
     heading?: string;
+    /**
+     * 🚨 INVENTED SOCIAL PROOF, shown beside the heading — a star rating out of
+     * 5 and a count of consultations delivered.
+     *
+     * Nobody in this demo set has ever sold a consultation through us, because
+     * the feature does not exist. These are the same class of figure as
+     * GROUP_MARGIN_PCT: made up, about a real person, and therefore declared
+     * where somebody will see them rather than buried in a fixture. The page's
+     * "Illustrative figures" banner is what makes them defensible, and the
+     * ledger records them.
+     */
+    rating?: number;
+    consultations?: number;
     items: Array<{ q: string; price: string }>;
   };
   /** A link to the GROUP this seller belongs to, rendered as a button ABOVE
@@ -258,6 +271,9 @@ export const DEMOS: Record<string, Demo> = {
     ask: {
       name: "TomNomYYZ",
       heading: "Consult with TomNomYYZ",
+      /* 🚨 Invented — see the field's comment. He has sold nothing through us. */
+      rating: 4.7,
+      consultations: 53,
       items: [
         { q: "Is my product worth pursuing?", price: "$20" },
         { q: "Will this RA/OA deal still make money after Amazon's fees?", price: "$20" },

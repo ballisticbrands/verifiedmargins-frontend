@@ -107,7 +107,37 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
       {bioSlot && demo.ask
         ? createPortal(
             <section data-demo-ask="">
-              <p data-demo-ask-head="">{demo.ask.heading ?? `Ask ${demo.ask.name}`}</p>
+              <p data-demo-ask-head="">
+                <strong>{demo.ask.heading ?? `Ask ${demo.ask.name}`}</strong>
+                {demo.ask.rating !== undefined ? (
+                  <span data-demo-ask-rating="">
+                    {/* Two stacked star rows, the filled one clipped to the
+                        score — so 4.7 renders as 4.7 stars rather than as five
+                        stars with a number beside them contradicting the
+                        fifth. aria-label carries the value for anyone who
+                        cannot see the clip. */}
+                    <span
+                      data-demo-stars=""
+                      style={{ "--pct": `${(demo.ask.rating / 5) * 100}%` } as React.CSSProperties}
+                      role="img"
+                      aria-label={`${demo.ask.rating} out of 5`}
+                    >
+                      <span data-demo-stars-bg="" aria-hidden="true">
+                        ★★★★★
+                      </span>
+                      <span data-demo-stars-fill="" aria-hidden="true">
+                        ★★★★★
+                      </span>
+                    </span>
+                    <span data-demo-ask-score="">{demo.ask.rating}</span>
+                    {demo.ask.consultations !== undefined ? (
+                      <span data-demo-ask-count="">
+                        · {demo.ask.consultations} consultations done
+                      </span>
+                    ) : null}
+                  </span>
+                ) : null}
+              </p>
               <ul>
                 {demo.ask.items.map((item) => (
                   <li key={item.q}>
