@@ -6,6 +6,8 @@ import { Shell } from "./Shell";
 import { useCurrency } from "@/currency";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import type { ProfileDemo } from "@/demo/registry";
+
+type AskItem = NonNullable<ProfileDemo["ask"]>["items"][number];
 import { DemoBanner, useDemoFetch, useDemoMeta } from "@/demo/harness";
 import { ConsultationModal } from "@/demo/ConsultationModal";
 import { AskModal } from "@/demo/AskModal";
@@ -23,7 +25,9 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
   const brand = useBrand();
   const { currency } = useCurrency();
   const [booking, setBooking] = useState(false);
-  const [asking, setAsking] = useState<{ q: string; price: string } | null>(null);
+  /* Derived from the registry rather than restated: a hand-written twin of
+     this shape went stale the moment an item grew per-item CTA copy. */
+  const [asking, setAsking] = useState<AskItem | null>(null);
 
   useDemoFetch((url) => {
     if (!url.pathname.includes(`/v1/public/profiles/${slug}`)) return undefined;
@@ -142,8 +146,11 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
                 {demo.ask.items.map((item) => (
                   <li key={item.q}>
                     <button type="button" onClick={() => setAsking(item)}>
-                      <span data-demo-ask-q="">{item.q}</span>
-                      <span data-demo-ask-price="">{item.price}</span>
+                      <span data-demo-ask-row="">
+                        <span data-demo-ask-q="">{item.q}</span>
+                        <span data-demo-ask-price="">{item.price}</span>
+                      </span>
+                      {item.note ? <span data-demo-ask-note="">{item.note}</span> : null}
                     </button>
                   </li>
                 ))}
@@ -192,6 +199,9 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
           heading={demo.ask.heading}
           question={asking.q}
           priceLabel={asking.price}
+          cta={asking.cta}
+          sentHeading={asking.sentHeading}
+          sentLine={asking.sentLine}
           onClose={() => setAsking(null)}
         />
       ) : null}

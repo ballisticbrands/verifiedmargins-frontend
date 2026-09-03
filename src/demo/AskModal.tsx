@@ -21,10 +21,25 @@ export interface AskModalProps {
   heading?: string;
   question: string;
   priceLabel: string;
+  /** 🚨 Per ITEM, because "Send question — $100/mo" is nonsense on a
+   *  subscription. A menu that sells more than one KIND of thing cannot share
+   *  one verb. */
+  cta?: string;
+  sentHeading?: string;
+  sentLine?: string;
   onClose: () => void;
 }
 
-export function AskModal({ name, heading, question, priceLabel, onClose }: AskModalProps) {
+export function AskModal({
+  name,
+  heading,
+  question,
+  priceLabel,
+  cta,
+  sentHeading,
+  sentLine,
+  onClose,
+}: AskModalProps) {
   const [sent, setSent] = useState(false);
   const [detail, setDetail] = useState("");
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -56,7 +71,7 @@ export function AskModal({ name, heading, question, priceLabel, onClose }: AskMo
         onClick={(e) => e.stopPropagation()}
       >
         <div data-demo-modal-head="">
-          <h2>{sent ? "Question sent" : title}</h2>
+          <h2>{sent ? (sentHeading ?? "Question sent") : title}</h2>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Close">
             ×
           </button>
@@ -66,8 +81,8 @@ export function AskModal({ name, heading, question, priceLabel, onClose }: AskMo
           <div data-demo-booked="">
             <p data-demo-booked-line="">{question}</p>
             <p>
-              {first} answers in writing, usually within a day or two. You are charged only
-              when the answer lands — if he passes on the question, you are not.
+              {sentLine ??
+                `${first} answers in writing, usually within a day or two. You are charged only when the answer lands — if he passes on the question, you are not.`}
             </p>
             <button type="button" data-demo-primary="" onClick={onClose}>
               Done
@@ -91,7 +106,7 @@ export function AskModal({ name, heading, question, priceLabel, onClose }: AskMo
               placeholder="Your product, your numbers, what you have already tried…"
             />
             <button type="button" data-demo-primary="" onClick={() => setSent(true)}>
-              Send question — {priceLabel}
+              {cta ?? `Send question — ${priceLabel}`}
             </button>
             <p data-demo-disclaimer="">Demo only. No payment is taken.</p>
           </>

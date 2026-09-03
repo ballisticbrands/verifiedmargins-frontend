@@ -1565,10 +1565,11 @@ const PAGES = [
   { route: "/demo/SlickyTrick", auth: false, name: "demo-slickytrick" },
   { route: "/demo/Thick-Valuable-4753", auth: false, name: "demo-chickenboy" },
   { route: "/demo/TomNomYYZ", auth: false, name: "demo-tomnom" },
-  /* The "Ask" dialog. A priced question menu is a feature the product does
-     not have, so nothing else in the app exercises this dialog. */
+  /* The consult dialog, on the MENTORSHIP item — the one that overrides the
+     button and the confirmation. "Send question — $100/mo" is the failure this
+     shot exists to catch, and the default-wording items cannot show it. */
   { route: "/demo/TomNomYYZ", auth: false, name: "demo-tomnom-ask",
-    click: "[data-demo-ask] li:first-child button" },
+    click: "[data-demo-ask] li:nth-child(3) button" },
   { route: "/demo/danboufford", auth: false, name: "demo-dan" },
   { route: "/demo/ecg-ubaldo", auth: false, name: "demo-ubaldo" },
   /* 🚧 The group board — a feature that does not exist. Worth a shot every

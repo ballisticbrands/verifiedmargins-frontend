@@ -125,7 +125,18 @@ export interface ProfileDemo extends DemoMeta {
      */
     rating?: number;
     consultations?: number;
-    items: Array<{ q: string; price: string }>;
+    items: Array<{
+      q: string;
+      price: string;
+      /** A second line under the name — terms, or what is included. */
+      note?: string;
+      /** The dialog's button. Defaults to "Send question — <price>", which is
+       *  wrong for anything that is not a one-off question. */
+      cta?: string;
+      /** The dialog's confirmation, for the same reason. */
+      sentHeading?: string;
+      sentLine?: string;
+    }>;
   };
   /** A link to the GROUP this seller belongs to, rendered as a button ABOVE
    *  the consultation CTA. The admin's own profile carries it too — a group
@@ -274,13 +285,22 @@ export const DEMOS: Record<string, Demo> = {
       /* 🚨 Invented — see the field's comment. He has sold nothing through us. */
       rating: 4.7,
       consultations: 53,
+      /* Three products, not six questions. The middle one is the cheap way in,
+         the first is the considered piece of work, and the third is the only
+         recurring thing on the page — so the prices climb with how much of his
+         time each actually costs him. */
       items: [
-        { q: "Is my product worth pursuing?", price: "$20" },
-        { q: "Will this RA/OA deal still make money after Amazon's fees?", price: "$20" },
-        { q: "I have $10K to start. Is that enough, and where should it go?", price: "$25" },
-        { q: "Can I run this from home, or do I need a prep centre?", price: "$25" },
-        { q: "Amazon.ca or Amazon.com — which should I start in?", price: "$30" },
-        { q: "How do I land my first wholesale account?", price: "$50" },
+        { q: "Product deep dive", price: "$20" },
+        { q: "One time question", price: "$10" },
+        {
+          q: "Ongoing mentorship",
+          price: "$100/mo",
+          note: "Priority DMs, cancel anytime",
+          cta: "Start mentorship — $100/mo",
+          sentHeading: "You're in",
+          sentLine:
+            "Your DMs go to the top of his list from now on. Cancel whenever — access runs to the end of the month you have paid for.",
+        },
       ],
     },
   },

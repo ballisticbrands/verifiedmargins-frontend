@@ -2270,9 +2270,9 @@ dialog[data-add-business]::backdrop {
 [data-demo-ask] li { margin: 0; }
 [data-demo-ask] li button {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.15rem;
   width: 100%;
   height: 100%;
   padding: 0.35rem 0.5rem;
@@ -2288,6 +2288,17 @@ dialog[data-add-business]::backdrop {
 }
 [data-demo-ask] li button:hover {
   background: color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+/* Name and price on one line; the terms, where there are any, beneath. */
+[data-demo-ask-row] {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+[data-demo-ask-note] {
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
 }
 [data-demo-ask-price] {
   flex: 0 0 auto;
