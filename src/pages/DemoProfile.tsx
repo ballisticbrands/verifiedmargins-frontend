@@ -40,6 +40,11 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
    * before that. */
   const actionsRow = useHostNode("[data-profile-actions-row]", slug);
   const identity = useHostNode("[data-profile-identity] h1", slug);
+  /* Where the BIO renders — a slot we insert directly after the header, inside
+     <main>. The ask menu goes here rather than at the foot of the page: it is
+     what this profile is selling, and a seller with no bio (TomNomYYZ has
+     none) otherwise has a hole exactly where a reader looks first. */
+  const bioSlot = useBioSlot(slug);
 
   return (
     <Shell width="profile">
@@ -68,27 +73,6 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
           }
 
         />
-        {/* 🚧 "Ask <name>" — a priced question menu, and a feature the product
-            does not have. A plain sibling rather than a portal: it is a
-            SECTION of its own, not a control belonging in one of the shared
-            page's slots, so it wants the bottom of the column and no host
-            node to poll for. */}
-        {demo.ask ? (
-          <section data-demo-ask="">
-            <h2>{demo.ask.heading ?? `Ask ${demo.ask.name}`}</h2>
-            {demo.ask.blurb ? <p data-demo-ask-blurb="">{demo.ask.blurb}</p> : null}
-            <ul>
-              {demo.ask.items.map((item) => (
-                <li key={item.q}>
-                  <button type="button" onClick={() => setAsking(item)}>
-                    <span data-demo-ask-q="">{item.q}</span>
-                    <span data-demo-ask-price="">{item.price}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
       </div>
       {identity && demo.tags?.length
         ? createPortal(
@@ -113,6 +97,32 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
               {demo.groupTag}
             </Link>,
             identity.parentElement,
+          )
+        : null}
+      {/* 🚧 The priced question menu — a feature the product does not have.
+          Portalled into the header so it sits where the bio does, and laid out
+          in columns so six questions cost a few lines rather than a scroll:
+          this block, the picture and the chart have to fit in ONE screenshot,
+          because the screenshot is what gets sent to the person it is about. */}
+      {bioSlot && demo.ask
+        ? createPortal(
+            <section data-demo-ask="">
+              <p data-demo-ask-head="">
+                <strong>{demo.ask.heading ?? `Ask ${demo.ask.name}`}</strong>
+                {demo.ask.blurb ? <span>{demo.ask.blurb}</span> : null}
+              </p>
+              <ul>
+                {demo.ask.items.map((item) => (
+                  <li key={item.q}>
+                    <button type="button" onClick={() => setAsking(item)}>
+                      <span data-demo-ask-q="">{item.q}</span>
+                      <span data-demo-ask-price="">{item.price}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>,
+            bioSlot,
           )
         : null}
       {/* Both CTAs in ONE portal so their order is ours: the group link sits
@@ -170,6 +180,50 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
   );
 }
 
+
+/**
+ * A slot of our own, inserted directly after the profile header.
+ *
+ * 🚨 NOT a portal into `[data-profile-head]`. That element is `display: flex`
+ * with the identity block and the actions column as its two items — appending
+ * a third made the menu a column of its own and squeezed the name behind the
+ * Share button. The bio is not in the header either; it is a sibling of it
+ * inside <main> (see the `main > p` selector in globals.css and the comment
+ * above it), so landing in the bio's position means inserting a node THERE
+ * rather than appending anywhere convenient.
+ *
+ * Creating a DOM node by hand is the smaller evil against the alternatives:
+ * forking the shared page for a demo-only slot, or appending to <main> and
+ * having the menu render below the business cards, which is the placement this
+ * change exists to get away from.
+ */
+function useBioSlot(resetKey: string): HTMLElement | null {
+  const [node, setNode] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setNode(null);
+    let tries = 0;
+    let slot: HTMLElement | null = null;
+    const id = window.setInterval(() => {
+      const head = document.querySelector<HTMLElement>("[data-profile-head]");
+      if (head?.parentElement) {
+        slot = document.createElement("div");
+        slot.setAttribute("data-demo-bio-slot", "");
+        head.parentElement.insertBefore(slot, head.nextSibling);
+        setNode(slot);
+        window.clearInterval(id);
+      } else if (++tries > 60) {
+        window.clearInterval(id);
+      }
+    }, 50);
+    return () => {
+      window.clearInterval(id);
+      /* StrictMode mounts twice in dev; without this the first slot is left
+         orphaned in the DOM and the menu renders into the second one only. */
+      slot?.remove();
+    };
+  }, [resetKey]);
+  return node;
+}
 
 /**
  * A node inside the shared page, once it exists.
