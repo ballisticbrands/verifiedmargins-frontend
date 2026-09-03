@@ -2208,6 +2208,69 @@ dialog[data-add-business]::backdrop {
   white-space: nowrap;
 }
 
+/* ── "Ask <seller>" — a priced question menu ──────────────────────────
+   🚧 Demo-only. Rows are buttons, because each one opens the compose dialog;
+   the price is right-aligned in its own column so a reader can scan what
+   things cost down the page instead of hunting for it at the end of six
+   sentences of different lengths. */
+[data-demo-ask] {
+  margin: 2rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border, rgba(127, 127, 127, 0.2));
+}
+[data-demo-ask] h2 { margin: 0 0 0.25rem; font-size: 1.05rem; }
+[data-demo-ask-blurb] {
+  margin: 0 0 0.9rem;
+  font-size: 0.88rem;
+  color: var(--muted-foreground);
+}
+[data-demo-ask] ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+/* The grid gap is the ONLY spacing between rows. `.vm-form li` carries a
+   margin for prose lists, which stacked on top of the gap and left the menu
+   looking like six unrelated cards rather than one list. */
+[data-demo-ask] li { margin: 0; }
+[data-demo-ask] li button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border, rgba(127, 127, 127, 0.35));
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+[data-demo-ask] li button:hover {
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+[data-demo-ask-price] {
+  flex: 0 0 auto;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+[data-demo-ask-label] {
+  display: block;
+  margin: 0.9rem 0 0.35rem;
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+}
+[data-demo-ask-detail] {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border, rgba(127, 127, 127, 0.35));
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+}
+
 /* ── /demo/g/<slug> — the group header ────────────────────────────
    🚧 A group is a feature the product does not have; this is the only part of
    that page which is not the real Leaderboard component. Sits above the board

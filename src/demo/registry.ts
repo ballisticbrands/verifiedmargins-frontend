@@ -97,6 +97,25 @@ export interface ProfileDemo extends DemoMeta {
   countLabel?: string;
   /** Adds a booking CTA beside the social buttons. */
   consultation?: { price: string; minutes: number; name: string };
+  /**
+   * "Ask <name>" — a priced menu of QUESTIONS, rendered as its own section
+   * under the profile.
+   *
+   * A different product from `consultation`, not a cheaper one: a call buys
+   * somebody's calendar, an answer buys their judgement on one thing. Priced
+   * per question for the same reason. A demo may carry either; carrying both
+   * would ask a reader to choose between two things that sound alike.
+   */
+  ask?: {
+    name: string;
+    /** The section's heading, and the dialog's. Defaults to "Ask <name>".
+     *  One field for both on purpose: a dialog titled differently from the
+     *  section it opened from reads as a different feature. */
+    heading?: string;
+    /** Shown above the list. One line on what they are good for. */
+    blurb?: string;
+    items: Array<{ q: string; price: string }>;
+  };
   /** A link to the GROUP this seller belongs to, rendered as a button ABOVE
    *  the consultation CTA. The admin's own profile carries it too — a group
    *  page is where a reader goes to see the cohort, not a member list only
@@ -225,8 +244,33 @@ export const DEMOS: Record<string, Demo> = {
     label: "TomNomYYZ — first $50K month",
     blurb:
       "A Canada-only arbitrage-to-wholesale seller's first $50K month, at the conservative end of the margin range he claimed.",
-    tags: STANDARD_TAGS,
-    consultation: { price: "$150", minutes: 45, name: "TomNomYYZ" },
+    /* "Paid answers", not "Paid consultation" — he sells questions, and a tag
+       naming a product he does not offer is the same kind of small lie the
+       tone rule in README.md exists to stop. */
+    tags: [
+      { label: "✓ Verified margins", tone: "verified" },
+      { label: "Paid answers", tone: "offer" },
+      { label: "Free resources", tone: "offer" },
+    ],
+    /* Every question is one HE could answer from what he actually did: RA/OA
+       from ~$10K on a credit card in Apr/May 2025, wholesale added about six
+       months in, $50K/month on Amazon.ca, US market not started, run from home.
+       A menu of questions he has no standing to answer would be the profile
+       overselling him, which on this site is the whole failure mode. */
+    ask: {
+      name: "TomNomYYZ",
+      heading: "Consult with TomNomYYZ",
+      blurb:
+        "Straight answers on sourcing, wholesale and selling into Canada — priced per question, not per hour.",
+      items: [
+        { q: "Is my product worth pursuing?", price: "$20" },
+        { q: "Will this RA/OA deal still make money after Amazon's fees?", price: "$20" },
+        { q: "I have $10K to start. Is that enough, and where should it go?", price: "$25" },
+        { q: "Can I run this from home, or do I need a prep centre?", price: "$25" },
+        { q: "Amazon.ca or Amazon.com — which should I start in?", price: "$30" },
+        { q: "How do I land my first wholesale account?", price: "$50" },
+      ],
+    },
   },
 
   /* ── ecgwholesale.com — a coach and his students ───────────────────────

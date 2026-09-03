@@ -8,6 +8,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import type { ProfileDemo } from "@/demo/registry";
 import { DemoBanner, useDemoFetch, useDemoMeta } from "@/demo/harness";
 import { ConsultationModal } from "@/demo/ConsultationModal";
+import { AskModal } from "@/demo/AskModal";
 
 /**
  * A public profile, rendered against fixture data.
@@ -22,6 +23,7 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
   const brand = useBrand();
   const { currency } = useCurrency();
   const [booking, setBooking] = useState(false);
+  const [asking, setAsking] = useState<{ q: string; price: string } | null>(null);
 
   useDemoFetch((url) => {
     if (!url.pathname.includes(`/v1/public/profiles/${slug}`)) return undefined;
@@ -66,6 +68,27 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
           }
 
         />
+        {/* 🚧 "Ask <name>" — a priced question menu, and a feature the product
+            does not have. A plain sibling rather than a portal: it is a
+            SECTION of its own, not a control belonging in one of the shared
+            page's slots, so it wants the bottom of the column and no host
+            node to poll for. */}
+        {demo.ask ? (
+          <section data-demo-ask="">
+            <h2>{demo.ask.heading ?? `Ask ${demo.ask.name}`}</h2>
+            {demo.ask.blurb ? <p data-demo-ask-blurb="">{demo.ask.blurb}</p> : null}
+            <ul>
+              {demo.ask.items.map((item) => (
+                <li key={item.q}>
+                  <button type="button" onClick={() => setAsking(item)}>
+                    <span data-demo-ask-q="">{item.q}</span>
+                    <span data-demo-ask-price="">{item.price}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
       {identity && demo.tags?.length
         ? createPortal(
@@ -126,6 +149,15 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
             actionsRow,
           )
         : null}
+      {asking && demo.ask ? (
+        <AskModal
+          name={demo.ask.name}
+          heading={demo.ask.heading}
+          question={asking.q}
+          priceLabel={asking.price}
+          onClose={() => setAsking(null)}
+        />
+      ) : null}
       {booking && demo.consultation ? (
         <ConsultationModal
           name={demo.consultation.name}
