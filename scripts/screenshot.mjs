@@ -1632,8 +1632,15 @@ const PAGES = [
      each, because "disabled for the right reason" is not visible in source. */
   { route: "/leaderboard", auth: false, name: "add-business-call",
     steps: [{ click: "[data-nav-cta]" }, { select: ["[data-method-select]", "call"] }] },
-  { route: "/leaderboard", auth: false, name: "add-business-sellerboard",
-    steps: [{ click: "[data-nav-cta]" }, { select: ["[data-method-select]", "sellerboard"] }] },
+  /* The report route, with its instruction block — the part a seller has to
+     follow exactly, so it is worth looking at. */
+  { route: "/leaderboard", auth: false, name: "add-business-screenshot",
+    steps: [{ click: "[data-nav-cta]" }, { select: ["[data-method-select]", "screenshot"] }] },
+  /* 🚧 The SellerBoard shot is gone with the option — it is commented out in
+     AddBusinessModal's METHODS until the integration exists. Restore both
+     together.
+     { route: "/leaderboard", auth: false, name: "add-business-sellerboard",
+       steps: [{ click: "[data-nav-cta]" }, { select: ["[data-method-select]", "sellerboard"] }] }, */
   /* The ONLY way into the claim step now: signed out, clicking Connect. The
      primary button cannot get you there — it is disabled until Amazon's OAuth
      has actually completed, which is the point. */

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ApiError,
+  apiFetch,
   GoogleSignInButton,
   SESSION_KEY,
   Turnstile,
@@ -41,7 +42,8 @@ const VISITORS_TODAY = 342;
 const MONTHLY_VISITORS = "20k";
 
 type BusinessType = "amazon_fba";
-type Method = "connect" | "call" | "sellerboard";
+/* "sellerboard" is COMMENTED OUT, not deleted — see the METHODS entry below. */
+type Method = "connect" | "screenshot" | "call";
 
 const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
   // One option today. It stays a <select> rather than becoming a fixed line
@@ -103,12 +105,43 @@ const METHODS: {
     ],
   },
   {
-    value: "sellerboard",
-    label: "Connect to SellerBoard",
-    price: "Coming soon",
-    disabled: true,
-    blurb: "Coming soon!",
+    value: "screenshot",
+    label: "Send a Seller Central report",
+    price: "Free",
+    blurb:
+      "Screenshot one report out of Seller Central and send it to us. It is the " +
+      "hardest thing on Amazon to fake — a year of daily sales and traffic that has " +
+      "to hang together — which is why it is the one we ask for. We read the figures " +
+      "off it by hand; nothing is connected and we get access to nothing.",
+    does: [
+      "Puts verified REVENUE on your profile — the report has no cost data, so your margin stays a number you supply",
+      "Reaches us as one email and is never stored on our servers",
+      "You may redact your brand, ASINs and store name before sending",
+      "Takes a day or two, because a person reads it rather than a parser",
+    ],
   },
+  /* 🚧 SELLERBOARD — HIDDEN, NOT DROPPED.
+   *
+   * It shipped as a selectable "Coming soon" option that the flow then
+   * refused to accept, which is a worse promise than not offering it: a
+   * seller who picks it learns we built the option before we built the
+   * integration. Nothing behind it exists yet, so it is out of the picker
+   * entirely until it does.
+   *
+   * Restoring it is: uncomment this entry, put "sellerboard" back in
+   * `Method` above, and re-add its column to the comparison table in
+   * HowVerificationWorks.tsx (its copy is commented out there too, for the
+   * same reason). Drop `disabled` at the same time — the option should not
+   * come back until it works.
+   *
+   * {
+   *   value: "sellerboard",
+   *   label: "Connect to SellerBoard",
+   *   price: "Coming soon",
+   *   disabled: true,
+   *   blurb: "Coming soon!",
+   * },
+   */
   {
     value: "call",
     label: "Video call verification",
@@ -165,6 +198,18 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
      time to get what they asked for the first time. From their side the click
      did nothing. So the wizard presses it for them. */
   const [autoConnect, setAutoConnect] = useState(0);
+
+  /* The screenshot route. `file` is the report; `sent` flips once the API has
+     it, which is what the footer reads to stop offering "submit" twice. */
+  const [shot, setShot] = useState<File | null>(null);
+  const [shotError, setShotError] = useState<string | null>(null);
+  const [shotSending, setShotSending] = useState(false);
+  const [shotSent, setShotSent] = useState(false);
+  /* Set when a signed-OUT visitor picked a file: the upload needs a session,
+     so they detour through `claim` and the effect below fires the upload for
+     them on the way back. Twin of `resumeConnect` above, and it exists for
+     the same reason — from their side they already pressed the button. */
+  const [resumeUpload, setResumeUpload] = useState(false);
 
   const ref = useRef<HTMLDialogElement>(null);
   const magic = useMagicLinkForm();
@@ -236,10 +281,53 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
          would be exactly the thing the site says it does not accept. The
          other two have nothing behind them yet and say so. */
       if (method === "connect") return connected && marginValid;
+      /* The report must actually have reached us. A submission that only
+         picked a file would create nothing and tell the seller it had. */
+      if (method === "screenshot") return shotSent && marginValid;
       return false;
     }
     return emailValid && !magic.pending; // claim
   })();
+
+  /**
+   * Send the report. Requires a session, because the row it creates is owned
+   * by the seller who submitted it.
+   *
+   * Raw bytes with the file's own content type — the API takes `express.raw`
+   * on this route and decides what the file IS from its magic bytes, so the
+   * declared type is a courtesy, not a claim it trusts. `apiFetch` only
+   * defaults Content-Type to JSON when the caller has not set one, so setting
+   * it here is what keeps the body from being labelled wrongly.
+   */
+  const uploadShot = useCallback(async (file: File) => {
+    setShotSending(true);
+    setShotError(null);
+    try {
+      await apiFetch("/v1/profiles/verification-screenshot", {
+        method: "POST",
+        body: file,
+        headers: { "Content-Type": file.type || "application/octet-stream" },
+      });
+      setShotSent(true);
+    } catch (err) {
+      setShotError(
+        err instanceof ApiError
+          ? err.message
+          : "We couldn't send that just now. Try again in a moment.",
+      );
+    } finally {
+      setShotSending(false);
+    }
+  }, []);
+
+  /* The return trip from `claim`. Mirrors the autoConnect effect above: a
+     visitor who chose a file, was detoured to sign in, and came back must not
+     have to find and press the same button a second time. */
+  useEffect(() => {
+    if (!resumeUpload || !signedIn || step !== "details" || !shot || shotSent || shotSending) return;
+    setResumeUpload(false);
+    void uploadShot(shot);
+  }, [resumeUpload, signedIn, step, shot, shotSent, shotSending, uploadShot]);
 
   const navigate = useNavigate();
 
@@ -475,6 +563,97 @@ export function AddBusinessModal({ onClose }: { onClose: () => void }) {
                       the cost data itself, and the call reads the figures off a
                       screen share — typing one in either case would be a number
                       nobody verified. */}
+                  <label data-field="">
+                    <span>Enter your profit margin %</span>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={-99}
+                      max={100}
+                      step="0.1"
+                      placeholder="e.g. 24"
+                      value={marginPct}
+                      onChange={(e) => setMarginPct(e.target.value)}
+                      required
+                    />
+                  </label>
+                </>
+              ) : null}
+
+              {method === "screenshot" ? (
+                <>
+                  {/* The instructions ARE the feature. A seller who sends the
+                      wrong report costs an operator a round trip and starts
+                      the relationship with a rejection, so the path is spelled
+                      out to the click rather than described. */}
+                  <div data-report-steps="">
+                    <p data-permissions-head="">How to get the report:</p>
+                    <ol>
+                      <li>
+                        In Seller Central go to <strong>Reports → Business Reports →{" "}
+                        <a
+                          href="https://sellercentral.amazon.com/business-reports/report?id=102%3ASalesTrafficTimeSeries"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Sales Dashboard
+                        </a></strong>.
+                      </li>
+                      <li>
+                        Set the date range to <strong>last 12 months</strong> or{" "}
+                        <strong>last fiscal year</strong>.
+                      </li>
+                      <li>
+                        Take a <strong>full-page screenshot</strong>. You may redact your brand
+                        name, ASINs, store and anything else identifying.
+                      </li>
+                    </ol>
+                    <p data-field-note="">
+                      Keep the whole chart visible, and do not redact the numbers on it — the
+                      figures are the only part we need.
+                    </p>
+                  </div>
+
+                  <label data-field="">
+                    <span>Your Sales Dashboard screenshot</span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      disabled={shotSending || shotSent}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        setShot(file);
+                        setShotError(null);
+                        setShotSent(false);
+                        if (!file) return;
+                        /* Signed out? The row is owned by whoever submits it,
+                           so there has to be a someone first. */
+                        if (!signedIn) {
+                          setResumeUpload(true);
+                          setStep("claim");
+                          return;
+                        }
+                        void uploadShot(file);
+                      }}
+                    />
+                  </label>
+
+                  {shotSending ? (
+                    <p data-status="" role="status">Sending your report…</p>
+                  ) : null}
+                  {shotSent ? (
+                    <p data-status="" role="status">
+                      Got it. We'll read the figures off it by hand and they'll appear on your
+                      profile — usually within a day or two.
+                    </p>
+                  ) : null}
+                  {shotError ? (
+                    <p data-status="" data-tone="error" role="alert">{shotError}</p>
+                  ) : null}
+
+                  {/* Same question the connect route asks, for the same
+                      reason: this report carries sales and no costs, so the
+                      margin is a number the seller supplies either way. */}
                   <label data-field="">
                     <span>Enter your profit margin %</span>
                     <input

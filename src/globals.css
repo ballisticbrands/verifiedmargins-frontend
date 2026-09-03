@@ -3550,3 +3550,50 @@ h2[data-heading-badges] {
   font-size: 0.8125rem;
   color: var(--muted-foreground);
 }
+
+/* ── "Send a Seller Central report": the steps ────────────────────────
+   A seller who sends the WRONG report costs an operator a round trip and
+   starts the relationship with a rejection, so this is a numbered path
+   rather than a paragraph.
+
+   🚨 SCOPED `[data-add-business]`, NOT `.vm-form`. The dialog is not inside a
+   .vm-form — every other rule for it in this file keys off the dialog's own
+   attribute, and scoping to .vm-form is why the first version of this block
+   matched nothing at all: no box, no numbers, and the steps colliding with
+   the note under them. */
+[data-add-business] [data-report-steps] {
+  margin: 0.25rem 0 0.9rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--muted);
+}
+[data-add-business] [data-report-steps] > p:first-child { margin-top: 0; }
+/* Tailwind's preflight resets `ol` to `list-style: none`, so the markers have
+   to be asked for explicitly — without this the steps read as three loose
+   sentences and the order stops being the point. */
+[data-add-business] [data-report-steps] ol {
+  margin: 0.45rem 0 0;
+  padding-left: 1.3rem;
+  list-style: decimal outside;
+}
+[data-add-business] [data-report-steps] li {
+  margin: 0 0 0.45rem;
+  padding-left: 0.15rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  display: list-item;
+}
+[data-add-business] [data-report-steps] li:last-child { margin-bottom: 0; }
+[data-add-business] [data-report-steps] a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+[data-add-business] [data-report-steps] [data-field-note] {
+  margin: 0.7rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+/* An upload that failed is the one place in this flow that IS an error. */
+[data-add-business] [data-status][data-tone="error"] { color: var(--danger); }

@@ -24,10 +24,11 @@ import { useAddBusiness } from "@/AddBusiness";
  *      LABELS map. When it changes, this changes.
  *   2. `src/components/AddBusinessModal.tsx` — its METHODS array is the same
  *      three routes, described to someone mid-signup. The prices, the
- *      "what we cannot do" list and the SellerBoard status are duplicated
+ *      "what we cannot do" list and the report instructions are duplicated
  *      here on purpose (the modal does not export them) and must stay in
- *      step. 🚧 The honest fix is one shared constant both import; until
- *      somebody does that, edit both.
+ *      step — including the Sales Dashboard URL, which a seller follows
+ *      literally. 🚧 The honest fix is one shared constant both import;
+ *      until somebody does that, edit both.
  *   3. `frontend-shared/src/pages/PublicProfile.tsx` — `BusinessCard` renders
  *      the badge. `Badge` below reproduces its exact conditional (a tier that
  *      startsWith "verified" gets ✓ and the green fill, everything else gets
@@ -38,8 +39,11 @@ import { useAddBusiness } from "@/AddBusiness";
  *   • The $20 upgrade from ◑ Verified revenue to ✓ Verified margins is the
  *     designed model. Nothing charges $20 or takes a COGS sheet today — the
  *     modal's connect route is Free and stops there.
- *   • SellerBoard is `disabled: true` in the modal ("Coming soon"), so it is
- *     labelled Coming soon here too. Drop the marker in both when it lands.
+ *   • SELLERBOARD IS HIDDEN, not gone. It was a selectable "Coming soon"
+ *     option the flow then refused, which promises worse than not offering
+ *     it. Its column and section are commented out below, and its METHODS
+ *     entry is commented out in AddBusinessModal.tsx — restore both together
+ *     when the integration exists.
  *
  * 🚨 In PUBLIC_PAGES (src/data/site.mjs), not APP_ROUTES: this page is meant
  * to be crawled — it answers the query someone types before they trust us —
@@ -234,7 +238,7 @@ function Badge({ tier, label }: { tier: string; label: string }) {
  * honest qualifier that belongs ON the option, never in small print after it. */
 const ROUTES = [
   { key: "connect", label: "Connect Seller Central", note: "Recommended" },
-  { key: "sellerboard", label: "Connect SellerBoard", note: "Coming soon" },
+  { key: "screenshot", label: "Send a Seller Central report", note: "No account access" },
   { key: "call", label: "Video call", note: "Most private" },
 ] as const;
 
@@ -261,7 +265,7 @@ const COMPARISON: {
     row: "Where revenue comes from",
     cells: [
       "Amazon's own API — sales, fees and ad spend, read directly from Seller Central.",
-      "Your SellerBoard account, which is itself reading Seller Central.",
+      "Your Seller Central Sales Dashboard report — twelve months of daily sales, screenshotted and sent to us.",
       "Seller Central on your screen, on the call, with us watching.",
     ],
   },
@@ -269,7 +273,7 @@ const COMPARISON: {
     row: "Where cost of goods comes from",
     cells: [
       "A blended cost percentage you supply. We do not check it.",
-      "Per-SKU costs already in SellerBoard. We still have to check them.",
+      "A blended cost percentage you supply. That report carries no cost data at all.",
       "Your own cost records, shown to us on the call.",
     ],
   },
@@ -281,7 +285,7 @@ const COMPARISON: {
     ),
     cells: [
       "+$20 — send a COGS sheet and take a 15-minute call.",
-      "+$20 — take a 15-minute call so we can check the SellerBoard costs.",
+      "+$20 — take a 15-minute call so we can check your costs.",
       "Included.",
     ],
   },
@@ -289,7 +293,7 @@ const COMPARISON: {
     row: "Stays up to date on its own",
     cells: [
       "Yes — continuous. Your profile shows current figures without you touching it.",
-      "Yes — continuous, for as long as SellerBoard stays connected.",
+      "No. One report covers one window; a fresher profile means sending a fresher report.",
       "No. A call verifies the window you showed us; it does not refresh itself.",
     ],
   },
@@ -297,7 +301,7 @@ const COMPARISON: {
     row: "What we can reach in your account",
     cells: [
       "Three read-only Amazon roles, revocable by you at Amazon at any time.",
-      "SellerBoard's read access. No Amazon credentials pass through us.",
+      "Nothing. You send an image — we are granted no access to anything.",
       "Nothing. We are never given access to anything.",
     ],
   },
@@ -305,7 +309,7 @@ const COMPARISON: {
     row: "How anonymous you can be",
     cells: [
       "Store, brands, ASINs and products are never published. Your figures live on our servers.",
-      "Same — nothing identifying is published. Your figures live on our servers.",
+      "High. Redact your brand, ASINs and store before you send it; we only need the figures.",
       "Highest. Your business name and products stay off this site entirely, and we hold no account of yours.",
     ],
   },
@@ -465,10 +469,9 @@ export function HowVerificationWorks() {
           </div>
           <p className="mt-3 text-[var(--muted-foreground)]">
             <small>
-              🚧 SellerBoard is not live yet — the option appears in the flow so you can see it
-              coming, and the flow will not accept it. The $20 upgrade on the two connected
-              routes is the model we are building to; today connecting is free and stops at
-              ◑&nbsp;Verified revenue.
+              🚧 The $20 upgrade is the model we are building to — nothing charges for it yet,
+              so connecting today is free and stops at ◑&nbsp;Verified revenue. A report you
+              send is read by a person, so those figures appear a day or two after you submit.
             </small>
           </p>
         </section>
@@ -506,7 +509,7 @@ export function HowVerificationWorks() {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <TierCard
               spec={TIERS.verifiedRevenue}
-              routes="Connect Seller Central (free) · Connect SellerBoard (free)"
+              routes="Connect Seller Central (free) · Send a Seller Central report (free)"
               rows={[
                 { fact: "Revenue, fees, ad spend", from: "Amazon's API", checked: true },
                 { fact: "Cost of goods", from: "A percentage you supplied", checked: false },
@@ -589,21 +592,58 @@ export function HowVerificationWorks() {
 
         <section>
           <h2 className="text-base font-semibold">
-            Route 2 — Connect SellerBoard · Free{" "}
-            <span className="text-[var(--muted-foreground)]">(coming soon)</span>
+            Route 2 — Send a Seller Central report · Free
           </h2>
           <p className="mt-2">
-            Identical in every way that matters to Route 1 — same badge, same continuous
-            verification, same figures — except that your <strong>cost of goods comes out of
-            SellerBoard</strong> rather than out of a percentage you type. SellerBoard is already
-            reading your Seller Central, so this suits sellers who keep their costs there and would
-            rather not maintain them twice.
+            You screenshot one report out of Seller Central and send it to us. It is the
+            hardest thing on Amazon to fabricate — twelve months of daily sales and traffic
+            that all has to hang together — which is exactly why it is the one we ask for. We
+            read the figures off it by hand. Nothing is connected, and we are granted access
+            to nothing.
+          </p>
+          <p className="mt-3 font-medium">Getting the report:</p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5">
+            <li>
+              In Seller Central, go to Reports → Business Reports →{" "}
+              <a
+                className="underline underline-offset-4"
+                href="https://sellercentral.amazon.com/business-reports/report?id=102%3ASalesTrafficTimeSeries"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Sales Dashboard
+              </a>
+              .
+            </li>
+            <li>
+              Set the date range to <strong>last 12 months</strong> or{" "}
+              <strong>last fiscal year</strong>.
+            </li>
+            <li>
+              Take a <strong>full-page screenshot</strong>. Redact your brand name, ASINs,
+              store — anything identifying. Keep the whole chart visible and leave the numbers
+              on it, because the figures are the only part we need.
+            </li>
+          </ol>
+          <p className="mt-3">
+            That earns <Badge tier="verified_revenue" label="Verified revenue" />. It cannot
+            earn more on its own, and the reason is worth stating plainly:{" "}
+            <strong>that report contains no cost data</strong>. It can evidence what you sold
+            and never what it cost you, so your margin stays a number you supplied. The same
+            fifteen-minute call turns it into{" "}
+            <Badge tier="verified_margin" label="Verified margins" /> — <strong>$20, once</strong>.
           </p>
           <p className="mt-3">
-            Per-SKU costs arriving from SellerBoard are still <em>your</em> numbers, entered by you
-            into a tool of your choosing. We did not check them, so they do not earn{" "}
-            <Badge tier="verified_margin" label="Verified margins" /> on their own. The same
-            fifteen-minute call does — <strong>$20, once</strong>.
+            The trade against connecting is freshness. One report covers one window and does
+            not refresh itself, so a profile that keeps up to date on its own means connecting
+            an account instead.
+          </p>
+          <p className="mt-3 text-[var(--muted-foreground)]">
+            <small>
+              The screenshot reaches one mailbox and is never stored on our servers. Your
+              business appears straight away but publishes nothing until a person has read the
+              report and entered the figures — usually a day or two.
+            </small>
           </p>
         </section>
 
