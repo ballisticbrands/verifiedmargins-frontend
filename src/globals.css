@@ -2219,15 +2219,15 @@ dialog[data-add-business]::backdrop {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.15rem 0.55rem;
-  margin: 0 0 0.4rem;
-  font-size: 0.92rem;
+  margin: 0 0 0.45rem;
+  font-size: 1rem;
   font-weight: 600;
 }
 [data-demo-ask-rating] {
   display: inline-flex;
   align-items: baseline;
   gap: 0.3rem;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--muted-foreground);
 }
@@ -2281,7 +2281,7 @@ dialog[data-add-business]::backdrop {
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   line-height: 1.3;
   text-align: left;
   cursor: pointer;
@@ -2297,7 +2297,7 @@ dialog[data-add-business]::backdrop {
   gap: 0.5rem;
 }
 [data-demo-ask-note] {
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   color: var(--muted-foreground);
 }
 [data-demo-ask-price] {

@@ -290,7 +290,13 @@ export const DEMOS: Record<string, Demo> = {
          recurring thing on the page — so the prices climb with how much of his
          time each actually costs him. */
       items: [
-        { q: "Product deep dive", price: "$20" },
+        {
+          q: "Product deep dive",
+          /* The question it answers, in his prospect's words. "Deep dive" is
+             the product name; this is what somebody is actually buying. */
+          note: "Is this product worth pursuing?",
+          price: "$20",
+        },
         { q: "One time question", price: "$10" },
         {
           q: "Ongoing mentorship",
