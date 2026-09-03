@@ -107,10 +107,7 @@ export function DemoProfile({ slug, demo }: { slug: string; demo: ProfileDemo })
       {bioSlot && demo.ask
         ? createPortal(
             <section data-demo-ask="">
-              <p data-demo-ask-head="">
-                <strong>{demo.ask.heading ?? `Ask ${demo.ask.name}`}</strong>
-                {demo.ask.blurb ? <span>{demo.ask.blurb}</span> : null}
-              </p>
+              <p data-demo-ask-head="">{demo.ask.heading ?? `Ask ${demo.ask.name}`}</p>
               <ul>
                 {demo.ask.items.map((item) => (
                   <li key={item.q}>

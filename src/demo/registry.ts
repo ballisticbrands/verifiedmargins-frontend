@@ -112,8 +112,6 @@ export interface ProfileDemo extends DemoMeta {
      *  One field for both on purpose: a dialog titled differently from the
      *  section it opened from reads as a different feature. */
     heading?: string;
-    /** Shown above the list. One line on what they are good for. */
-    blurb?: string;
     items: Array<{ q: string; price: string }>;
   };
   /** A link to the GROUP this seller belongs to, rendered as a button ABOVE
@@ -260,8 +258,6 @@ export const DEMOS: Record<string, Demo> = {
     ask: {
       name: "TomNomYYZ",
       heading: "Consult with TomNomYYZ",
-      blurb:
-        "Straight answers on sourcing, wholesale and selling into Canada — priced per question, not per hour.",
       items: [
         { q: "Is my product worth pursuing?", price: "$20" },
         { q: "Will this RA/OA deal still make money after Amazon's fees?", price: "$20" },

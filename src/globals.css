@@ -2213,20 +2213,12 @@ dialog[data-add-business]::backdrop {
    would be, and it has to share one screenshot with the avatar and the chart —
    that screenshot is the thing actually sent to the person the profile is
    about, so anything that pushes the chart below the fold defeats the page. */
-[data-demo-ask] { margin: 0.9rem 0 0; }
+[data-demo-ask] { margin: 0.75rem 0 0; }
 [data-demo-ask-head] {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.15rem 0.5rem;
-  margin: 0 0 0.5rem;
-  font-size: 0.85rem;
+  margin: 0 0 0.4rem;
+  font-size: 0.92rem;
+  font-weight: 600;
 }
-[data-demo-ask-head] strong { font-size: 0.92rem; }
-[data-demo-ask-head] span { color: var(--muted-foreground); }
-/* The heading and its blurb on ONE line where they fit — the block is meant to
-   cost a few lines, not a paragraph. */
-[data-demo-ask-head] { max-width: none; }
 /* THREE columns, fixed — not auto-fit. auto-fit packed six questions into
    four columns and left a two-card orphan row; three gives 3+3, which is the
    shape someone screenshots. Two on a narrow window, one on a phone. */
@@ -2236,7 +2228,7 @@ dialog[data-add-business]::backdrop {
   padding: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 @media (max-width: 900px) {
   [data-demo-ask] ul { grid-template-columns: repeat(2, 1fr); }
@@ -2249,17 +2241,17 @@ dialog[data-add-business]::backdrop {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.6rem;
+  gap: 0.5rem;
   width: 100%;
   height: 100%;
-  padding: 0.45rem 0.6rem;
+  padding: 0.35rem 0.5rem;
   border: 1px solid var(--border, rgba(127, 127, 127, 0.35));
-  border-radius: 8px;
+  border-radius: 7px;
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 0.8rem;
-  line-height: 1.35;
+  font-size: 0.76rem;
+  line-height: 1.25;
   text-align: left;
   cursor: pointer;
 }
