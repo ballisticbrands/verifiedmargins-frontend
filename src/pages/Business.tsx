@@ -128,6 +128,9 @@ interface BusinessPayload {
   deep_dive?: DeepDiveTeaser | null;
   slug: string;
   name: string;
+  /** 🚧 The real company, when a `public` business opted into being named.
+   *  Null everywhere else — every other business here is anonymous by design. */
+  brand?: { name: string; logo: string | null; homepage: string | null } | null;
   /** `Connection.provider` — where the numbers came from. */
   platform: string;
   /** What the business IS ("Amazon FBA"), from `Connection.type`. Never a
@@ -493,8 +496,15 @@ export function Business() {
               <span data-profile-who="">
                 {/* The platform mark sits where a founder's face does. Same
                   file the business cards use, served from our own origin. */}
+                {/* 🚧 A named `public` business shows its own logo; everyone
+                    else gets the generic Amazon mark, because everyone else is
+                    anonymous and a logo would identify them. */}
                 <span data-avatar="" data-business-avatar="" aria-hidden="true">
-                  <img src={AMAZON_MARK_SRC} alt="" width={30} height={30} />
+                  {p.brand?.logo ? (
+                    <img src={p.brand.logo} alt="" data-brand-logo="" />
+                  ) : (
+                    <img src={AMAZON_MARK_SRC} alt="" width={30} height={30} />
+                  )}
                 </span>
                 <span data-profile-identity="">
                   <h1>
@@ -715,6 +725,81 @@ export function Business() {
             connectionId={mine}
             onSaved={() => void reload()}
           />
+
+          {/* 🚧 HOW THESE NUMBERS WERE MADE. It sits on the page rather than in
+              a footnote because every figure above is modelled: the badge says
+              "Estimated" and this is what that word means. Shown only for a
+              `public` business — nothing else on this site is estimated. */}
+          {p.brand ? (
+            <section data-method="">
+              <h2>How these estimates were made</h2>
+
+              <h3>Sales — Amazon&rsquo;s own &ldquo;bought in past month&rdquo;</h3>
+              <p>
+                Amazon prints a badge on a listing that reads &ldquo;300+ bought in
+                the past month&rdquo;. It is the only sales figure Amazon publishes,
+                and{" "}
+                <a href="https://keepa.com" rel="nofollow noopener" target="_blank">
+                  Keepa
+                </a>{" "}
+                records it for every product, every time it changes. We read it
+                across all {p.metrics.sku_count ?? "the seller's"} listings and
+                multiplied by the buy box price.
+              </p>
+              <p>
+                Two things make this a <strong>floor rather than a guess</strong>.
+                The badge is bucketed, so &ldquo;300+&rdquo; is recorded as 300 when
+                the truth is somewhere under 400. And Amazon only shows it above
+                roughly 50 sales a month — listings below that show nothing and are
+                counted here as zero. The real figure is higher than the one above,
+                not lower.
+              </p>
+              <p>
+                Because Keepa keeps the <em>history</em> of that badge, these
+                figures are a trailing twelve months rather than this month
+                multiplied by twelve. That matters more than it sounds: December
+                runs about 3.8&times; June for this business, so a September
+                snapshot annualised would understate it by roughly two thirds.
+              </p>
+
+              <h3>Cost of goods — quoted, not known</h3>
+              <p>
+                The seller has not told us what their product costs, so we price it
+                the way a buyer would: a manufacturing quote and a freight quote.
+                We assume <strong>$2.70 to manufacture</strong> and{" "}
+                <strong>$1.00 to ship</strong> each unit into Amazon&rsquo;s
+                warehouse.
+              </p>
+              <ul data-method-links="">
+                <li>
+                  <a href="https://www.alibaba.com/showroom/jigsaw-puzzle-manufacturer.html" rel="nofollow noopener" target="_blank">
+                    Manufacturing quote — Alibaba
+                  </a>
+                  <span> $2.70 / unit</span>
+                </li>
+                <li>
+                  <a href="https://www.freightos.com/freight-calculator/" rel="nofollow noopener" target="_blank">
+                    Freight quote — Freightos
+                  </a>
+                  <span> $1.00 / unit</span>
+                </li>
+              </ul>
+              <p>
+                🚨 This is the weakest number on the page and the one a real margin
+                depends on. Amazon&rsquo;s own fees are not estimated — the referral
+                percentage and the FBA fee are published per listing — but the cost
+                of the product is a quote, and quotes move with order size,
+                materials and season.
+              </p>
+
+              <h3>What would replace all of this</h3>
+              <p>
+                One thing: the seller connecting their Amazon account. Then revenue
+                and fees come from Amazon directly and cost of goods comes from
+                them, and the badge above stops saying &ldquo;Estimated&rdquo;.
+              </p>
+            </section>
+          ) : null}
 
           {p.notes.length > 0 ? (
             <section data-notes="">

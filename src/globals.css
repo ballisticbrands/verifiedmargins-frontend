@@ -3597,3 +3597,62 @@ h2[data-heading-badges] {
 }
 /* An upload that failed is the one place in this flow that IS an error. */
 [data-add-business] [data-status][data-tone="error"] { color: var(--danger); }
+
+/* ── 🚧 "How these estimates were made" — public businesses only ───────
+   Every figure on a public business page is modelled, so the method sits ON
+   the page rather than in a footnote: the badge says "Estimated" and this is
+   what that word means. */
+[data-method] {
+  margin: 2.5rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border, rgba(127, 127, 127, 0.25));
+}
+[data-method] h2 { margin: 0 0 0.75rem; font-size: 1.05rem; }
+[data-method] h3 {
+  margin: 1.25rem 0 0.35rem;
+  font-size: 0.9rem;
+  color: var(--foreground);
+}
+[data-method] p {
+  margin: 0 0 0.6rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+  max-width: 62ch;
+}
+[data-method] strong { color: var(--foreground); }
+[data-method-links] {
+  list-style: none;
+  margin: 0.4rem 0 0.8rem;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  max-width: 34rem;
+}
+[data-method-links] li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border, rgba(127, 127, 127, 0.35));
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+[data-method-links] span { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* A named public business shows its own logo where the generic Amazon mark
+   would otherwise sit. Wider than tall, so it is sized on width. */
+[data-business-avatar] img[data-brand-logo] {
+  width: auto;
+  max-width: 100%;
+  max-height: 34px;
+  object-fit: contain;
+}
+[data-business-avatar]:has(img[data-brand-logo]) {
+  width: auto;
+  min-width: 3.5rem;
+  padding: 0 0.4rem;
+  background: #fff;
+  border-radius: 8px;
+}
