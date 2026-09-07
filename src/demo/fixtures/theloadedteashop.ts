@@ -24,7 +24,7 @@
  * March 2026. Keepa cannot tell you that; a web search can. That gap is the
  * argument for the human review step the skill describes.
  */
-import type { Dossier } from "../dossier";
+import { INVENTED, type Dossier } from "../dossier";
 
 export const theLoadedTeaShop: Dossier = {
   brand: "The Loaded Tea Shop",
@@ -161,6 +161,186 @@ export const theLoadedTeaShop: Dossier = {
     },
   ],
 
+  /* Oldest first. The real events carry a real source; the ad campaigns and
+     the domain registration are INVENTED and say so — see the note on
+     INVENTED in ../dossier.ts. */
+  timeline: [
+    {
+      date: "2019",
+      title: "Founded in a Gulfport kitchen",
+      detail:
+        "Two ex-Herbalife distributors stop selling somebody else's product and start mixing their own.",
+      track: "brand",
+      source: "web",
+    },
+    {
+      date: "2021-08-14",
+      title: "theloadedteashop.com registered",
+      detail: "Shopify store goes up. Direct-to-consumer is the only channel for the next four years.",
+      track: "web",
+      source: INVENTED,
+    },
+    {
+      date: "2025-03-03",
+      title: "First Instagram post",
+      detail: "79 weeks before this dossier was built. The audience is built here, not on Amazon.",
+      track: "brand",
+      source: "instagram",
+    },
+    {
+      date: "2025-05-20",
+      title: "First Amazon listing",
+      detail: "A single product. Nothing follows it for ten months.",
+      track: "amazon",
+      source: "keepa",
+    },
+    {
+      date: "2025-11-02",
+      title: "First Meta ad campaign",
+      detail: "Video creative, driving to the Shopify store rather than to Amazon.",
+      track: "ads",
+      source: INVENTED,
+    },
+    {
+      date: "2026-03-30",
+      title: "The catalogue push begins",
+      detail:
+        "Variety 20, 10 and 40 packs go live on one day. The 20 pack becomes the single biggest earner in the business.",
+      track: "amazon",
+      source: "keepa",
+    },
+    {
+      date: "2026-04-14",
+      title: "Founder's Favorites 5 and 10 packs",
+      detail: "The 5 pack matches the 20 pack on units within weeks, at a third of the price.",
+      track: "amazon",
+      source: "keepa",
+    },
+    {
+      date: "2026-04-17",
+      title: "Single-flavour 5 packs — Frog Spit, Mermaid, Bahama Mama",
+      detail: "The long tail. None of them reaches 1,000 a month.",
+      track: "amazon",
+      source: "keepa",
+    },
+    {
+      date: "2026-04-24",
+      title: "Flavor Discovery and Berry Blast collections",
+      track: "amazon",
+      source: "keepa",
+    },
+    {
+      date: "2026-05-01",
+      title: "Meta spend steps up",
+      detail: "Creative switches to Amazon-first landing. Impressions roughly triple month on month.",
+      track: "ads",
+      source: INVENTED,
+    },
+    {
+      date: "2026-05-12",
+      title: "Mom Mode Collection",
+      detail: "5 and 10 packs. The 5 pack is a top-three earner inside a month.",
+      track: "amazon",
+      source: "keepa",
+    },
+    {
+      date: "2026-05-22",
+      title: "Caffeine-Free Variety",
+      detail: "Carries a sold badge and no live buy box — it sells and is out of stock.",
+      track: "amazon",
+      source: "keepa",
+    },
+  ],
+
+  /* 🚧 ENTIRELY INVENTED. COGS is the number this product refuses to guess
+     (see gaps, and SKILL.md section 8). These rows show the SHAPE of the
+     answer a real sourcing pass would produce, and every one is marked. */
+  sourcing: [
+    {
+      supplier: "Shandong beverage powder co.",
+      region: "Shandong, CN",
+      moq: "10,000 sachets",
+      unitCost: "$0.21 / sachet",
+      leadTime: "28 days",
+      href: "https://www.alibaba.com/",
+      source: INVENTED,
+    },
+    {
+      supplier: "Contract blender, US Midwest",
+      region: "Missouri, US",
+      moq: "25,000 sachets",
+      unitCost: "$0.34 / sachet",
+      leadTime: "18 days",
+      href: "https://www.alibaba.com/",
+      source: INVENTED,
+    },
+    {
+      supplier: "Freight — Qingdao → Long Beach, FCL",
+      region: "CN → US",
+      moq: "1 x 20ft",
+      unitCost: "$0.04 / sachet landed",
+      leadTime: "34 days",
+      href: "https://www.freightos.com/",
+      source: INVENTED,
+    },
+    {
+      supplier: "Carton, label and pack-out",
+      region: "US",
+      moq: "5,000 packs",
+      unitCost: "$0.88 / retail pack",
+      leadTime: "12 days",
+      href: "https://www.alibaba.com/",
+      source: INVENTED,
+    },
+  ],
+
+  /* 🚧 The Meta ad library LINK is real and anyone can open it. Every FIGURE
+     beside it is invented — the library publishes creative and run dates, not
+     spend, and no public source reports Amazon ad spend at all. */
+  advertising: [
+    {
+      channel: "Amazon Sponsored Products",
+      spend: "$214,000 / mo",
+      note: "Implied TACOS 13.6% against $1.58M revenue.",
+      source: INVENTED,
+    },
+    {
+      channel: "Meta (Facebook + Instagram)",
+      spend: "$46,500 / mo",
+      note: "17 creatives live. The ad library shows what is running; it never shows spend.",
+      href:
+        "https://www.facebook.com/ads/library/?active_status=inactive&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&sort_data[direction]=desc&sort_data[mode]=total_impressions&view_all_page_id=543395728858281",
+      /* The library is real and cited on the NAME; the spend is invented and
+         cited on the FIGURE. See the note on AdChannel. */
+      linkSource: "meta-ads",
+      source: INVENTED,
+    },
+    {
+      channel: "Google Ads (search + shopping)",
+      spend: "$9,200 / mo",
+      note: "Brand defence mostly — they rank organically for their own name.",
+      source: INVENTED,
+    },
+    {
+      channel: "Blended",
+      spend: "$269,700 / mo",
+      note: "17.1% of estimated revenue, all channels.",
+      source: INVENTED,
+    },
+  ],
+
+  /* 🚧 Ranks and volumes invented. The site-traffic figure in `offAmazon` is
+     the one real number on that tab. */
+  keywords: [
+    { term: "loaded tea", engine: "Amazon", rank: "#3 organic", volume: "74,000 / mo", source: INVENTED },
+    { term: "energy drink powder packets", engine: "Amazon", rank: "#11 organic", volume: "138,000 / mo", source: INVENTED },
+    { term: "sugar free energy drink mix", engine: "Amazon", rank: "#6 organic", volume: "49,500 / mo", source: INVENTED },
+    { term: "the loaded tea shop", engine: "Amazon", rank: "#1 organic", volume: "12,100 / mo", source: INVENTED },
+    { term: "loaded tea recipes", engine: "Google", rank: "#8", volume: "33,100 / mo", source: INVENTED },
+    { term: "loaded tea near me", engine: "Google", rank: "#14", volume: "27,100 / mo", source: INVENTED },
+    { term: "the loaded tea shop", engine: "Google", rank: "#1", volume: "9,900 / mo", source: INVENTED },
+  ],
+
   gaps: [
     "COGS, and therefore margin and profit. Nothing here models what the product costs to make or land — see SKILL.md section 8. On a site called VerifiedMargins that is the one number we will not guess.",
     "Ad spend. No public source reports a competitor's Amazon ad spend; anyone quoting one is modelling it. A sponsored-placement read off live search results is the honest substitute and has not been run for this brand.",
@@ -207,6 +387,25 @@ export const theLoadedTeaShop: Dossier = {
       read: "2026-09-07",
       detail:
         "Founding year, founder, and the Herbalife origin — the brand's own account of itself, taken at its word and labelled as such.",
+    },
+    {
+      id: "meta-ads",
+      label: "Meta Ad Library — The Loaded Tea Shop",
+      href:
+        "https://www.facebook.com/ads/library/?active_status=inactive&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&sort_data[direction]=desc&sort_data[mode]=total_impressions&view_all_page_id=543395728858281",
+      read: "2026-09-07",
+      detail:
+        "Meta publishes every ad a page runs, with its creative and its run dates — genuinely public and worth reading. It does NOT publish spend or impressions for commercial ads, so the spend figure beside it here is invented.",
+    },
+    {
+      /* 🚨 The entry every invented figure points at, and deliberately LAST.
+         It renders as "*" rather than a number, so putting it first cost the
+         real sources their first index — the list began at 2 and a reader was
+         left hunting for a source 1 that did not exist. */
+      id: INVENTED,
+      label: "Invented for this demo — nobody measured this",
+      detail:
+        "Marked with * wherever it appears. Product sourcing, advertising spend and keyword ranks are placeholders, showing what the page will look like once those pipelines exist. They are not estimates, not modelled, and not to be quoted: they were made up. Everything carrying a NUMBER instead of a * came from one of the real sources above.",
     },
   ],
 };

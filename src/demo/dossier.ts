@@ -20,6 +20,24 @@
  * footnote.
  */
 
+/**
+ * 🚨 THE ID EVERY INVENTED FIGURE CITES.
+ *
+ * Whole tabs of this demo (sourcing, advertising, keyword ranks) show numbers
+ * NOBODY MEASURED — they exist to show what the page would look like once the
+ * pipelines behind them are built. On a product whose entire claim is that its
+ * figures mean something exactly, an invented number that loses its marker is
+ * the worst bug this page could have.
+ *
+ * So invention is not a loose asterisk typed beside a value; it is a SOURCE
+ * like any other. `source: INVENTED` renders "*" instead of a footnote number,
+ * and that marker links to a bibliography entry that says, in as many words,
+ * that we made it up. A figure therefore cannot be invented and unmarked
+ * without someone deleting its source — which does not type-check, because
+ * `source` is required.
+ */
+export const INVENTED = "invented";
+
 /** Where a figure came from, and when we looked. */
 export interface Source {
   /** Stable id, referenced by `Figure.source`. Short: "keepa", "similarweb". */
@@ -29,8 +47,10 @@ export interface Source {
   /** Where a reader checks it themselves. Omitted only for an API with no
    *  public URL, which must then say so in `detail`. */
   href?: string;
-  /** The date we read it. A traffic figure with no date is not a figure. */
-  read: string;
+  /** The date we read it. A traffic figure with no date is not a figure.
+   *  Omitted only by the INVENTED entry, where "read" would be a lie — nobody
+   *  read anything. */
+  read?: string;
   /** What this source is responsible for on the page. */
   detail: string;
 }
@@ -73,6 +93,58 @@ export interface OffAmazon {
   /** The headline number, if the platform shows one. */
   value?: string;
   note?: string;
+  source: string;
+}
+
+/** One dot on the vertical timeline. */
+export interface TimelineEvent {
+  /** ISO date, or a bare year where that is all anybody published. */
+  date: string;
+  title: string;
+  detail?: string;
+  /** Which strand of the business this belongs to. Four tracks, because a
+   *  product launch and an ad campaign are not the same kind of event and a
+   *  reader scanning for one should not have to read the other. */
+  track: "brand" | "amazon" | "ads" | "web";
+  source: string;
+}
+
+/** A supplier quote — what a unit would cost to make and to land. */
+export interface SourcingRow {
+  supplier: string;
+  region: string;
+  moq: string;
+  unitCost: string;
+  leadTime: string;
+  href?: string;
+  source: string;
+}
+
+/** Spend on one advertising channel.
+ *
+ * 🚨 TWO sources, because the channel and its spend are not the same claim.
+ * Meta genuinely publishes every ad a page runs — that is `linkSource`, a real
+ * citation on the channel NAME. It publishes no spend at all, so `source`, the
+ * citation on the FIGURE, is INVENTED. Collapsing the two put a real footnote
+ * number beside a made-up dollar amount and read as "Meta says they spend
+ * $46,500", which is exactly the confusion this page exists to avoid. */
+export interface AdChannel {
+  channel: string;
+  spend: string;
+  note?: string;
+  href?: string;
+  /** Answerable for the SPEND figure. */
+  source: string;
+  /** Answerable for the channel being real and what is running on it. */
+  linkSource?: string;
+}
+
+/** Where they rank for a term someone actually searches. */
+export interface KeywordRow {
+  term: string;
+  engine: "Amazon" | "Google";
+  rank: string;
+  volume: string;
   source: string;
 }
 
@@ -134,6 +206,14 @@ export interface Dossier {
   firstListed: string;
   /** Off-Amazon presence — the half Keepa cannot see. */
   offAmazon: OffAmazon[];
+  /** The vertical history, oldest first. */
+  timeline: TimelineEvent[];
+  /** 🚧 Cost of goods, which we do not have. Quotes that WOULD price it. */
+  sourcing: SourcingRow[];
+  /** 🚧 Ad spend across channels. Only the Meta ad library link is real. */
+  advertising: AdChannel[];
+  /** 🚧 Search presence. The site traffic is real; the ranks are not. */
+  keywords: KeywordRow[];
   /** What we do NOT know, stated on the page. A dossier that lists only what
    *  it found reads as complete, and this one is not. */
   gaps: string[];

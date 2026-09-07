@@ -1565,6 +1565,15 @@ const PAGES = [
   /* 🚧 The sourced dossier: a seller profiled from public data, every figure
      marked with its origin. Charts and a source list nothing else renders. */
   { route: "/demo/theloadedteashop", auth: false, name: "demo-loadedteashop" },
+  /* One shot per tab. A tab nobody looks at is a tab that renders wrong in
+     front of a prospect, and only the overview is reachable by default. */
+  { route: "/demo/theloadedteashop?tab=timeline", auth: false, name: "demo-lts-timeline" },
+  { route: "/demo/theloadedteashop?tab=sales", auth: false, name: "demo-lts-sales" },
+  { route: "/demo/theloadedteashop?tab=sourcing", auth: false, name: "demo-lts-sourcing" },
+  { route: "/demo/theloadedteashop?tab=advertising", auth: false, name: "demo-lts-advertising" },
+  { route: "/demo/theloadedteashop?tab=traffic", auth: false, name: "demo-lts-traffic" },
+  { route: "/demo/theloadedteashop?tab=deepdive", auth: false, name: "demo-lts-deepdive" },
+  { route: "/demo/theloadedteashop?tab=sources", auth: false, name: "demo-lts-sources" },
   { route: "/demo/Pure_Zookeepergame_2", auth: false, name: "demo-zookeeper" },
   { route: "/demo/jayeshchauhanreddit", auth: false, name: "demo-jayesh" },
   { route: "/demo/Much-Experience-4197", auth: false, name: "demo-ahad" },
