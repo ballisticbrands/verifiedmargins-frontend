@@ -148,6 +148,52 @@ export interface KeywordRow {
   source: string;
 }
 
+/** A place this brand can be found, rendered as an icon link under the bio.
+ *
+ * `platform` picks the mark, so it is a closed set rather than a free string:
+ * an icon chosen by the fixture is an icon that eventually disagrees with the
+ * link beside it. Anything without a mark of its own is "web".
+ */
+export interface BrandLink {
+  platform: "amazon" | "website" | "instagram" | "facebook" | "tiktok";
+  /** What the link says. "Amazon store", "@theogloadedtea". */
+  label: string;
+  href: string;
+  /** The platform's own headline number — followers, likes, visits. A FIGURE,
+   *  which is why `source` below is required and not optional: a follower
+   *  count with no origin is the thing this page argues against. */
+  metric?: string;
+  /** Answerable for both the link and its metric. */
+  source: string;
+}
+
+/**
+ * 🚧 THE UNIT ECONOMICS — and the one place this product's own rule bends.
+ *
+ * BRANDING/SKILL both say margin is the number VerifiedMargins never guesses,
+ * and the sourcing tab was built to show quotes WITHOUT totalling them into a
+ * profit figure. This block totals them, on an explicit instruction, so the
+ * demo can show the shape of a finished page rather than a hole where the
+ * interesting half goes.
+ *
+ * What makes that survivable is that it is invented THE SAME WAY everything
+ * else invented here is: `source` is INVENTED, every derived figure renders a
+ * "*", and the tabs carrying them lead with the placeholder notice. A reader
+ * who follows the marker lands on a bibliography entry that says we made it
+ * up. It must never be shown any other way.
+ */
+export interface Economics {
+  /** Cost lines as a percentage of revenue, in the order they are deducted.
+   *  Profit is the remainder, so the page never needs a profit input it could
+   *  contradict — 100 − sum(lines) is the only definition of the number. */
+  lines: Array<{ label: string; pct: number; note?: string }>;
+  /** Where the percentages came from, in words — which quotes, which rates. */
+  basis: string;
+  /** INVENTED, always. Typed as a string because the field is a source id like
+   *  any other, but a real one here would be a claim nobody can support. */
+  source: string;
+}
+
 export interface Dossier {
   /** The brand as Amazon spells it. */
   brand: string;
@@ -223,10 +269,19 @@ export interface Dossier {
   firstListed: string;
   /** Off-Amazon presence — the half Keepa cannot see. */
   offAmazon: OffAmazon[];
+  /** The same presence as ICON LINKS, under the bio, with each platform's own
+   *  headline number. Deliberately a second, shorter list rather than a view
+   *  of `offAmazon`: that one carries dead domains, redirects and an ad-library
+   *  search — findings, which belong in prose — and a row of icons is a place
+   *  a reader goes to LEAVE the page. Only somewhere worth sending them. */
+  links: BrandLink[];
   /** The vertical history, oldest first. */
   timeline: TimelineEvent[];
   /** 🚧 Cost of goods, which we do not have. Quotes that WOULD price it. */
   sourcing: SourcingRow[];
+  /** 🚧 Those quotes turned into a margin, and the profit line on the overview
+   *  chart. Entirely invented — see Economics. */
+  economics: Economics;
   /** 🚧 Ad spend across channels. Only the Meta ad library link is real. */
   advertising: AdChannel[];
   /** 🚧 Search presence. The site traffic is real; the ranks are not. */
@@ -250,8 +305,12 @@ export interface Dossier {
    * chart with no caption is the one place a reader most needs a sentence.
    */
   copy: {
-    /** Under the cumulative-catalogue chart: what its steps mean here. */
-    catalogueChart: string;
+    /** Under the overview's profit chart: what its shape means here. The
+     *  chart draws a modelled profit history against the real listing dates,
+     *  so this sentence is where a fixture says what the reader is looking
+     *  at — including, for both dossiers so far, that the catalogue arrived
+     *  in a burst rather than a curve. */
+    profitChart: string;
     /** Above the timeline: what the strands do to each other in THIS history. */
     timelineLede: string;
     /** Above the revenue bars on the sales tab, including the disclosure of

@@ -151,6 +151,14 @@ export const theLoadedTeaShop: Dossier = {
       source: "instagram",
     },
     {
+      label: "Facebook — The Loaded Tea Shop",
+      href: "https://www.facebook.com/people/The-Loaded-Tea-Shop/61572174010247/",
+      value: "249K likes",
+      note:
+        "Four times the Instagram following. The page also names Tea Time, LLC as responsible for it — a different entity from the Amazon seller record's Champs Tea Shop, Inc.",
+      source: "facebook",
+    },
+    {
       label: "Linktree",
       href: "https://linktr.ee/theloadedteashop",
       note: "TikTok and Facebook hang off this.",
@@ -161,6 +169,40 @@ export const theLoadedTeaShop: Dossier = {
       href: "https://www.theloadedteashop.com/pages/who-the-heck-are-you-people",
       note: "Started in a kitchen in 2019 by ex-Herbalife distributors who built their own product.",
       source: "web",
+    },
+  ],
+
+  /* The four worth sending someone to, with each platform's own number. The
+     Linktree and the founder-story page stay in `offAmazon` above: they are
+     findings to read, not places to go. */
+  links: [
+    {
+      platform: "amazon",
+      label: "Amazon store",
+      href: "https://www.amazon.com/sp?seller=A2FLJTREXC9RX4",
+      metric: "52 ASINs",
+      source: "keepa-seller",
+    },
+    {
+      platform: "website",
+      label: "theloadedteashop.com",
+      href: "https://www.theloadedteashop.com/",
+      metric: "5,324 visits / mo",
+      source: "similarweb",
+    },
+    {
+      platform: "instagram",
+      label: "@theogloadedtea",
+      href: "https://www.instagram.com/theogloadedtea/",
+      metric: "59.3K followers",
+      source: "instagram",
+    },
+    {
+      platform: "facebook",
+      label: "The Loaded Tea Shop",
+      href: "https://www.facebook.com/people/The-Loaded-Tea-Shop/61572174010247/",
+      metric: "249K likes",
+      source: "facebook",
     },
   ],
 
@@ -297,6 +339,32 @@ export const theLoadedTeaShop: Dossier = {
     },
   ],
 
+  /* 🚧 Those quotes, totalled — which this page was built not to do. See the
+     header comment on Economics: it is here on instruction, every figure it
+     produces renders a "*", and the block says in words that the real page
+     shows nothing here until a seller connects. */
+  economics: {
+    lines: [
+      {
+        label: "Cost of goods",
+        pct: 12,
+        note: "≈ $2.13 landed on a $19.80 five-pack, $5.88 on the $60 twenty — sachets, freight and pack-out from the quotes above.",
+      },
+      { label: "Amazon referral fee", pct: 15, note: "Grocery rate, on the whole order." },
+      {
+        label: "FBA fulfilment and storage",
+        pct: 18,
+        note: "A light box at a low price point is where FBA hurts most — the five-packs carry the worst of it.",
+      },
+      { label: "Advertising", pct: 14, note: "The blended figure from the advertising tab." },
+      { label: "Returns, coupons and discounts", pct: 5 },
+      { label: "Overhead", pct: 8, note: "People, software, insurance — nothing public about this business sizes it." },
+    ],
+    basis:
+      "Costs as a share of revenue, built off the quotes above and Amazon's published fee rates. Every line is a placeholder: the quotes are invented, the fee rates are real but applied to an average rather than to each ASIN, and nothing here has been checked against a seller's own books.",
+    source: INVENTED,
+  },
+
   /* 🚧 The Meta ad library LINK is real and anyone can open it. Every FIGURE
      beside it is invented — the library publishes creative and run dates, not
      spend, and no public source reports Amazon ad spend at all. */
@@ -345,9 +413,10 @@ export const theLoadedTeaShop: Dossier = {
   ],
 
   gaps: [
-    "COGS, and therefore margin and profit. Nothing here models what the product costs to make or land — see SKILL.md section 8. On a site called VerifiedMargins that is the one number we will not guess.",
+    "COGS, and therefore margin and profit — MEASURED. The sourcing tab now carries quotes and a margin built from them, and the overview chart draws the profit that falls out; all of it is invented and starred, on instruction, so the demo can show a finished page. Nobody priced a sachet. Nothing here has seen this business's books, and the real version of the page shows none of it until a seller connects.",
     "Ad spend. No public source reports a competitor's Amazon ad spend; anyone quoting one is modelling it. A sponsored-placement read off live search results is the honest substitute and has not been run for this brand.",
     "The 34 unbadged ASINs. Each sells under roughly 50/month, but Amazon publishes no figure, so they are counted as zero rather than estimated.",
+    "Which legal entity is which. Amazon's seller record says Champs Tea Shop, Inc; the Facebook page says Tea Time, LLC is responsible for it. Two entities behind one brand is ordinary — an operating company and a marketing one, or a rename — but nothing public says which.",
     "Why the feedback score is 72%. The number is public; the cause is not. It could be fulfilment, a bad batch, or a review-bombing — and the difference matters.",
   ],
 
@@ -401,6 +470,14 @@ export const theLoadedTeaShop: Dossier = {
         "Meta publishes every ad a page runs, with its creative and its run dates — genuinely public and worth reading. It does NOT publish spend or impressions for commercial ads, so the spend figure beside it here is invented.",
     },
     {
+      id: "facebook",
+      label: "Facebook — The Loaded Tea Shop",
+      href: "https://www.facebook.com/people/The-Loaded-Tea-Shop/61572174010247/",
+      read: "2026-09-08",
+      detail:
+        "248,967 likes and 134,256 \"talking about this\", read off the public page. It also names a SECOND legal entity — the page says \"Tea Time, LLC is responsible for this Page\", where the Amazon seller record says Champs Tea Shop, Inc. Both are public; which one holds what is not.",
+    },
+    {
       /* 🚨 The entry every invented figure points at, and deliberately LAST.
          It renders as "*" rather than a number, so putting it first cost the
          real sources their first index — the list began at 2 and a reader was
@@ -417,8 +494,8 @@ export const theLoadedTeaShop: Dossier = {
      described itself with another company's history — see `copy` in
      ../dossier.ts. */
   copy: {
-    catalogueChart:
-      "Each step is a product going live — nearly the whole catalogue inside eight weeks. The brand itself has traded since 2019.",
+    profitChart:
+      "Modelled profit, with the timeline on it — hover a dot. The steps are real listing dates and the heights are not: this is today's run rate applied backwards, less the costs on the sourcing tab. Almost the whole line is built in the eight weeks from 30 March 2026, and the brand itself has traded since 2019.",
     timelineLede:
       "The strands are kept together on one line on purpose: four years of building an audience elsewhere, a lone Amazon listing that goes nowhere for ten months, and then the catalogue and the ad spend arriving in the same eight weeks.",
     salesLede:

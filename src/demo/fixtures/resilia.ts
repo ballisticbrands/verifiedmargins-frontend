@@ -182,6 +182,14 @@ export const resilia: Dossier = {
       source: "own-store",
     },
     {
+      label: "Instagram — @resilia",
+      href: "https://www.instagram.com/resilia/",
+      value: "32K followers",
+      note:
+        "274 posts under the brand's own name — so the brand does run an owned channel, even though the paid acquisition does not go through it.",
+      source: "instagram",
+    },
+    {
       label: "shopresilia.com",
       href: "https://shopresilia.com/",
       note:
@@ -209,6 +217,37 @@ export const resilia: Dossier = {
       note:
         "Registered 2026-03-08 through a corporate brand-protection registrar. Also does not resolve. Ownership unestablished.",
       source: "whois",
+    },
+  ],
+
+  /* Three places worth sending someone, with each platform's own number. The
+     dead domains and the ad-library search stay in `offAmazon`: those are
+     findings to read, not doors to walk through. No Facebook page — the ads
+     for this brand run under other pages entirely, and linking one of those as
+     "their Facebook" would assert exactly what the gaps list says is
+     unestablished. */
+  links: [
+    {
+      platform: "amazon",
+      label: "Amazon store",
+      href:
+        "https://www.amazon.com/stores/ResiliaoilofOregano/page/736E510E-2587-44A3-A4B8-35BBC28CEAAF",
+      metric: "32 ASINs",
+      source: "keepa",
+    },
+    {
+      platform: "website",
+      label: "resilia.shop",
+      href: "https://resilia.shop/",
+      metric: "9.9M visits / 3 mo",
+      source: "similarweb",
+    },
+    {
+      platform: "instagram",
+      label: "@resilia",
+      href: "https://www.instagram.com/resilia/",
+      metric: "32K followers",
+      source: "instagram",
     },
   ],
 
@@ -374,6 +413,32 @@ export const resilia: Dossier = {
     },
   ],
 
+  /* 🚧 Those quotes, totalled — which this page was built not to do. See the
+     header comment on Economics: it is here on instruction, every figure it
+     produces renders a "*", and the block says in words that the real page
+     shows nothing here until a seller connects. */
+  economics: {
+    lines: [
+      {
+        label: "Cost of goods",
+        pct: 16,
+        note: "≈ $8.00 landed on a 120-count bottle against a $49.99 price — softgels, encapsulation, bottle and freight from the quotes above.",
+      },
+      { label: "Amazon referral fee", pct: 15, note: "Health & Household rate." },
+      {
+        label: "FBA fulfilment and storage",
+        pct: 13,
+        note: "A small dense bottle at a $39.57 average is close to the best case for FBA.",
+      },
+      { label: "Advertising", pct: 14, note: "The Amazon figure from the advertising tab, as TACOS." },
+      { label: "Returns, coupons and subscribe-and-save", pct: 6 },
+      { label: "Overhead", pct: 7, note: "People, software, insurance — nothing public about this business sizes it." },
+    ],
+    basis:
+      "Costs as a share of revenue, built off the quotes above and Amazon's published fee rates. Every line is a placeholder: the quotes are invented, the fee rates are real but applied to an average rather than to each ASIN, and none of it has been checked against a seller's own books. It also covers the AMAZON channel only — the subscription store on the traffic tab has a different cost structure entirely, starting with paid traffic instead of a referral fee.",
+    source: INVENTED,
+  },
+
   /* 🚧 The Meta ad library LINK is real and anyone can open it — and for this
      brand it is more interesting than usual, because the ads are not running
      under the brand's name. Every FIGURE beside it is invented: the library
@@ -427,7 +492,7 @@ export const resilia: Dossier = {
   ],
 
   gaps: [
-    "COGS, and therefore margin and profit. Nothing here models what a softgel costs to make or land — see SKILL.md section 8. On a site called VerifiedMargins that is the one number we will not guess.",
+    "COGS, and therefore margin and profit — MEASURED. The sourcing tab now carries quotes and a margin built from them, and the overview chart draws the profit that falls out; all of it is invented and starred, on instruction, so the demo can show a finished page. Nobody priced a softgel. Nothing here has seen this business's books, and the real version of the page shows none of it until a seller connects.",
     "How big the DTC side is. Similarweb counts visits, not orders, and resilia.shop sells subscriptions — so the $5.66M above is the AMAZON business only, and the whole company is larger by an amount nothing public will tell you.",
     "Ad spend. No public source reports a competitor's Amazon ad spend, and Meta's library publishes creative and run dates but never money. Both figures on the advertising tab are ours.",
     "Which advertiser pages this business controls. The ads for its garlic line run under \"Everyday Wellness Review\" and \"Vascular Wellness Report\", so the library cannot be totalled to the brand without someone establishing the link.",
@@ -505,6 +570,14 @@ export const resilia: Dossier = {
         "Filed 2025-09-19 by Sack Consulting Inc., Rolling Hills Estates, CA, for dietary and nutritional supplements. Read through search-result summaries of the USPTO mirrors: both uspto.report and trademarkia refused our fetcher with a 403, so this is the one real source here nobody on our side opened directly. Anyone rechecking it should open the record itself.",
     },
     {
+      id: "instagram",
+      label: "Instagram — @resilia",
+      href: "https://www.instagram.com/resilia/",
+      read: "2026-09-08",
+      detail:
+        "32K followers over 274 posts, read off the public profile: \"RESILIA | Oil of Oregano • Blackseed • Aged Garlic Supplements\". A second handle, @shopresilia, also carries the name; it would not load for us, so it is not cited here.",
+    },
+    {
       /* 🚨 The entry every invented figure points at, and deliberately LAST.
          It renders as "*" rather than a number, so putting it first cost the
          real sources their first index — the list began at 2 and a reader was
@@ -517,8 +590,8 @@ export const resilia: Dossier = {
   ],
 
   copy: {
-    catalogueChart:
-      "Each step is a product going live. Nothing from a standing start: the oregano line in December, the aged-garlic ladder in a single day in May — a catalogue shipped by somebody who had already sold the product elsewhere.",
+    profitChart:
+      "Modelled profit, with the timeline on it — hover a dot. The steps are real listing dates and the heights are not: this is today's run rate applied backwards, less the costs on the sourcing tab. Two steps carry it — December 2025, when the oregano line went wide, and 4 May 2026, when six aged-garlic SKUs shipped in one day.",
     timelineLede:
       "The strands are kept together on one line because the web track is the one that changes the story: a Shopify store selling this product in August 2024, a trademark ten weeks before the launch, and only then the Amazon catalogue — which reaches a $68M run rate faster than the store it came from took to get a second domain.",
     salesLede:

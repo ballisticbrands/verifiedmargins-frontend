@@ -3854,6 +3854,67 @@ h2[data-heading-badges] {
 .vm-dossier [data-sources] p { margin: 0 0 0.15rem; max-width: 72ch; font-size: 0.9rem; }
 .vm-dossier [data-sources] > li:target [data-src-n] { color: var(--foreground); font-weight: 700; }
 
+/* The links row under the bio: where this brand can be found, with each
+   platform's own number. Icons are inline SVG in currentColor — a CSP that
+   blocks external hosts blocks icon fonts too, and currentColor means none of
+   them can spend the verification green by accident. */
+.vm-dossier [data-brand-links] {
+  list-style: none; padding: 0; margin: 1rem 0 1.5rem;
+  display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem;
+}
+.vm-dossier [data-brand-links] li {
+  display: inline-flex; align-items: center; gap: 0.4rem; margin: 0;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 0.3rem 0.7rem 0.3rem 0.6rem; font-size: 0.85rem;
+}
+.vm-dossier [data-brand-links] a {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  color: var(--foreground); text-decoration: none;
+}
+.vm-dossier [data-brand-links] a:hover [data-link-label] { text-decoration: underline; }
+.vm-dossier [data-brand-links] svg { flex: none; }
+.vm-dossier [data-brand-links] [data-link-metric] {
+  color: var(--muted-foreground); font-size: 0.8rem;
+  padding-left: 0.5rem; border-left: 1px solid var(--border);
+}
+
+/* The overview's profit chart. The line is ink, the event dots are ink, and
+   the only difference between an Amazon event and any other is FILL — a shape
+   difference, because colour on this site names a verification tier. */
+.vm-dossier [data-profit-chart] { position: relative; }
+.vm-dossier [data-chart-headline] { margin: 0 0 0.5rem; font-size: 1.05rem; font-weight: 600; }
+.vm-dossier [data-chart-headline] [data-muted] { font-weight: 400; font-size: 0.85rem; }
+.vm-dossier [data-profit-chart] svg { display: block; width: 100%; }
+.vm-dossier [data-event-dot] { cursor: pointer; outline: none; }
+.vm-dossier [data-event-dot]:focus-visible circle:last-of-type {
+  stroke: var(--foreground); stroke-width: 3;
+}
+.vm-dossier [data-chart-card] {
+  position: absolute; z-index: 5; pointer-events: none;
+  max-width: 15rem; padding: 0.5rem 0.65rem;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.08);
+}
+.vm-dossier [data-chart-card][data-wide] { max-width: 17rem; }
+.vm-dossier [data-chart-card] p { margin: 0; font-size: 0.82rem; }
+.vm-dossier [data-chart-card] [data-card-when] { color: var(--muted-foreground); font-size: 0.75rem; }
+.vm-dossier [data-chart-card] [data-card-title] { font-weight: 600; margin: 0.1rem 0; }
+.vm-dossier [data-chart-card] [data-card-detail] { color: var(--muted-foreground); }
+
+/* 🚧 The unit-economics block: the quotes above, totalled. Deliberately plain
+   — no fill, no rule, nothing that would make a made-up margin look like a
+   result. The total row is bolder than the lines and that is all it gets. */
+.vm-dossier [data-econ] { list-style: none; padding: 0; margin: 0.75rem 0 0; }
+.vm-dossier [data-econ] li {
+  display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.75rem;
+  padding: 0.5rem 0; border-top: 1px solid var(--border); margin: 0;
+}
+.vm-dossier [data-econ] [data-econ-pct] { text-align: right; font-weight: 600; }
+.vm-dossier [data-econ] [data-econ-note] {
+  grid-column: 1 / -1; color: var(--muted-foreground); font-size: 0.82rem;
+}
+.vm-dossier [data-econ] [data-econ-total] { border-top: 2px solid var(--border); font-size: 1.05rem; }
+
 @media (max-width: 640px) {
   .vm-dossier [data-timeline] > li { grid-template-columns: 4.5rem 1rem 1fr; }
   .vm-dossier [data-timeline] > li::before { left: calc(4.5rem + 0.5rem + 0.45rem); }

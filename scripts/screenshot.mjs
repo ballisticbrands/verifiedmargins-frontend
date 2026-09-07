@@ -1582,6 +1582,13 @@ const PAGES = [
   { route: "/demo/resilia?tab=traffic", auth: false, name: "demo-resilia-traffic" },
   { route: "/demo/resilia?tab=deepdive", auth: false, name: "demo-resilia-deepdive" },
   { route: "/demo/resilia?tab=sources", auth: false, name: "demo-resilia-sources" },
+  /* The profit chart with a timeline dot active. That card only exists while a
+     dot is hovered or focused, so the plain overview shot cannot tell you
+     whether it renders. */
+  { route: "/demo/resilia", auth: false, name: "demo-resilia-chart-hover",
+    steps: [{ focus: '[data-event-dot="6"]' }] },
+  { route: "/demo/theloadedteashop", auth: false, name: "demo-lts-chart-hover",
+    steps: [{ focus: '[data-event-dot="4"]' }] },
   { route: "/demo/Pure_Zookeepergame_2", auth: false, name: "demo-zookeeper" },
   { route: "/demo/jayeshchauhanreddit", auth: false, name: "demo-jayesh" },
   { route: "/demo/Much-Experience-4197", auth: false, name: "demo-ahad" },
@@ -1802,6 +1809,19 @@ for (const { route, auth, name, click, storage, steps, valQuestions } of PAGES) 
       await page.evaluate(() => {
         window.open = () => null;
       });
+    } else if (st.focus) {
+      /* For anything that only exists while a control is hovered or focused —
+         the dossier's profit chart says what happened at a point only when a
+         dot is active, and a shot of the inert chart cannot show whether that
+         works.
+         🚨 FOCUS, not hover: a fullPage screenshot resizes the viewport, which
+         moves the page out from under the pointer and fires the mouseleave
+         that closes the card. Focus survives it, which is also why the dots
+         are focusable in the first place. */
+      await page
+        .$eval(st.focus, (el) => el.focus())
+        .catch(() => console.warn(`  (no ${st.focus} to focus)`));
+      await new Promise((r) => setTimeout(r, 300));
     } else if (st.scrollTo) {
       /* The dialog body scrolls independently of the page, so a control below
          its fold is absent from a fullPage shot. */

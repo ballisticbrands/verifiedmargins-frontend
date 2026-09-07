@@ -1,15 +1,16 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import {
-  StatTile,
-  TrendChart,
-  VerificationBadge,
-  type TrendPoint,
-} from "@ballisticbrands/frontend-shared";
+import { StatTile, VerificationBadge } from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DemoBanner, useDemoMeta } from "@/demo/harness";
-import { INVENTED, type Dossier, type DossierAsin, type TimelineEvent } from "@/demo/dossier";
+import {
+  INVENTED,
+  type BrandLink,
+  type Dossier,
+  type DossierAsin,
+  type TimelineEvent,
+} from "@/demo/dossier";
 import type { SourcedDemo } from "@/demo/registry";
 
 /**
@@ -161,11 +162,16 @@ function Src({ id, sources, go }: { id: string; sources: Dossier["sources"]; go:
   );
 }
 
-/** Shown at the top of every tab whose figures are made up. */
-function InventedNotice({ what, go }: { what: string; go: Go }) {
+/** Shown at the top of every tab whose figures are made up.
+ *
+ * `scope` exists because the overview is now HALF invented: its tiles are
+ * Keepa's and its chart is not. "Every figure on this tab" was true of the
+ * three tabs this notice was written for and became a lie the moment it
+ * appeared above a row of real numbers. */
+function InventedNotice({ what, go, scope = "on this tab" }: { what: string; go: Go; scope?: string }) {
   return (
     <p data-invented-notice="">
-      🚧 <strong>Demo placeholder.</strong> {what} Nobody measured any figure on this tab — every
+      🚧 <strong>Demo placeholder.</strong> {what} Nobody measured any figure {scope} — every
       one carries a <span data-invented-star="">*</span>. See{" "}
       <button type="button" data-linklike="" onClick={() => go("sources")}>
         Sources
@@ -198,6 +204,7 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
         <button type="button" data-deep-dive-toggle="" onClick={() => go("deepdive")}>
           Read the deep-dive
         </button>
+        <BrandLinks d={d} go={go} />
       </section>
 
       <section>
@@ -223,39 +230,114 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
             {d.counts.catalogue}-product catalogue.
           </small>
         </p>
+      </section>
 
-        <p data-chart-label="">
-          <small>Products live on Amazon, cumulative</small>
-        </p>
-        <div data-chart="">
-          <CatalogueChart asins={d.asins} />
-        </div>
+      <section>
+        <h2>Estimated monthly profit</h2>
+        {/* 🚨 The one INVENTED thing above the fold. The tiles are Keepa's; this
+            line is not — it applies today's run rate to each product's real
+            listing date and then deducts made-up costs, so it is a history
+            nobody measured. It leads with the notice for that reason. */}
+        <InventedNotice
+          what="The profit line applies today's run rate backwards over the real listing dates and deducts modelled costs — nobody measured a month of it."
+          scope="in this chart"
+          go={go}
+        />
+        <ProfitChart d={d} go={go} />
         <p data-chart-label="">
           <small>
-            {d.copy.catalogueChart}{" "}
+            {d.copy.profitChart}{" "}
             <button type="button" data-linklike="" onClick={() => go("timeline")}>
-              See the timeline
+              See the full timeline
             </button>
             .
           </small>
         </p>
       </section>
 
-      <section>
-        <h2>Where the revenue is</h2>
-        <RevenueBars asins={d.asins} />
-        <p data-src-line="">
-          <Src id="keepa" sources={d.sources} go={go} /> The {d.asins.length} largest of{" "}
-          {d.counts.priced} priced products.{" "}
-          <button type="button" data-linklike="" onClick={() => go("sales")}>
-            Full sales breakdown
-          </button>
-          .
-        </p>
-      </section>
-
       <Operator d={d} go={go} />
     </>
+  );
+}
+
+/**
+ * Where the brand can be found, as icon links under the bio.
+ *
+ * The metric beside each one is the platform's own headline number and carries
+ * its own marker: a follower count read off a public profile is a figure like
+ * any other here, and an unmarked one sitting in a row of marked ones reads as
+ * the measured half.
+ */
+function BrandLinks({ d, go }: { d: Dossier; go: Go }) {
+  if (!d.links.length) return null;
+  return (
+    <ul data-brand-links="">
+      {d.links.map((l) => (
+        <li key={l.href}>
+          <a href={l.href} rel="nofollow noopener" target="_blank">
+            <PlatformIcon platform={l.platform} />
+            <span data-link-label="">{l.label}</span>
+          </a>
+          {l.metric ? (
+            <span data-link-metric="" className="vm-num">
+              {l.metric}
+              <Src id={l.source} sources={d.sources} go={go} />
+            </span>
+          ) : (
+            <Src id={l.source} sources={d.sources} go={go} />
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Inline SVG, one path per platform: a CSP that blocks external hosts blocks
+ *  icon fonts and CDN sprites too, and a logo that 404s months later is worse
+ *  than no logo. `currentColor` throughout, so nothing here can spend the
+ *  verification green by accident. */
+function PlatformIcon({ platform }: { platform: BrandLink["platform"] }) {
+  const common = {
+    width: 16,
+    height: 16,
+    viewBox: "0 0 24 24",
+    "aria-hidden": true,
+    focusable: false,
+  } as const;
+  if (platform === "amazon")
+    return (
+      <svg {...common} fill="currentColor">
+        {/* The smile, and the "a" above it — recognisable at 16px without
+            reproducing the wordmark. */}
+        <path d="M2.6 16.9c3.2 1.9 6.9 2.9 10.6 2.9 2.6 0 5.2-.5 7.6-1.5.4-.2.7.2.4.5-2.2 1.9-5.4 2.9-8.2 2.9-4 0-7.8-1.5-10.7-4-.2-.2 0-.5.3-.8Zm19.1-.4c-.3-.4-2-.2-2.8-.1-.2 0-.3-.2-.1-.3 1.4-1 3.6-.7 3.9-.4.3.4-.1 2.6-1.4 3.7-.2.2-.4.1-.3-.1.3-.8.9-2.4.7-2.8Z" />
+        <path d="M13.1 9.3c0 1.1 0 2.1-.6 3.1-.4.8-1.1 1.3-1.9 1.3-1 0-1.6-.8-1.6-2 0-2.3 2.1-2.7 4.1-2.7v.3Zm2.8 6.7c-.2.2-.5.2-.7.1-1-.8-1.2-1.2-1.7-2-1.6 1.7-2.8 2.2-4.9 2.2-2.5 0-4.5-1.5-4.5-4.6 0-2.4 1.3-4.1 3.2-4.9 1.6-.7 3.9-.8 5.7-1v-.4c0-.7.1-1.5-.4-2.1-.4-.5-1.1-.7-1.7-.7-1.2 0-2.2.6-2.5 1.8-.1.3-.3.6-.5.6L5.2 4.7c-.2-.1-.5-.3-.4-.6C5.4 1.3 7.9.4 10.2.4c1.2 0 2.7.3 3.6 1.2 1.2 1.1 1.1 2.6 1.1 4.2v3.8c0 1.1.5 1.6 1 2.3.2.2.2.5 0 .7-.5.5-1.5 1.3-2 1.8Z" />
+      </svg>
+    );
+  if (platform === "instagram")
+    return (
+      <svg {...common} fill="none" stroke="currentColor" strokeWidth="1.8">
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  if (platform === "facebook")
+    return (
+      <svg {...common} fill="currentColor">
+        <path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H16.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.3V13h2.7v8h3.5Z" />
+      </svg>
+    );
+  if (platform === "tiktok")
+    return (
+      <svg {...common} fill="currentColor">
+        <path d="M16.5 3c.4 1.9 1.6 3.3 3.5 3.5v2.6c-1.3.1-2.5-.3-3.6-1v5.6c0 3.4-2.6 5.6-5.6 5.3-2.7-.3-4.6-2.6-4.4-5.4.2-2.6 2.5-4.6 5.1-4.4v2.7c-.4-.1-.8-.1-1.2 0-1.2.2-2 1.2-1.9 2.4.1 1.2 1.1 2.1 2.3 2 1.3 0 2.2-1 2.2-2.4V3h3.6Z" />
+      </svg>
+    );
+  return (
+    <svg {...common} fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18" />
+    </svg>
   );
 }
 
@@ -309,13 +391,14 @@ function Operator({ d, go }: { d: Dossier; go: Go }) {
  * Amazon listing that sits alone for ten months, then the catalogue and the ad
  * spend arriving together. Grouping would hide exactly that.
  */
+const TRACK_LABEL: Record<TimelineEvent["track"], string> = {
+  brand: "Brand",
+  amazon: "Amazon",
+  ads: "Advertising",
+  web: "Web",
+};
+
 function Timeline({ d, go }: { d: Dossier; go: Go }) {
-  const TRACK: Record<TimelineEvent["track"], string> = {
-    brand: "Brand",
-    amazon: "Amazon",
-    ads: "Advertising",
-    web: "Web",
-  };
   return (
     <section>
       <h2>How this business got here</h2>
@@ -328,7 +411,7 @@ function Timeline({ d, go }: { d: Dossier; go: Go }) {
             </span>
             <span data-dot="" aria-hidden="true" />
             <span data-what="">
-              <span data-track-tag="">{TRACK[e.track]}</span>
+              <span data-track-tag="">{TRACK_LABEL[e.track]}</span>
               <strong>{e.title}</strong>
               <Src id={e.source} sources={d.sources} go={go} />
               {e.detail ? <span data-detail="">{e.detail}</span> : null}
@@ -442,11 +525,62 @@ function Sourcing({ d, go }: { d: Dossier; go: Go }) {
           ))}
         </tbody>
       </table>
-      <p data-src-line="">
-        On a site called VerifiedMargins, a margin nobody measured is the one number that must never
-        be guessed — which is why these are marked rather than quietly totalled into a profit figure.
-      </p>
+      <UnitEconomics d={d} go={go} />
     </section>
+  );
+}
+
+/**
+ * 🚧 The quotes above, totalled into a margin — which is the one thing this
+ * page was built NOT to do.
+ *
+ * It is here on an explicit instruction, so that a demo can show the finished
+ * shape rather than a hole where the interesting half goes, and the whole of
+ * its defensibility rests on the marking: every figure carries a "*", the tab
+ * leads with the placeholder notice, and the sentence under the table says in
+ * words that a real page would leave this blank until a seller connected.
+ * Whoever changes this next: the margin is the number the product exists to
+ * refuse to guess. Keep the markers.
+ */
+function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
+  const cost = d.economics.lines.reduce((t, l) => t + l.pct, 0);
+  const net = 100 - cost;
+  /* Off the headline revenue, so the two agree: a monthly profit that cannot
+     be reproduced from the number in the tile above is a third figure. */
+  const revenue = d.asins.reduce((t, a) => t + a.monthlySold * (a.priceCents ?? 0), 0);
+  return (
+    <>
+      <h3>What that would make the margin</h3>
+      <p>{d.economics.basis}</p>
+      <ul data-econ="">
+        {d.economics.lines.map((l) => (
+          <li key={l.label}>
+            <span data-econ-label="">{l.label}</span>
+            <span data-econ-pct="" className="vm-num">
+              −{l.pct}%<Src id={d.economics.source} sources={d.sources} go={go} />
+            </span>
+            {l.note ? <span data-econ-note="">{l.note}</span> : null}
+          </li>
+        ))}
+        <li data-econ-total="">
+          <span data-econ-label="">Net margin</span>
+          <span data-econ-pct="" className="vm-num">
+            {net.toFixed(0)}%<Src id={d.economics.source} sources={d.sources} go={go} />
+          </span>
+          <span data-econ-note="">
+            ≈ {money(Math.round(revenue * (net / 100)))} a month on {money(revenue)} of catalogue
+            revenue — the line drawn on the overview chart.
+          </span>
+        </li>
+      </ul>
+      <p data-src-line="">
+        On a site called VerifiedMargins this block would not exist. Cost of goods is the number the
+        product refuses to guess, and a margin derived from quotes nobody asked for is a guess with
+        arithmetic on top — which is why every figure in it carries a{" "}
+        <span data-invented-star="">*</span>. The real version of this page shows nothing here until
+        the seller connects their account and the costs are theirs.
+      </p>
+    </>
   );
 }
 
@@ -559,14 +693,17 @@ function DeepDiveTab({ d, go }: { d: Dossier; go: Go }) {
     <section data-method="">
       <h2>Business deep-dive</h2>
       <p data-lede="">{d.deepDive}</p>
+      <BrandLinks d={d} go={go} />
 
       <h2>How these estimates were made</h2>
 
       <h3>Nobody has asserted these figures</h3>
       <p>
         Not Amazon, not the seller — nobody at this business has spoken to us. Every number on this
-        page was modelled from public data, read off somebody else's public page, or (on three tabs)
-        invented outright and marked. Each one carries a marker to the source answerable for it.
+        page was modelled from public data, read off somebody else's public page, or invented
+        outright and marked. Each one carries a marker to the source answerable for it — including
+        the profit line on the overview, which is invented, and the margin on the sourcing tab,
+        which is invented twice over.
       </p>
 
       <h3>Sales — Amazon's own "bought in past month"</h3>
@@ -654,32 +791,302 @@ function Sources({ d }: { d: Dossier }) {
 
 /* ───────────────────────────────────────────────────────────────── charts */
 
+/** Width of a block element, measured. The shared TrendChart keeps its own
+ *  copy of this and does not export it; ten lines is cheaper than reaching
+ *  into a package's internals. */
+function useMeasuredWidth() {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    setW(el.getBoundingClientRect().width);
+    const ro = new ResizeObserver((entries) => setW(entries[0].contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, w] as const;
+}
+
+function monthKey(iso: string): string {
+  return iso.slice(0, 7);
+}
+function monthEnd(key: string): number {
+  const [y, m] = key.split("-").map(Number);
+  return Date.UTC(y, m, 0, 23, 59, 59);
+}
+function addMonth(key: string): string {
+  const [y, m] = key.split("-").map(Number);
+  return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
+}
+
 /**
- * Catalogue size over time, through the SHARED TrendChart.
+ * 🚧 A MODELLED PROFIT HISTORY. Nobody measured a month of it.
  *
- * It counts LISTINGS, not revenue, and that is the honest choice rather than a
- * timid one: `monthlySold` is a reading taken today, so plotting it against
- * each product's launch date would draw a revenue history nobody ever measured.
+ * Built the only way this data allows: `monthlySold` is a reading taken today,
+ * so a month's revenue here is today's run rate for every product that WAS
+ * ALREADY LISTED then — the real listing dates give the steps, and the heights
+ * are an assumption. Costs come off at the invented rates in `economics`.
+ *
+ * The page used to draw catalogue COUNT for exactly this reason, and the
+ * comment where that lived said plotting revenue against launch dates "would
+ * draw a revenue history nobody ever measured". It now does, on instruction,
+ * so the honesty has to be carried somewhere else: the section leads with the
+ * placeholder notice, and every value the chart reports carries a "*".
  */
-function CatalogueChart({ asins }: { asins: DossierAsin[] }) {
-  const points = useMemo<TrendPoint[]>(() => {
-    const dates = [...asins].sort((a, b) => a.listed.localeCompare(b.listed));
-    let n = 0;
-    return dates.map((a) => ({ date: a.listed, value: ++n }));
-  }, [asins]);
+function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
+  const [wrapRef, width] = useMeasuredWidth();
+  const [hover, setHover] = useState<{ kind: "month" | "event"; i: number } | null>(null);
+
+  const net = useMemo(
+    () => 1 - d.economics.lines.reduce((t, l) => t + l.pct, 0) / 100,
+    [d.economics.lines],
+  );
+
+  /* One point per calendar month, spanning EVERY dated timeline event as well
+     as every listing.
+     
+     🚨 Not "from the first listing": both dossiers turn on things that happened
+     before the Amazon business existed — a Shopify store trading fifteen months
+     early, a trademark filed ten weeks early — and a chart that begins at the
+     first ASIN silently drops exactly those dots. The flat stretch at zero on
+     the left is not missing data. It is the finding: the brand was already
+     running, and this line was not. */
+  const points = useMemo(() => {
+    const listed = d.asins.map((a) => a.listed).sort();
+    const dated = d.timeline.map((e) => e.date).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x)).sort();
+    const first = [d.firstListed, listed[0], dated[0]].filter(Boolean).sort()[0];
+    const last = [listed.at(-1)!, dated.at(-1)].filter(Boolean).sort().at(-1)!;
+    let key = monthKey(first);
+    const stop = monthKey(last);
+    const out: Array<{ key: string; t: number; revenue: number; profit: number }> = [];
+    for (let guard = 0; guard < 240; guard++) {
+      const t = monthEnd(key);
+      const revenue = d.asins
+        .filter((a) => a.priceCents && Date.parse(`${a.listed}T00:00:00Z`) <= t)
+        .reduce((sum, a) => sum + a.monthlySold * (a.priceCents as number), 0);
+      out.push({ key, t, revenue, profit: revenue * net });
+      if (key === stop) break;
+      key = addMonth(key);
+    }
+    return out;
+  }, [d.asins, d.timeline, d.firstListed, net]);
+
+  const height = 260;
+  const pad = { top: 14, right: 16, bottom: 30, left: 58 };
+  const w = width || 640;
+  const innerW = Math.max(1, w - pad.left - pad.right);
+  const innerH = height - pad.top - pad.bottom;
+  const t0 = points[0].t;
+  const t1 = points[points.length - 1].t;
+  const max = Math.max(...points.map((p) => p.profit), 1);
+  const x = (t: number) => pad.left + ((t - t0) / Math.max(1, t1 - t0)) * innerW;
+  const y = (v: number) => pad.top + innerH - (v / max) * innerH;
+
+  const line = points.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.profit).toFixed(1)}`).join(" ");
+  const area = `${line} L${x(t1).toFixed(1)},${(pad.top + innerH).toFixed(1)} L${x(t0).toFixed(1)},${(pad.top + innerH).toFixed(1)} Z`;
+
+  /* Profit at any date, by walking to the month the date falls in. Events sit
+     ON the line rather than on a rail beneath it: the whole point of putting
+     them here is to show what the business did at the moment the line moved. */
+  const profitAt = (iso: string) => {
+    const t = Date.parse(`${iso}T00:00:00Z`);
+    const p = points.find((q) => q.t >= t) ?? points[points.length - 1];
+    return p.profit;
+  };
+  const events = useMemo(
+    () =>
+      d.timeline
+        .filter((e) => /^\d{4}-\d{2}-\d{2}$/.test(e.date))
+        .map((e) => ({ e, t: Date.parse(`${e.date}T00:00:00Z`), v: profitAt(e.date) }))
+        .filter((p) => p.t >= t0 - 86400000 && p.t <= t1),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [d.timeline, points],
+  );
+
+  const ticks = [0, 0.5, 1].map((f) => max * f);
+  /* Axis money, rounded — money() gives "$814,111" for a gridline, which reads
+     as a measurement of something rather than as a scale. */
+  const tick = (cents: number) => {
+    const d = cents / 100;
+    if (d >= 1_000_000) return `$${(d / 1_000_000).toFixed(1)}M`;
+    if (d >= 1000) return `$${Math.round(d / 1000)}K`;
+    return "$0";
+  };
+  const fmtMonth = (key: string) =>
+    new Date(`${key}-01T00:00:00Z`).toLocaleDateString(undefined, {
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  const latest = points[points.length - 1];
+
+  const card =
+    hover?.kind === "event"
+      ? { cx: x(events[hover.i].t), cy: y(events[hover.i].v) }
+      : hover?.kind === "month"
+        ? { cx: x(points[hover.i].t), cy: y(points[hover.i].profit) }
+        : null;
+
   return (
-    <TrendChart
-      points={points}
-      label="Products live"
-      format={(v) => (v == null ? "—" : `${v} live`)}
-      formatDate={(iso) =>
-        new Date(iso).toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-          timeZone: "UTC",
-        })
-      }
-    />
+    <div data-chart="" data-profit-chart="" ref={wrapRef}>
+      <p data-chart-headline="">
+        <span className="vm-num">{money(latest.profit)}</span> a month
+        <Src id={d.economics.source} sources={d.sources} go={go} />{" "}
+        <span data-muted="">
+          — {Math.round(net * 100)}% of the {money(latest.revenue)} the priced products on the{" "}
+          <button type="button" data-linklike="" onClick={() => go("sales")}>
+            sales tab
+          </button>{" "}
+          add up to, once the modelled costs on the{" "}
+          <button type="button" data-linklike="" onClick={() => go("sourcing")}>
+            sourcing tab
+          </button>{" "}
+          come off.
+        </span>
+      </p>
+      {width > 0 ? (
+        <svg
+          width={w}
+          height={height}
+          role="img"
+          aria-label="Modelled monthly profit, with the events on this business's timeline"
+          onMouseLeave={() => setHover(null)}
+          onMouseMove={(ev) => {
+            if (hover?.kind === "event") return;
+            const rect = ev.currentTarget.getBoundingClientRect();
+            const px = ev.clientX - rect.left;
+            let best = 0;
+            points.forEach((p, i) => {
+              if (Math.abs(x(p.t) - px) < Math.abs(x(points[best].t) - px)) best = i;
+            });
+            setHover({ kind: "month", i: best });
+          }}
+        >
+          {ticks.map((t) => (
+            <g key={t}>
+              <line x1={pad.left} x2={w - pad.right} y1={y(t)} y2={y(t)} stroke="var(--border)" />
+              <text
+                x={pad.left - 8}
+                y={y(t)}
+                textAnchor="end"
+                dominantBaseline="middle"
+                fontSize={11}
+                fill="var(--muted-foreground)"
+              >
+                {tick(t)}
+              </text>
+            </g>
+          ))}
+          <path d={area} fill="var(--accent)" fillOpacity={0.08} />
+          <path
+            d={line}
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+          {hover?.kind === "month" ? (
+            <>
+              <line
+                x1={x(points[hover.i].t)}
+                x2={x(points[hover.i].t)}
+                y1={pad.top}
+                y2={pad.top + innerH}
+                stroke="var(--muted-foreground)"
+                strokeOpacity={0.35}
+              />
+              <circle
+                cx={x(points[hover.i].t)}
+                cy={y(points[hover.i].profit)}
+                r={4}
+                fill="var(--accent)"
+                stroke="var(--card)"
+                strokeWidth={2}
+              />
+            </>
+          ) : null}
+          {/* One dot per timeline event. Amazon events are filled and the other
+              three tracks hollow — a shape difference, not a colour one, since
+              colour on this site means a verification tier. */}
+          {events.map((p, i) => (
+            <g
+              key={`${p.e.date}-${p.e.title}`}
+              tabIndex={0}
+              role="button"
+              aria-label={`${p.e.date}: ${p.e.title}`}
+              data-event-dot={String(i)}
+              onMouseEnter={() => setHover({ kind: "event", i })}
+              onFocus={() => setHover({ kind: "event", i })}
+              onBlur={() => setHover(null)}
+            >
+              <title>{`${p.e.date} — ${p.e.title}`}</title>
+              <circle cx={x(p.t)} cy={y(p.v)} r={11} fill="transparent" />
+              <circle
+                cx={x(p.t)}
+                cy={y(p.v)}
+                r={hover?.kind === "event" && hover.i === i ? 6 : 4.5}
+                fill={p.e.track === "amazon" ? "var(--accent)" : "var(--card)"}
+                stroke="var(--accent)"
+                strokeWidth={2}
+              />
+            </g>
+          ))}
+          <text x={pad.left} y={height - 8} fontSize={11} fill="var(--muted-foreground)">
+            {fmtMonth(points[0].key)}
+          </text>
+          <text
+            x={w - pad.right}
+            y={height - 8}
+            textAnchor="end"
+            fontSize={11}
+            fill="var(--muted-foreground)"
+          >
+            {fmtMonth(points[points.length - 1].key)}
+          </text>
+        </svg>
+      ) : null}
+
+      {card && hover ? (
+        <div
+          data-chart-card=""
+          data-wide={hover.kind === "event" ? "" : undefined}
+          style={{
+            left: Math.min(Math.max(8, card.cx + 12), Math.max(8, w - (hover.kind === "event" ? 280 : 170))),
+            top: Math.max(8, card.cy - 12),
+          }}
+        >
+          {hover.kind === "event" ? (
+            <>
+              <p data-card-when="" className="vm-num">
+                {events[hover.i].e.date} · {TRACK_LABEL[events[hover.i].e.track]}
+              </p>
+              <p data-card-title="">{events[hover.i].e.title}</p>
+              {events[hover.i].e.detail ? <p data-card-detail="">{events[hover.i].e.detail}</p> : null}
+              <p data-card-detail="">
+                Modelled profit that month: <span className="vm-num">{money(events[hover.i].v)}</span>
+                <Src id={INVENTED} sources={d.sources} go={go} />
+              </p>
+            </>
+          ) : (
+            <>
+              <p data-card-when="" className="vm-num">
+                {fmtMonth(points[hover.i].key)}
+              </p>
+              <p data-card-title="" className="vm-num">
+                {money(points[hover.i].profit)} profit
+                <Src id={INVENTED} sources={d.sources} go={go} />
+              </p>
+              <p data-card-detail="">
+                on <span className="vm-num">{money(points[hover.i].revenue)}</span> of revenue, at{" "}
+                {Math.round(net * 100)}% net
+              </p>
+            </>
+          )}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
