@@ -158,6 +158,17 @@ export interface Dossier {
    *  version query, expires, and often blocks cross-origin embedding, so a
    *  hotlinked logo is a header that breaks silently months later. */
   logo: string;
+  /**
+   * 🚨 THE ASPECT RATIO, because CSS cannot ask an image what shape it is.
+   *
+   * Two regimes, and each one wrecks the other's logo. A WIDE wordmark is
+   * sized on height (34px) and left to run as wide as it likes; a SQUARE mark
+   * given that treatment renders about 37px across, a stamp beside a 2rem
+   * heading, so it takes the avatar's whole box instead. Required rather than
+   * optional: a defaulted logo shape is a shape nobody looked at, and the
+   * wrong one is silent — the page renders, it just renders badly.
+   */
+  logoShape: "wide" | "square";
   /** The business actually operating the listings, from the seller record. */
   operator: {
     businessName: string;
@@ -170,6 +181,12 @@ export interface Dossier {
      *  poor score is the interesting case, so it sits with the operator rather
      *  than in a tile where it would read as a performance metric. */
     feedback: string;
+    /** What that score MEANS, in words — "poor, for a business this size".
+     *  In words on purpose: red on a figure means unverified on this site and
+     *  never "bad" (BRANDING.md section 11), so the judgement cannot be
+     *  carried by colour. Per dossier, because it is a reading of one number
+     *  and not every score deserves the same sentence. */
+    feedbackNote?: string;
     source: string;
   };
   /** The four StatTiles, pre-formatted — the same row a business page leads
@@ -218,4 +235,35 @@ export interface Dossier {
    *  it found reads as complete, and this one is not. */
   gaps: string[];
   sources: Source[];
+  /**
+   * 🚨 THE PROSE THAT IS ABOUT THIS BUSINESS AND NOT ABOUT DOSSIERS.
+   *
+   * Every one of these lines began life hardcoded in DemoSourced.tsx, written
+   * about the first brand profiled — "four years of building an audience
+   * elsewhere", "three packs carry the business". The second dossier made them
+   * false without making anything fail: the page still rendered, still read
+   * fluently, and described a different company. That is the worst failure
+   * shape a page like this has, so the sentences live with the brand they are
+   * about and the page owns none of them.
+   *
+   * Required, all of them. An optional caption falls back to silence, and a
+   * chart with no caption is the one place a reader most needs a sentence.
+   */
+  copy: {
+    /** Under the cumulative-catalogue chart: what its steps mean here. */
+    catalogueChart: string;
+    /** Above the timeline: what the strands do to each other in THIS history. */
+    timelineLede: string;
+    /** Above the revenue bars on the sales tab, including the disclosure of
+     *  what the listed ASINs do NOT add up to. */
+    salesLede: string;
+    /** Above the ad channels: what is genuinely public for this brand, which
+     *  differs — one advertiser has a Meta ad library page worth opening and
+     *  another has nothing at all. */
+    advertisingLede: string;
+    /** Above the off-Amazon list: what the half Amazon cannot see amounts to
+     *  here. For some brands that paragraph has to say "almost nothing", which
+     *  is itself the finding. */
+    trafficLede: string;
+  };
 }

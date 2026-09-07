@@ -86,7 +86,7 @@ export function DemoSourced({ demo }: { demo: SourcedDemo }) {
           {/* The brand's own logo, in the slot a founder's face occupies —
               served from our origin, never hotlinked. */}
           <span data-avatar="" data-business-avatar="" aria-hidden="true">
-            <img src={d.logo} alt="" data-brand-logo="" />
+            <img src={d.logo} alt="" data-brand-logo="" data-logo-shape={d.logoShape} />
           </span>
           <span data-profile-identity="">
             <h1>
@@ -232,10 +232,9 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
         </div>
         <p data-chart-label="">
           <small>
-            Each step is a product going live — nearly the whole catalogue inside eight weeks. The
-            brand itself has traded since 2019; see the{" "}
+            {d.copy.catalogueChart}{" "}
             <button type="button" data-linklike="" onClick={() => go("timeline")}>
-              timeline
+              See the timeline
             </button>
             .
           </small>
@@ -290,7 +289,7 @@ function Operator({ d, go }: { d: Dossier; go: Go }) {
           <dt>Seller feedback</dt>
           <dd>
             <span className="vm-num">{d.operator.feedback}</span>{" "}
-            <span data-muted="">— poor, for a business this size</span>
+            {d.operator.feedbackNote ? <span data-muted="">— {d.operator.feedbackNote}</span> : null}
           </dd>
         </div>
       </dl>
@@ -320,11 +319,7 @@ function Timeline({ d, go }: { d: Dossier; go: Go }) {
   return (
     <section>
       <h2>How this business got here</h2>
-      <p>
-        Oldest first. The strands are kept together on one line on purpose: four years of building
-        an audience elsewhere, a lone Amazon listing that goes nowhere for ten months, and then the
-        catalogue and the ad spend arriving in the same eight weeks.
-      </p>
+      <p>Oldest first. {d.copy.timelineLede}</p>
       <ol data-timeline="">
         {d.timeline.map((e) => (
           <li key={`${e.date}-${e.title}`} data-track={e.track}>
@@ -350,10 +345,8 @@ function Sales({ d, go }: { d: Dossier; go: Go }) {
     <section>
       <h2>Where the revenue is</h2>
       <p>
-        Monthly revenue by product, from <code>monthlySold × buy box price</code>. Three packs carry
-        the business; the long tail of single-flavour 5-packs barely registers. These are the{" "}
-        {d.asins.length} largest of {d.counts.priced} priced products, so the bars sum to slightly
-        less than the headline — the remainder is worth about $4,950 a month.
+        Monthly revenue by product, from <code>monthlySold × buy box price</code>.{" "}
+        {d.copy.salesLede}
       </p>
       <RevenueBars asins={d.asins} />
 
@@ -393,8 +386,13 @@ function Sales({ d, go }: { d: Dossier; go: Go }) {
       </table>
       <p data-src-line="">
         <Src id="keepa" sources={d.sources} go={go} /> "Sold / mo" is Amazon's own badge, which is
-        why every row reads <em>n+</em>. A row with no price has a live badge and no current offer —
-        it sells, and it is out of stock.
+        why every row reads <em>n+</em>.
+        {/* Only where such a row exists. Explaining a dash in a column that has
+            no dashes reads as a page describing a different catalogue — which
+            is the failure `copy` was extracted to stop. */}
+        {d.asins.some((a) => a.priceCents == null)
+          ? " A row with no price has a live badge and no current offer — it sells, and it is out of stock."
+          : null}
       </p>
     </section>
   );
@@ -461,12 +459,7 @@ function Advertising({ d, go }: { d: Dossier; go: Go }) {
         what="No public source reports a competitor's ad spend on any of these channels."
         go={go}
       />
-      <p>
-        The one genuinely public thing here is Meta's ad library, which publishes every ad a page is
-        running along with its creative and run dates. It does <em>not</em> publish spend, and
-        Amazon publishes nothing at all — so a spend figure is always somebody's model, including
-        ours.
-      </p>
+      <p>{d.copy.advertisingLede}</p>
       <ul data-adspend="">
         {d.advertising.map((a) => (
           <li key={a.channel}>
@@ -507,11 +500,7 @@ function Traffic({ d, go }: { d: Dossier; go: Go }) {
   return (
     <section>
       <h2>Traffic &amp; presence</h2>
-      <p>
-        The half Amazon cannot see. The brand is not new — it is new <em>to Amazon</em>, arriving
-        with an audience it spent years building elsewhere, and that is the single most useful thing
-        on this page.
-      </p>
+      <p>The half Amazon cannot see. {d.copy.trafficLede}</p>
       <ul data-off-amazon="">
         {d.offAmazon.map((o) => (
           <li key={o.href}>

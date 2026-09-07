@@ -30,6 +30,8 @@ export const theLoadedTeaShop: Dossier = {
   brand: "The Loaded Tea Shop",
   what: "Amazon FBA · sugar-free energy drink mix sticks",
   logo: "/demo/theloadedteashop-logo.png",
+  /* 512x466. Near square, so it takes the avatar's whole box — see logoShape. */
+  logoShape: "square",
 
   headline: {
     revenue: "$1.58M",
@@ -62,6 +64,7 @@ export const theLoadedTeaShop: Dossier = {
     country: "US",
     storefrontUrl: "https://www.amazon.com/sp?seller=A2FLJTREXC9RX4",
     feedback: "72% over 337 ratings",
+    feedbackNote: "poor, for a business this size",
     source: "keepa-seller",
   },
 
@@ -408,4 +411,21 @@ export const theLoadedTeaShop: Dossier = {
         "Marked with * wherever it appears. Product sourcing, advertising spend and keyword ranks are placeholders, showing what the page will look like once those pipelines exist. They are not estimates, not modelled, and not to be quoted: they were made up. Everything carrying a NUMBER instead of a * came from one of the real sources above.",
     },
   ],
+
+  /* The sentences that are about THIS business. They used to be hardcoded in
+     DemoSourced.tsx, where the second dossier would have inherited them and
+     described itself with another company's history — see `copy` in
+     ../dossier.ts. */
+  copy: {
+    catalogueChart:
+      "Each step is a product going live — nearly the whole catalogue inside eight weeks. The brand itself has traded since 2019.",
+    timelineLede:
+      "The strands are kept together on one line on purpose: four years of building an audience elsewhere, a lone Amazon listing that goes nowhere for ten months, and then the catalogue and the ad spend arriving in the same eight weeks.",
+    salesLede:
+      "Three packs carry the business; the long tail of single-flavour 5-packs barely registers. These are the 15 largest of 18 priced products, so the bars sum to slightly less than the headline — the remainder is worth about $4,950 a month.",
+    advertisingLede:
+      "The one genuinely public thing here is Meta's ad library, which publishes every ad a page is running along with its creative and run dates. It does not publish spend, and Amazon publishes nothing at all — so a spend figure is always somebody's model, including ours.",
+    trafficLede:
+      "The brand is not new — it is new to Amazon, arriving with an audience it spent years building elsewhere, and that is the single most useful thing on this page.",
+  },
 };

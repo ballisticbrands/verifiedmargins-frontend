@@ -18,6 +18,7 @@ import { tomNomYyz } from "./fixtures/tomnomyyz";
 import { pureZookeepergame } from "./fixtures/pure-zookeepergame";
 import { leaderboard } from "./fixtures/leaderboard";
 import { theLoadedTeaShop } from "./fixtures/theloadedteashop";
+import { resilia } from "./fixtures/resilia";
 import type { Dossier } from "./dossier";
 import { ecgGroup } from "./fixtures/ecg-group";
 import {
@@ -265,6 +266,17 @@ export const DEMOS: Record<string, Demo> = {
     label: "The Loaded Tea Shop — sourced dossier",
     blurb:
       "A seller profiled entirely from public data: Keepa catalogue revenue, the operating business and its country, plus the Instagram and own-site traffic Amazon cannot see. Every figure names its source.",
+  },
+  /* The second sourced dossier, and the useful one to open BESIDE the first:
+     same method, a business 3.6x the size, and a web check that overturned
+     what the catalogue alone implied. Both brands came to Amazon late; one
+     had built an audience and the other buys one. */
+  resilia: {
+    kind: "sourced",
+    dossier: resilia,
+    label: "Resilia Oil Of Oregano — sourced dossier",
+    blurb:
+      "$5.66M a month, ten months after the first listing. Keepa gives the catalogue; whois, the Wayback Machine and a phone number that appears on two records give the subscription business behind it that Amazon cannot see.",
   },
   afrasiab: {
     kind: "profile",

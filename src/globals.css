@@ -3675,15 +3675,27 @@ h2[data-heading-badges] {
 
 /* 🚨 A SQUARE logo, where the shared rule assumes a wide one.
    `[data-brand-logo]` sizes on `max-height: 34px` because White Mountain's
-   logo is 470x200. This brand's is 512x466 — near square — and at 34px tall it
-   renders about 37px wide: a stamp beside a 2rem heading. Squares get the
-   avatar's whole box instead. Scoped to .vm-dossier so the wide-logo case,
-   which the shared rule gets right, is untouched. */
-.vm-dossier [data-business-avatar]:has(img[data-brand-logo]) {
+   logo is 470x200. The Loaded Tea Shop's is 512x466 — near square — and at
+   34px tall it renders about 37px wide: a stamp beside a 2rem heading.
+   Squares get the avatar's whole box instead.
+
+   Keyed on the dossier's own `logoShape`, not on `.vm-dossier`, because the
+   two shapes wreck each other: this rule applied to a WIDE wordmark (Resilia's
+   is 800x210) squeezes it into a 60px box about 16px tall, which is the same
+   stamp the rule exists to prevent. A dossier declares which it has — see
+   `logoShape` in src/demo/dossier.ts — so neither case is a default nobody
+   looked at. */
+.vm-dossier [data-business-avatar]:has(img[data-brand-logo][data-logo-shape="square"]) {
   width: 3.75rem; height: 3.75rem; min-width: 0; padding: 0.35rem;
 }
-.vm-dossier [data-business-avatar] img[data-brand-logo] {
+.vm-dossier [data-business-avatar] img[data-brand-logo][data-logo-shape="square"] {
   width: 100%; height: 100%; max-height: 100%; object-fit: contain;
+}
+/* A wide wordmark keeps the shared treatment, with a little more height to
+   spend: the dossier header is a 2rem brand name rather than a business-card
+   line, and 34px of wordmark beside it reads as a caption. */
+.vm-dossier [data-business-avatar] img[data-brand-logo][data-logo-shape="wide"] {
+  max-height: 44px;
 }
 
 /* Tabs. Buttons rather than links: the tab lives in ?tab=, and the router
