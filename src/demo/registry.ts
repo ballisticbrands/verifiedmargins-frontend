@@ -17,6 +17,8 @@ import { thickValuable4753 } from "./fixtures/thick-valuable-4753";
 import { tomNomYyz } from "./fixtures/tomnomyyz";
 import { pureZookeepergame } from "./fixtures/pure-zookeepergame";
 import { leaderboard } from "./fixtures/leaderboard";
+import { theLoadedTeaShop } from "./fixtures/theloadedteashop";
+import type { Dossier } from "./dossier";
 import { ecgGroup } from "./fixtures/ecg-group";
 import {
   passionateNetworkGroup,
@@ -40,7 +42,7 @@ import {
  * button it has nowhere to put, or a profile builder from being called with a
  * leaderboard's axis. src/pages/Demo.tsx switches on it.
  */
-export type Demo = ProfileDemo | LeaderboardDemo | GroupDemo;
+export type Demo = ProfileDemo | LeaderboardDemo | GroupDemo | SourcedDemo;
 
 /** A tag beside the name.
  *
@@ -184,6 +186,21 @@ export interface GroupDemo extends DemoMeta {
 }
 
 /**
+ * 🚧 A SOURCED DOSSIER — everything public about a seller who has never heard
+ * of us, with every figure naming its source.
+ *
+ * The second kind with no real page behind it (see GroupDemo). It carries its
+ * data DIRECTLY rather than as a `build` function, because unlike every other
+ * kind there is no endpoint to answer: `DemoSourced` renders the dossier, it
+ * does not patch fetch. A builder here would be a signature implying a backend
+ * that does not exist.
+ */
+export interface SourcedDemo extends DemoMeta {
+  kind: "sourced";
+  dossier: Dossier;
+}
+
+/**
  * The three-product consult menu, which three demos now carry.
  *
  * A factory rather than a third copy of the same literal: the prices are
@@ -239,6 +256,16 @@ export function findDemo(slug: string): Demo | undefined {
 }
 
 export const DEMOS: Record<string, Demo> = {
+  /* 🚧 Built from public data only, by the VM-amazon-store-scraping skill —
+     the seller has never spoken to us. Every figure on it is estimated and
+     carries a marker to its source. */
+  theloadedteashop: {
+    kind: "sourced",
+    dossier: theLoadedTeaShop,
+    label: "The Loaded Tea Shop — sourced dossier",
+    blurb:
+      "A seller profiled entirely from public data: Keepa catalogue revenue, the operating business and its country, plus the Instagram and own-site traffic Amazon cannot see. Every figure names its source.",
+  },
   afrasiab: {
     kind: "profile",
     build: afrasiab,

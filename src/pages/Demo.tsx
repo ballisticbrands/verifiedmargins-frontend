@@ -4,6 +4,7 @@ import { findDemo } from "@/demo/registry";
 import { DemoProfile } from "./DemoProfile";
 import { DemoLeaderboard } from "./DemoLeaderboard";
 import { DemoGroup } from "./DemoGroup";
+import { DemoSourced } from "./DemoSourced";
 
 /**
  * /demo/<slug> — picks the page a demo renders through.
@@ -40,5 +41,8 @@ export function Demo() {
      but the union has three members, so this arm keeps the switch total and
      stops a group registered under a bare key rendering as a profile. */
   if (demo.kind === "group") return <DemoGroup demo={demo} />;
+  /* 🚧 A dossier built from public data. Like a group, it has no real page
+     behind it — see src/demo/README.md. */
+  if (demo.kind === "sourced") return <DemoSourced demo={demo} />;
   return <DemoProfile slug={slug} demo={demo} />;
 }

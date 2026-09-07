@@ -80,6 +80,10 @@ export const PUBLIC_PAGES = [
  * resolve on a cold link but must never be indexed. Adding a demo means adding
  * a line here — see src/demo/README.md. */
 export const DEMO_PAGES = [
+  /* 🚧 A SOURCED DOSSIER — a seller profiled from public data who has never
+     heard of us. Estimated throughout, and the one demo whose whole point is
+     that every figure names where it came from. */
+  '/demo/theloadedteashop',
   /* The index of the list below, read off the DEMOS registry. Listed here
      like any other demo: it needs the 200-answering stub, and it must carry
      the Disallow — a crawlable index of noindex pages hands a crawler every
