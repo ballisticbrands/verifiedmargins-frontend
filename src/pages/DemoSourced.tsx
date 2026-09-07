@@ -99,6 +99,11 @@ export function DemoSourced({ demo }: { demo: SourcedDemo }) {
               Profiled from public data ·{" "}
               <Link to="/how-verification-works">How verification works</Link>
             </p>
+            {/* Where this brand can be found, in the header rather than on a
+                tab: it belongs to the identity, not to one section's argument,
+                and a reader looking for "do they have a website" should not
+                have to guess which of eight tabs hides it. */}
+            <BrandLinks d={d} go={go} />
           </span>
         </span>
 
@@ -181,6 +186,31 @@ function InventedNotice({ what, go, scope = "on this tab" }: { what: string; go:
   );
 }
 
+/**
+ * The invented economics, computed ONCE.
+ *
+ * The tile row, the profit chart and the sourcing tab's margin block all show
+ * the same three numbers, and three copies of `100 - sum(lines)` is three
+ * chances for a page to contradict itself about a figure it made up — which
+ * is a worse look than the made-up figure.
+ */
+function modelled(d: Dossier) {
+  const net = 1 - d.economics.lines.reduce((t, l) => t + l.pct, 0) / 100;
+  const revenue = d.asins.reduce((t, a) => t + a.monthlySold * (a.priceCents ?? 0), 0);
+  return { net, revenue, profit: revenue * net };
+}
+
+/** The tag both invented tiles carry.
+ *
+ * 🚨 NOT a verification tier. `--partial` (amber) means "we checked half of
+ * this" and the shared tile paints every tag in it, so `.vm-dossier` repaints
+ * this one neutral — an invented number is not a rung on the ladder, it is off
+ * the ladder entirely. */
+const INVENTED_TAG = {
+  label: "Invented",
+  title: "Invented for this demo — nobody measured it. See Sources.",
+};
+
 function money(cents: number): string {
   const d = cents / 100;
   if (d >= 1_000_000) return `$${(d / 1_000_000).toFixed(2)}M`;
@@ -191,6 +221,7 @@ function money(cents: number): string {
 /* ────────────────────────────────────────────────────────────────── tabs */
 
 function Overview({ d, go }: { d: Dossier; go: Go }) {
+  const m = modelled(d);
   return (
     <>
       {/* The deep-dive, clamped. It does not expand in place — the whole
@@ -204,7 +235,6 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
         <button type="button" data-deep-dive-toggle="" onClick={() => go("deepdive")}>
           Read the deep-dive
         </button>
-        <BrandLinks d={d} go={go} />
       </section>
 
       <section>
@@ -214,6 +244,22 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
             label="Revenue (monthly)"
             value={d.headline.revenue}
             hint="A floor — the deep-dive says why."
+          />
+          {/* 🚨 The two tiles nobody measured, in the row a reader trusts most.
+              They carry the tag AND the caption below carries the marker: a
+              made-up profit sitting unlabelled beside Keepa's revenue is the
+              single worst thing this page could render. */}
+          <StatTile
+            label="Profit (monthly)"
+            value={money(m.profit)}
+            tag={INVENTED_TAG}
+            hint="Modelled from invented costs — see the sourcing tab."
+          />
+          <StatTile
+            label="Net margin"
+            value={`${Math.round(m.net * 100)}%`}
+            tag={INVENTED_TAG}
+            hint="Revenue less the modelled cost lines on the sourcing tab."
           />
           <StatTile label="Units (monthly)" value={d.headline.units} />
           <StatTile label="Avg selling price" value={d.headline.asp} />
@@ -225,9 +271,15 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
         </div>
         <p data-chart-label="">
           <small>
-            Revenue, units and price from Keepa
+            Revenue, units, price and catalogue from Keepa
             <Src id="keepa" sources={d.sources} go={go} />, across the whole{" "}
-            {d.counts.catalogue}-product catalogue.
+            {d.counts.catalogue}-product catalogue. Profit and margin are neither — they are
+            modelled from costs nobody quoted
+            <Src id={d.economics.source} sources={d.sources} go={go} />, and the{" "}
+            <button type="button" data-linklike="" onClick={() => go("sourcing")}>
+              sourcing tab
+            </button>{" "}
+            shows every line that comes off.
           </small>
         </p>
       </section>
@@ -543,11 +595,10 @@ function Sourcing({ d, go }: { d: Dossier; go: Go }) {
  * refuse to guess. Keep the markers.
  */
 function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
-  const cost = d.economics.lines.reduce((t, l) => t + l.pct, 0);
-  const net = 100 - cost;
-  /* Off the headline revenue, so the two agree: a monthly profit that cannot
-     be reproduced from the number in the tile above is a third figure. */
-  const revenue = d.asins.reduce((t, a) => t + a.monthlySold * (a.priceCents ?? 0), 0);
+  /* The same three numbers the tile row and the chart show — one helper, so
+     they cannot drift apart. */
+  const { net: netFraction, revenue, profit } = modelled(d);
+  const net = netFraction * 100;
   return (
     <>
       <h3>What that would make the margin</h3>
@@ -568,8 +619,8 @@ function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
             {net.toFixed(0)}%<Src id={d.economics.source} sources={d.sources} go={go} />
           </span>
           <span data-econ-note="">
-            ≈ {money(Math.round(revenue * (net / 100)))} a month on {money(revenue)} of catalogue
-            revenue — the line drawn on the overview chart.
+            ≈ {money(profit)} a month on {money(revenue)} of catalogue revenue — the tile and the
+            line on the overview.
           </span>
         </li>
       </ul>
@@ -693,7 +744,6 @@ function DeepDiveTab({ d, go }: { d: Dossier; go: Go }) {
     <section data-method="">
       <h2>Business deep-dive</h2>
       <p data-lede="">{d.deepDive}</p>
-      <BrandLinks d={d} go={go} />
 
       <h2>How these estimates were made</h2>
 
@@ -838,10 +888,7 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
   const [wrapRef, width] = useMeasuredWidth();
   const [hover, setHover] = useState<{ kind: "month" | "event"; i: number } | null>(null);
 
-  const net = useMemo(
-    () => 1 - d.economics.lines.reduce((t, l) => t + l.pct, 0) / 100,
-    [d.economics.lines],
-  );
+  const { net } = modelled(d);
 
   /* One point per calendar month, spanning EVERY dated timeline event as well
      as every listing.

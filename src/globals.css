@@ -3859,8 +3859,26 @@ h2[data-heading-badges] {
    blocks external hosts blocks icon fonts too, and currentColor means none of
    them can spend the verification green by accident. */
 .vm-dossier [data-brand-links] {
-  list-style: none; padding: 0; margin: 1rem 0 1.5rem;
+  list-style: none; padding: 0; margin: 0.6rem 0 0;
   display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem;
+}
+
+/* Six tiles, not four: profit and margin joined the row. The shared 9.5rem
+   track fits five across at this page width, which left "Catalogue" alone on a
+   second row looking like an afterthought. A slightly narrower track fits all
+   six on one line and still wraps to two and then one on a phone. */
+.vm-dossier [data-tiles] { grid-template-columns: repeat(auto-fill, minmax(8.75rem, 1fr)); }
+
+/* 🚨 The invented tiles' tag, repainted.
+   The shared StatTile paints every `tag` in --partial, which on this site
+   means "we checked half of this" — the middle rung of the verification
+   ladder (BRANDING.md section 5), and amber must never be spent on anything
+   else. An invented number is not half-checked; it is off the ladder, so its
+   tag is neutral. */
+.vm-dossier [data-stat-tag] {
+  border-color: var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
 }
 .vm-dossier [data-brand-links] li {
   display: inline-flex; align-items: center; gap: 0.4rem; margin: 0;
