@@ -79,8 +79,13 @@ export interface OffAmazon {
 export interface Dossier {
   /** The brand as Amazon spells it. */
   brand: string;
-  /** One line: what they sell. */
+  /** One line: what they sell. Sits where a business page puts "Amazon FBA". */
   what: string;
+  /** The brand's logo, in the slot a founder's face occupies. Served from OUR
+   *  origin (public/demo/…), never hotlinked — a retailer CDN URL carries a
+   *  version query, expires, and often blocks cross-origin embedding, so a
+   *  hotlinked logo is a header that breaks silently months later. */
+  logo: string;
   /** The business actually operating the listings, from the seller record. */
   operator: {
     businessName: string;
@@ -89,11 +94,25 @@ export interface Dossier {
     address: string[];
     country: string;
     storefrontUrl: string;
+    /** Pre-formatted, e.g. "72% over 337 ratings". A big business carrying a
+     *  poor score is the interesting case, so it sits with the operator rather
+     *  than in a tile where it would read as a performance metric. */
+    feedback: string;
     source: string;
   };
-  /** The story a reader needs before the numbers mean anything. */
-  standfirst: string;
-  /** The headline tiles. */
+  /** The four StatTiles, pre-formatted — the same row a business page leads
+   *  with, so a reader crossing between the two does not re-learn it. */
+  headline: {
+    revenue: string;
+    units: string;
+    asp: string;
+    catalogue: string;
+  };
+  /** The prose in the `Business deep-dive` block: what this business IS, and
+   *  the finding that makes it worth a page. Clamped until Expand. */
+  deepDive: string;
+  /** Everything else worth a labelled number, each naming its source. Used by
+   *  the sections below the fold rather than the tile row. */
   figures: Figure[];
   /** The largest priced ASINs, best-selling first — NOT necessarily all of
    *  them; `pricedCount` is the true total. The page discloses the difference

@@ -3662,62 +3662,37 @@ h2[data-heading-badges] {
  * 🚧 A page the product does not have: everything public about a seller who
  * has never heard of us. See src/demo/README.md and src/demo/dossier.ts.
  *
+ * The page carries `vm-profile` as well as `vm-dossier`, so the header, the
+ * avatar, the StatTile row, the deep-dive block and the chart are the BUSINESS
+ * page's styling rather than a second copy of it. Everything below is only
+ * what a business page has no equivalent for.
+ *
  * Two rules shape all of it. NO GREEN — green means verified (§3.1) and this
  * page verified nothing. NO RED ON A FIGURE — red is the unverified rung and
  * an error colour, never "a bad number" (§11), so a poor feedback score is
- * marked by weight and a rule, not by hue.
+ * carried by words, not by hue.
  */
-.vm-dossier [data-dossier-head] { margin: 0.5rem 0 1.5rem; }
-.vm-dossier [data-dossier-head] h1 { margin: 0.25rem 0 0.5rem; }
-.vm-dossier [data-what] { color: var(--muted-foreground); margin: 0 0 0.75rem; }
-.vm-dossier [data-standfirst] { font-size: 1.05rem; max-width: 62ch; }
 
-/* The bottom rung: shape, word and colour together. */
-.vm-dossier [data-tier] { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-.vm-dossier [data-tier-pill] {
-  display: inline-flex; align-items: center; gap: 0.35rem;
-  padding: 0.15rem 0.55rem; border-radius: 999px;
-  background: var(--unverified-tint); border: 1px solid var(--unverified);
-  color: var(--unverified); font-size: 0.85rem; font-weight: 600;
+/* 🚨 A SQUARE logo, where the shared rule assumes a wide one.
+   `[data-brand-logo]` sizes on `max-height: 34px` because White Mountain's
+   logo is 470x200. This brand's is 512x466 — near square — and at 34px tall it
+   renders about 37px wide: a stamp beside a 2rem heading. Squares get the
+   avatar's whole box instead. Scoped to .vm-dossier so the wide-logo case,
+   which the shared rule gets right, is untouched. */
+.vm-dossier [data-business-avatar]:has(img[data-brand-logo]) {
+  width: 3.75rem; height: 3.75rem; min-width: 0; padding: 0.35rem;
+}
+.vm-dossier [data-business-avatar] img[data-brand-logo] {
+  width: 100%; height: 100%; max-height: 100%; object-fit: contain;
 }
 
-/* The caveat, above the numbers rather than below them. */
-.vm-dossier [data-claim] {
-  border: 1px solid var(--border); border-left: 3px solid var(--unverified);
-  border-radius: var(--radius); background: var(--muted);
-  padding: 0.9rem 1.1rem;
-}
-.vm-dossier [data-claim] h2 { margin-top: 0; font-size: 1rem; }
-.vm-dossier [data-claim] p { margin-bottom: 0; max-width: 70ch; }
-
-/* Each tile carries its own hairline rather than the grid painting a 1px gap
-   over a --border backdrop. That trick renders every LEFTOVER cell of the last
-   row as a solid grey block — with nine figures in a four-up grid, a large
-   empty panel sat beside the final tile looking like a failed render. */
-.vm-dossier [data-tiles] {
-  display: grid; gap: 0.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  list-style: none; padding: 0; margin: 0.75rem 0 0;
-}
-.vm-dossier [data-tiles] li {
-  background: var(--card); padding: 0.85rem 1rem; margin: 0;
-  border: 1px solid var(--border); border-radius: var(--radius);
-  display: flex; flex-direction: column; gap: 0.15rem; position: relative;
-}
-/* A weak number is marked by a rule and weight, never by colour. */
-.vm-dossier [data-tiles] li[data-flag] { box-shadow: inset 3px 0 0 var(--foreground); }
-.vm-dossier [data-tile-label] { font-size: 0.8rem; color: var(--muted-foreground); }
-.vm-dossier [data-tile-value] { font-size: 1.5rem; font-weight: 600; line-height: 1.15; }
-.vm-dossier [data-tile-note] { font-size: 0.78rem; color: var(--muted-foreground); }
-
-/* Every figure carries a marker back to the source that is answerable for it. */
+/* Every figure ties back to the source answerable for it. */
 .vm-dossier [data-src-mark] {
   font-size: 0.7rem; font-family: var(--font-mono); vertical-align: super;
-  margin-left: 0.25rem; color: var(--muted-foreground);
+  margin-left: 0.15rem; color: var(--muted-foreground);
   text-decoration: none; border-bottom: 1px dotted var(--border);
 }
 .vm-dossier [data-src-mark]:hover { color: var(--foreground); }
-.vm-dossier [data-tiles] [data-src-mark] { position: absolute; top: 0.6rem; right: 0.7rem; }
 .vm-dossier [data-src-line] { font-size: 0.82rem; color: var(--muted-foreground); }
 .vm-dossier [data-muted] { color: var(--muted-foreground); }
 
@@ -3732,9 +3707,11 @@ h2[data-heading-badges] {
 .vm-dossier [data-bar-fill] { display: block; height: 100%; background: var(--foreground); border-radius: 2px; }
 .vm-dossier [data-bar-value] { font-size: 0.85rem; text-align: right; min-width: 5rem; }
 
-.vm-dossier [data-timeline] { width: 100%; height: auto; margin-top: 0.75rem; }
-
-.vm-dossier [data-operator] { margin: 0.5rem 0 0; }
+/* 🚨 `display: block` is load-bearing. `.vm-profile dl` (line ~640) makes
+   every dl on a profile a two-column grid, and this page now carries
+   vm-profile — so without this the operator rows interleave into two columns
+   and "Seller feedback" lands beside "Legal name". */
+.vm-dossier [data-operator] { display: block; margin: 0.5rem 0 0; }
 .vm-dossier [data-operator] > div {
   display: grid; grid-template-columns: minmax(9rem, 12rem) 1fr;
   gap: 0.75rem; padding: 0.5rem 0; border-top: 1px solid var(--border);
@@ -3755,21 +3732,23 @@ h2[data-heading-badges] {
   text-align: left; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border);
 }
 .vm-dossier [data-asins] th { color: var(--muted-foreground); font-weight: 600; font-size: 0.8rem; }
-.vm-dossier [data-asins] td:nth-child(n+4) { text-align: right; }
-.vm-dossier [data-asins] th:nth-child(n+4) { text-align: right; }
+.vm-dossier [data-asins] td:nth-child(n+4), .vm-dossier [data-asins] th:nth-child(n+4) { text-align: right; }
 .vm-dossier [data-asins] tbody tr:nth-child(odd) { background: var(--muted); }
 
+/* The method block, in the shape a business page uses it. */
+.vm-dossier [data-method] h3 { font-size: 0.95rem; margin: 1.4rem 0 0.35rem; }
+.vm-dossier [data-method] p { max-width: 72ch; }
 .vm-dossier [data-gaps] { padding-left: 1.1rem; }
 .vm-dossier [data-gaps] li { margin: 0.5rem 0; max-width: 72ch; }
 
-.vm-dossier [data-sources] ol { list-style: none; padding: 0; margin: 0.75rem 0 0; counter-reset: none; }
-.vm-dossier [data-sources] li {
+.vm-dossier [data-sources] { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.vm-dossier [data-sources] > li {
   display: grid; grid-template-columns: 1.6rem 1fr; gap: 0.6rem;
   padding: 0.6rem 0; border-top: 1px solid var(--border); margin: 0;
 }
 .vm-dossier [data-sources] [data-src-n] { color: var(--muted-foreground); font-size: 0.8rem; }
-.vm-dossier [data-sources] p { margin: 0 0 0.15rem; max-width: 72ch; }
-.vm-dossier [data-sources] li:target [data-src-n] { color: var(--foreground); font-weight: 700; }
+.vm-dossier [data-sources] p { margin: 0 0 0.15rem; max-width: 72ch; font-size: 0.9rem; }
+.vm-dossier [data-sources] > li:target [data-src-n] { color: var(--foreground); font-weight: 700; }
 
 @media (max-width: 640px) {
   .vm-dossier [data-bars] li { grid-template-columns: 1fr auto; }

@@ -28,11 +28,31 @@ import type { Dossier } from "../dossier";
 
 export const theLoadedTeaShop: Dossier = {
   brand: "The Loaded Tea Shop",
-  what: "Sugar-free, zero-calorie energy drink mix sticks — 40+ flavours, sold in 5, 10, 20 and 40 packs.",
-  standfirst:
-    "A founder-led brand that started in a Gulfport kitchen in 2019, built an audience on Instagram, " +
-    "and only began pushing a real catalogue onto Amazon in March 2026. Six months in, the Amazon " +
-    "business is turning an estimated $1.58M a month through a seller account rated 72%.",
+  what: "Amazon FBA · sugar-free energy drink mix sticks",
+  logo: "/demo/theloadedteashop-logo.png",
+
+  headline: {
+    revenue: "$1.58M",
+    units: "45,050",
+    asp: "$35.03",
+    catalogue: "52 ASINs",
+  },
+
+  deepDive:
+    "The Loaded Tea Shop sells sugar-free, zero-calorie energy drink mix sticks in 40+ flavours, " +
+    "packed in 5, 10, 20 and 40 counts. It is a useful business to study because the Amazon " +
+    "business and the brand are not the same age. The brand started in a Gulfport, Mississippi " +
+    "kitchen in 2019 — founded by ex-Herbalife distributors who decided to make their own " +
+    "product — and built its audience on Instagram and its own Shopify store, where it still " +
+    "takes about 5,324 visits a month. Amazon came last. Its first listing went up in May 2025, " +
+    "but the actual catalogue arrived in a burst between March and May 2026: 15 products in " +
+    "roughly eight weeks. Six months on, that catalogue is turning an estimated $1.58M a month, " +
+    "of which three multipacks are most of it. So this is not a new brand — it is an " +
+    "established direct-to-consumer brand new TO AMAZON, arriving with an audience it already " +
+    "had. Keepa cannot tell you that; only looking at the rest of their web presence can, which " +
+    "is the argument for a human reading a page like this before it is published. The number " +
+    "that does not fit the story is the seller feedback score: 72% over 337 ratings is poor for " +
+    "a business this size, and it is the first thing worth asking them about.",
 
   operator: {
     businessName: "Champs Tea Shop, Inc",
@@ -41,6 +61,7 @@ export const theLoadedTeaShop: Dossier = {
     address: ["6025 S Vista Dr", "Gulfport", "MS", "39507"],
     country: "US",
     storefrontUrl: "https://www.amazon.com/sp?seller=A2FLJTREXC9RX4",
+    feedback: "72% over 337 ratings",
     source: "keepa-seller",
   },
 

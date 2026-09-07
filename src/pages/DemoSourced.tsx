@@ -1,5 +1,11 @@
-import { useBrand } from "@ballisticbrands/frontend-shared";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  StatTile,
+  TrendChart,
+  VerificationBadge,
+  type TrendPoint,
+} from "@ballisticbrands/frontend-shared";
 import { Shell } from "./Shell";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DemoBanner, useDemoMeta } from "@/demo/harness";
@@ -14,98 +20,114 @@ import type { SourcedDemo } from "@/demo/registry";
  * this could drift from, and src/demo/README.md's third-kind rule applies: a
  * case in Demo.tsx and a component beside it.
  *
- * It uses no fetch seam. Every other demo answers a request the real page
- * makes; this page makes none, so wiring `useDemoFetch` here would install a
- * responder that never fires and imply a backend that does not exist.
+ * ── It is SHAPED like /business/<slug>, deliberately ─────────────────────
+ * Same wrapper (`vm-form vm-profile`), same header (a logo in the avatar slot,
+ * the name, the shared VerificationBadge), the same `Business deep-dive` block,
+ * the shared `StatTile` row, the shared `TrendChart`, and the method last under
+ * "How these estimates were made". A reader moving between a real business page
+ * and this one should not have to re-learn what anything means, and REUSING
+ * those components rather than restyling them is what stops the two drifting.
+ * `.vm-dossier` adds only what a business page has no equivalent for: source
+ * markers, the per-product bars, and the sources list.
+ *
+ * It installs no fetch seam. Every other demo answers a request the real page
+ * makes; this page makes none, so a responder here would never fire and would
+ * imply a backend that does not exist.
  *
  * ── The one rule this page is built around ───────────────────────────────
- * Nothing here is verified. It sits at the bottom rung of the ladder
- * (BRANDING.md section 5): ○, the word, `--unverified`. The claim strip sits
- * ABOVE the numbers rather than under them, because a reader who scrolls to a
- * $1.58M tile and meets the caveat afterwards has already believed it.
- *
- * No green anywhere, including the charts — green on this site means verified
- * (BRANDING.md section 3.1), and this page verified nothing.
+ * Nothing here is verified. It sits at the bottom rung of the ladder, drawn by
+ * the SHARED badge rather than a local pill, so the ○/word/colour treatment is
+ * the one every other page uses. No green anywhere, charts included — green
+ * means verified (BRANDING.md §3.1) and this page verified nothing.
  */
 export function DemoSourced({ demo }: { demo: SourcedDemo }) {
-  const brand = useBrand();
   const d = demo.dossier;
-  useDemoMeta(`${d.brand} — sourced dossier — demo — ${brand.displayName}`);
+  useDemoMeta(`${d.brand} — sourced dossier — demo`);
 
   return (
-    <Shell width="wide">
+    <Shell width="profile">
       <DemoBanner />
-      <div className="vm-form vm-dossier">
-        <Breadcrumbs
-          items={[
-            { label: brand.displayName, to: "/" },
-            { label: "Demo", to: "/demo" },
-            { label: d.brand },
-          ]}
-        />
+      <div className="vm-form vm-profile vm-dossier">
+        <span data-profile-crumbs="">
+          <Breadcrumbs items={[{ label: "Demo", to: "/demo" }, { label: d.brand }]} />
+        </span>
 
-        <header data-dossier-head="">
-          <h1>{d.brand}</h1>
-          {/* Shape + word + colour, all three — never colour alone. */}
-          <p data-tier="">
-            <span data-tier-pill="">
-              <span aria-hidden="true">○</span> Estimated
-            </span>
-            <Link to="/how-verification-works">How verification works</Link>
-          </p>
-          <p data-what="">{d.what}</p>
-          <p data-standfirst="">{d.standfirst}</p>
-        </header>
+        <span data-profile-who="">
+          {/* The brand's own logo, in the slot a founder's face occupies —
+              served from our origin, never hotlinked (the Shopify CDN URL
+              carries a version query and blocks it), as with every other demo
+              image. */}
+          <span data-avatar="" data-business-avatar="" aria-hidden="true">
+            <img src={d.logo} alt="" data-brand-logo="" />
+          </span>
+          <span data-profile-identity="">
+            <h1>
+              {d.brand}
+              {/* The shared ladder, not a local copy of it. */}
+              <VerificationBadge verification={{ tier: "estimated", label: "Estimated" }} />
+            </h1>
+            <p data-verified-count="">{d.what}</p>
+            <p data-verified-count="">
+              Profiled from public data ·{" "}
+              <Link to="/how-verification-works">How verification works</Link>
+            </p>
+          </span>
+        </span>
 
-        {/* The caveat before the numbers, not after them. */}
-        <section data-claim="">
-          <h2>Nobody has asserted these figures</h2>
-          <p>
-            Not Amazon, not the seller. Every number below was modelled from public data or read
-            off somebody else's public page, and each one carries a marker to the source it came
-            from. Revenue is a <strong>floor</strong>: Amazon publishes its "bought in past month"
-            badge in brackets and only above roughly 50 a month, so each badged product is counted
-            at the bottom of its bracket and the {d.counts.unbadged} unbadged ones of{" "}
-            {d.counts.catalogue} are counted as zero.
-          </p>
-        </section>
+        <DeepDive dossier={d} />
 
         <section>
-          <h2>What the numbers say</h2>
-          <ul data-tiles="">
-            {d.figures.map((f) => (
-              <li key={f.label} data-flag={f.flag ? "" : undefined}>
-                <span data-tile-label="">{f.label}</span>
-                <span data-tile-value="" className="vm-num">
-                  {f.value}
-                </span>
-                {f.note ? <span data-tile-note="">{f.note}</span> : null}
-                <SourceMark id={f.source} sources={d.sources} />
-              </li>
-            ))}
-          </ul>
+          <h2 className="vm-visually-hidden">Estimated figures</h2>
+          <div data-tiles="">
+            <StatTile
+              label="Revenue (monthly)"
+              value={d.headline.revenue}
+              /* StatTile renders `hint` as visible text, not only as a
+                 tooltip, so it has to earn its line — a paragraph here makes
+                 the first tile twice the height of the three beside it. */
+              hint="A floor — the method below says why."
+            />
+            <StatTile label="Units (monthly)" value={d.headline.units} />
+            <StatTile label="Avg selling price" value={d.headline.asp} />
+            <StatTile
+              label="Catalogue"
+              value={d.headline.catalogue}
+              hint={`${d.counts.priced} of ${d.counts.catalogue} are priced and selling.`}
+            />
+          </div>
+          <p data-chart-label="">
+            <small>
+              Revenue, units and price from Keepa
+              <SourceMark id="keepa" sources={d.sources} />, across the whole{" "}
+              {d.counts.catalogue}-product catalogue.
+            </small>
+          </p>
+
+          <p data-chart-label="">
+            <small>Products live on Amazon, cumulative</small>
+          </p>
+          <div data-chart="">
+            <CatalogueChart asins={d.asins} />
+          </div>
+          <p data-chart-label="">
+            <small>
+              Each step is a product going live. The brand has traded since 2019, so this is not a
+              company being born — it is an existing business arriving on a new channel, nearly
+              all of it inside eight weeks. Its very first listing was earlier still, on{" "}
+              {d.firstListed}.
+            </small>
+          </p>
         </section>
 
         <section>
           <h2>Where the revenue is</h2>
           <p>
-            Monthly revenue by product, from <code>monthlySold × buy box price</code>. Three
-            packs carry the business; the long tail of flavour 5-packs barely registers. These are
-            the {d.asins.length} largest of {d.counts.priced} priced products, so the bars sum to
-            slightly less than the headline — the remainder is worth about $4,950 a month.
+            Monthly revenue by product. Three packs carry the business; the long tail of flavour
+            5-packs barely registers. These are the {d.asins.length} largest of {d.counts.priced}{" "}
+            priced products, so the bars sum to slightly less than the headline — the remainder is
+            worth about $4,950 a month.
           </p>
-          <RevenueChart asins={d.asins} />
-        </section>
-
-        <section>
-          <h2>When the catalogue arrived</h2>
-          <p>
-            Products first listed on Amazon, by month, for the {d.asins.length} shown below. The
-            brand has traded since 2019 — this is not a company being born, it is an existing
-            business arriving on a new channel, almost all of it inside eight weeks. Its very
-            first listing was earlier still, on {d.firstListed}, and sits outside this window.
-          </p>
-          <ListingTimeline asins={d.asins} />
+          <RevenueBars asins={d.asins} />
         </section>
 
         <section>
@@ -130,6 +152,13 @@ export function DemoSourced({ demo }: { demo: SourcedDemo }) {
               <dt>Registered address</dt>
               <dd>
                 {d.operator.address.join(", ")} · {d.operator.country}
+              </dd>
+            </div>
+            <div>
+              <dt>Seller feedback</dt>
+              <dd>
+                <span className="vm-num">{d.operator.feedback}</span>{" "}
+                <span data-muted="">— poor, for a business this size</span>
               </dd>
             </div>
           </dl>
@@ -207,18 +236,60 @@ export function DemoSourced({ demo }: { demo: SourcedDemo }) {
           </p>
         </section>
 
-        <section>
-          <h2>What we do not know</h2>
+        {/* The method LAST, in the same place and the same shape as a real
+            business page's — h2, then one h3 per thing a reader might doubt. */}
+        <section data-method="">
+          <h2>How these estimates were made</h2>
+
+          <h3>Nobody has asserted these figures</h3>
+          <p>
+            Not Amazon, not the seller — nobody at this business has spoken to us. Every number
+            above was modelled from public data or read off somebody else's public page, and each
+            one carries a marker to the source answerable for it.
+          </p>
+
+          <h3>Sales — Amazon's own "bought in past month"</h3>
+          <p>
+            Amazon prints a badge on a listing that reads "10,000+ bought in the past month". It
+            is the only sales figure Amazon publishes, and{" "}
+            <a href="https://keepa.com/#!api" rel="nofollow noopener" target="_blank">
+              Keepa
+            </a>{" "}
+            records it. We read it across all {d.counts.catalogue} listings and multiplied by the
+            buy box price.
+          </p>
+          <p>
+            Two things make this a <strong>floor rather than a guess</strong>. The badge is
+            bucketed, so "10,000+" is recorded as 10,000 when the truth is somewhere under 20,000.
+            And Amazon only shows it above roughly 50 sales a month — the {d.counts.unbadged}{" "}
+            listings below that threshold show nothing and are counted here as zero. The real
+            figure is higher than the one above, not lower.
+          </p>
+
+          <h3>The operator, and where they are</h3>
+          <p>
+            A brand and the business running it are not the same record. We resolve the buy-box
+            seller on the top listings, then read that seller's own registration — legal name,
+            address, country and feedback score. It is the fastest read on what kind of business
+            this is, and Amazon publishes it; we did not model it.
+          </p>
+
+          <h3>What is not here</h3>
           <ul data-gaps="">
             {d.gaps.map((g) => (
               <li key={g.slice(0, 24)}>{g}</li>
             ))}
           </ul>
-        </section>
 
-        <section data-sources="">
-          <h2>Sources</h2>
-          <ol>
+          <h3>What would replace all of this</h3>
+          <p>
+            One thing: the seller connecting their Amazon account. Then revenue and fees come from
+            Amazon directly, cost of goods comes from them, and the badge above stops saying
+            "Estimated".
+          </p>
+
+          <h3>Sources</h3>
+          <ol data-sources="">
             {d.sources.map((s, i) => (
               <li key={s.id} id={`src-${s.id}`}>
                 <span data-src-n="" className="vm-num">
@@ -246,6 +317,31 @@ export function DemoSourced({ demo }: { demo: SourcedDemo }) {
   );
 }
 
+/**
+ * The deep-dive block, in the shape /business/<slug> uses: a legend, prose
+ * clamped to a few lines, and an Expand toggle.
+ *
+ * The real one FETCHES its text and gates it behind a paywall. Here the text
+ * travels on the fixture and there is nothing to gate, so what the two share
+ * is the presentation, not the mechanism — which is why this is a local
+ * component rather than an import that would drag the lock and the offer in
+ * with it.
+ */
+function DeepDive({ dossier }: { dossier: Dossier }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <section data-deep-dive="">
+      <h2 data-facts-legend="">Business deep-dive</h2>
+      <p data-deep-dive-text="" data-clamped={expanded ? undefined : ""}>
+        {dossier.deepDive}
+      </p>
+      <button type="button" data-deep-dive-toggle="" onClick={() => setExpanded((e) => !e)}>
+        {expanded ? "Collapse" : "Expand"}
+      </button>
+    </section>
+  );
+}
+
 function money(cents: number): string {
   const d = cents / 100;
   if (d >= 1_000_000) return `$${(d / 1_000_000).toFixed(2)}M`;
@@ -257,22 +353,50 @@ function money(cents: number): string {
 function SourceMark({ id, sources }: { id: string; sources: Dossier["sources"] }) {
   const i = sources.findIndex((s) => s.id === id);
   if (i < 0) return null;
-  const s = sources[i];
   return (
-    <a data-src-mark="" href={`#src-${id}`} title={`Source: ${s.label}`}>
+    <a data-src-mark="" href={`#src-${id}`} title={`Source: ${sources[i].label}`}>
       {i + 1}
     </a>
   );
 }
 
 /**
- * Revenue by product — horizontal bars, drawn as divs rather than SVG.
+ * Catalogue size over time, through the SHARED TrendChart — the same chart a
+ * real business page plots revenue on.
  *
- * A bar chart is a list of labelled quantities, and as divs it stays
- * selectable, wraps on a phone and needs no viewBox arithmetic. SVG is for
- * the timeline below, where the x-axis is continuous and actually earns it.
+ * It counts LISTINGS, not revenue, and that is the honest choice rather than a
+ * timid one. `monthlySold` is a reading taken today, so plotting it against
+ * each product's launch date would draw a revenue history nobody ever
+ * measured. What we genuinely know per date is that a product went live.
  */
-function RevenueChart({ asins }: { asins: DossierAsin[] }) {
+function CatalogueChart({ asins }: { asins: DossierAsin[] }) {
+  const points = useMemo<TrendPoint[]>(() => {
+    const dates = [...asins].sort((a, b) => a.listed.localeCompare(b.listed));
+    let n = 0;
+    return dates.map((a) => ({ date: a.listed, value: ++n }));
+  }, [asins]);
+  return (
+    <TrendChart
+      points={points}
+      label="Products live"
+      format={(v) => (v == null ? "—" : `${v} live`)}
+      formatDate={(iso) =>
+        new Date(iso).toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          timeZone: "UTC",
+        })
+      }
+    />
+  );
+}
+
+/**
+ * Revenue by product — bars as divs rather than SVG, so they stay selectable
+ * and wrap on a phone. The time series above earns SVG; a labelled list of
+ * quantities does not.
+ */
+function RevenueBars({ asins }: { asins: DossierAsin[] }) {
   const rows = asins
     .filter((a) => a.priceCents)
     .map((a) => ({ ...a, rev: a.monthlySold * (a.priceCents as number) }))
@@ -292,83 +416,5 @@ function RevenueChart({ asins }: { asins: DossierAsin[] }) {
         </li>
       ))}
     </ul>
-  );
-}
-
-/**
- * Products first listed, by month.
- *
- * Deliberately counts ASINs, not revenue: the point is the SHAPE of the
- * arrival — a catalogue dropped onto Amazon in one burst — and revenue per
- * month of listing would say something else entirely.
- */
-function ListingTimeline({ asins }: { asins: DossierAsin[] }) {
-  const byMonth = new Map<string, number>();
-  for (const a of asins) {
-    const m = a.listed.slice(0, 7);
-    byMonth.set(m, (byMonth.get(m) ?? 0) + 1);
-  }
-  const months = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b));
-  const max = Math.max(...months.map(([, n]) => n), 1);
-  const W = 640;
-  const H = 160;
-  /* t leaves room for the count ABOVE the tallest bar. At t:8 that label sat
-     at y=3 and was clipped by the viewBox edge — the biggest month was the one
-     month whose number you could not read. */
-  const pad = { l: 28, r: 8, t: 22, b: 28 };
-  const bw = (W - pad.l - pad.r) / months.length;
-
-  return (
-    <svg
-      data-timeline=""
-      viewBox={`0 0 ${W} ${H}`}
-      role="img"
-      aria-label={months.map(([m, n]) => `${m}: ${n} products`).join("; ")}
-    >
-      {/* Baseline only. No gridlines: five bars do not need a lattice. */}
-      <line
-        x1={pad.l}
-        y1={H - pad.b}
-        x2={W - pad.r}
-        y2={H - pad.b}
-        stroke="var(--border)"
-        strokeWidth="1"
-      />
-      {months.map(([m, n], i) => {
-        const h = ((H - pad.t - pad.b) * n) / max;
-        const x = pad.l + i * bw;
-        return (
-          <g key={m}>
-            <rect
-              x={x + bw * 0.18}
-              y={H - pad.b - h}
-              width={bw * 0.64}
-              height={h}
-              fill="var(--foreground)"
-            />
-            <text
-              x={x + bw / 2}
-              y={H - pad.b - h - 5}
-              textAnchor="middle"
-              fontSize="11"
-              fontFamily="var(--font-mono)"
-              fill="var(--foreground)"
-            >
-              {n}
-            </text>
-            <text
-              x={x + bw / 2}
-              y={H - 9}
-              textAnchor="middle"
-              fontSize="11"
-              fontFamily="var(--font-mono)"
-              fill="var(--muted-foreground)"
-            >
-              {m}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
   );
 }
