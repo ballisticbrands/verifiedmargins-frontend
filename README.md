@@ -1,7 +1,14 @@
 # verifiedmargins-frontend
 
-The VerifiedMargins app, served at **https://app.verifiedmargins.com** from
+The VerifiedMargins app, served at **https://verifiedmargins.com** from
 GitHub Pages (Actions → Pages, `.github/workflows/deploy.yml`).
+
+> 🚨 **The apex, not a subdomain.** `app.verifiedmargins.com` does not exist
+> and never resolved. This repo used to serve it and now serves the apex —
+> which is the whole point, because published profiles live at the apex and
+> they are the pages this product exists to make findable. `public/CNAME` and
+> `SITE` in `src/data/site.mjs` are the two places that decide it; both say
+> `verifiedmargins.com`. The only other host is `api.verifiedmargins.com`.
 
 > **This is a deliberate placeholder.** VerifiedMargins has **no visual identity
 > yet** and is deliberately **not** Dragon-branded — no Forest/Lime palette, no
@@ -67,8 +74,8 @@ installs need a PAT.
 
 ## Per-product setup still outstanding
 
-- Cloudflare Turnstile: add `app.verifiedmargins.com` to the shared widget's hostname allowlist.
-- Google OAuth: add `https://app.verifiedmargins.com` to the shared Web client's
+- Cloudflare Turnstile: add `verifiedmargins.com` to the shared widget's hostname allowlist.
+- Google OAuth: add `https://verifiedmargins.com` to the shared Web client's
   Authorized JavaScript origins, and `verifiedmargins.com` to the consent screen's
   Authorized domains.
 - DNS: `app` → `CNAME ballisticbrands.github.io.`, then set the Pages custom domain.
