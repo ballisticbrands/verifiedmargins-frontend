@@ -355,35 +355,10 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
       </section>
 
       <section>
-        {/* 🚨 A MODELLED history, not a measured one — and the caveat that says
-            so now hangs off the heading rather than standing between the
-            reader and the chart. It is the same words; it is one hover away. */}
-        <h2>
-          Estimated monthly profit
-          <Info label="How this chart was built, and why it flattens">
-            <span data-info-para="">
-              ≈ <strong>Modelled.</strong> Today's run rate applied backwards over each product's
-              real listing date, less cost of goods, Amazon's published fees and modelled ad spend —
-              before returns and overhead, which are set to zero, so the profit line is a ceiling.
-              Nobody measured a month of it: every figure here carries a{" "}
-              <span data-invented-star="">≈</span>.
-            </span>
-            <span data-info-para="">
-              The line stops moving after the last product went live, and that is the model rather
-              than the business: <code>monthlySold</code> is one reading taken today, so every month
-              after{" "}
-              {[...d.asins]
-                .map((a) => a.listed)
-                .sort()
-                .at(-1)}{" "}
-              repeats it. Amazon publishes no month-by-month sales history.{" "}
-              <button type="button" data-linklike="" onClick={() => go("sources")}>
-                Sources
-              </button>
-              .
-            </span>
-          </Info>
-        </h2>
+        {/* No heading and no headline sentence here on purpose: the tile row
+            immediately above already names the three figures this chart draws,
+            and the caveat that used to justify them now rides on the legend,
+            where the series it is about are. */}
         <ProfitChart d={d} go={go} />
         <p data-chart-label="">
           <small>
@@ -1097,23 +1072,53 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
       .map((e) => e.date)
       .filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x))
       .sort();
-    const first = [d.firstListed, listed[0], dated[0]].filter(Boolean).sort()[0];
-    const last = [listed.at(-1)!, dated.at(-1)].filter(Boolean).sort().at(-1)!;
+    /* 🚨 The window follows the DATA when there is data.
+       It used to span every dated timeline event, so that a brand trading
+       before it reached Amazon showed that stretch at zero. With Keepa's badge
+       history the plot has something to draw, and spanning back to a 2024 event
+       squeezed ten months of real movement into the right quarter of the frame.
+       Earlier events keep their place on the Timeline tab, which the caption
+       links to. Without history the old span stands: there is nothing else to
+       show. */
+    const hist = d.salesHistory ?? [];
+    const first = hist.length
+      ? hist[0].month
+      : [d.firstListed, listed[0], dated[0]].filter(Boolean).sort()[0];
+    const last = hist.length
+      ? hist[hist.length - 1].month
+      : [listed.at(-1)!, dated.at(-1)].filter(Boolean).sort().at(-1)!;
     let key = monthKey(first);
     const stop = monthKey(last);
     const out: Array<{
       key: string;
       t: number;
-      revenue: number;
-      profit: number;
-      ads: number;
+      revenue: number | null;
+      profit: number | null;
+      ads: number | null;
     }> = [];
+    /* 🚨 Keepa's badge history where it exists, and NOTHING where it does not.
+       A month Keepa never recorded a badge for is not a month of zero sales —
+       it is a month nobody measured, and the line breaks there rather than
+       drawing a business that sold nothing. Only if a dossier carries no
+       history at all does the old model run: today's reading applied back over
+       each product's launch date, which is what produced a flat line from the
+       last launch onwards. */
+    const real = new Map((d.salesHistory ?? []).map((h) => [h.month, h]));
     for (let guard = 0; guard < 240; guard++) {
       const t = monthEnd(key);
-      const revenue = d.asins
-        .filter((a) => a.priceCents && Date.parse(`${a.listed}T00:00:00Z`) <= t)
-        .reduce((sum, a) => sum + a.monthlySold * (a.priceCents as number), 0);
-      out.push({ key, t, revenue, profit: revenue * net, ads: revenue * adsPct });
+      const hit = real.get(key);
+      const revenue = d.salesHistory?.length
+        ? (hit?.revenueCents ?? null)
+        : d.asins
+            .filter((a) => a.priceCents && Date.parse(`${a.listed}T00:00:00Z`) <= t)
+            .reduce((sum, a) => sum + a.monthlySold * (a.priceCents as number), 0);
+      out.push({
+        key,
+        t,
+        revenue,
+        profit: revenue === null ? null : revenue * net,
+        ads: revenue === null ? null : revenue * adsPct,
+      });
       if (key === stop) break;
       key = addMonth(key);
     }
@@ -1129,24 +1134,45 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
   const t1 = points[points.length - 1].t;
   /* Scaled to REVENUE, because both series share one axis: scaling to profit
      would push the revenue line off the top of the plot. */
-  const max = Math.max(...points.map((p) => p.revenue), 1);
+  const max = Math.max(...points.map((p) => p.revenue ?? 0), 1);
   const x = (t: number) => pad.left + ((t - t0) / Math.max(1, t1 - t0)) * innerW;
   const y = (v: number) => pad.top + innerH - (v / max) * innerH;
 
-  const path = (pick: (p: (typeof points)[number]) => number) =>
-    points.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(pick(p)).toFixed(1)}`).join(" ");
+  /* Segments, not one polyline: a gap in the data has to be a gap in the line.
+     Joining across it would invent the months Keepa never recorded. */
+  const path = (pick: (p: (typeof points)[number]) => number | null) => {
+    let out = "";
+    let open = false;
+    for (const p of points) {
+      const v = pick(p);
+      if (v === null) {
+        open = false;
+        continue;
+      }
+      out += `${open ? "L" : "M"}${x(p.t).toFixed(1)},${y(v).toFixed(1)} `;
+      open = true;
+    }
+    return out.trim();
+  };
   const line = path((p) => p.profit);
   const revenueLine = path((p) => p.revenue);
   const adsLine = path((p) => p.ads);
-  const area = `${line} L${x(t1).toFixed(1)},${(pad.top + innerH).toFixed(1)} L${x(t0).toFixed(1)},${(pad.top + innerH).toFixed(1)} Z`;
+  const drawn = points.filter((p) => p.profit !== null);
+  const area = drawn.length
+    ? `${line} L${x(drawn[drawn.length - 1].t).toFixed(1)},${(pad.top + innerH).toFixed(1)} L${x(
+        drawn[0].t,
+      ).toFixed(1)},${(pad.top + innerH).toFixed(1)} Z`
+    : "";
 
   /* Profit at any date, by walking to the month the date falls in. Events sit
      ON the line rather than on a rail beneath it: the whole point of putting
      them here is to show what the business did at the moment the line moved. */
   const profitAt = (iso: string) => {
     const t = Date.parse(`${iso}T00:00:00Z`);
-    const p = points.find((q) => q.t >= t) ?? points[points.length - 1];
-    return p.profit;
+    const p = points.find((q) => q.t >= t && q.profit !== null);
+    /* An event before the first measured month sits on the baseline: there is
+       no line there to put it on, and the date is still worth showing. */
+    return p?.profit ?? 0;
   };
   const events = useMemo(
     () =>
@@ -1177,32 +1203,16 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
       year: "numeric",
       timeZone: "UTC",
     });
-  const latest = points[points.length - 1];
 
   const card =
     hover?.kind === "event"
       ? { cx: x(events[hover.i].t), cy: y(events[hover.i].v) }
       : hover?.kind === "month"
-        ? { cx: x(points[hover.i].t), cy: y(points[hover.i].profit) }
+        ? { cx: x(points[hover.i].t), cy: y(points[hover.i].profit ?? 0) }
         : null;
 
   return (
     <div data-chart="" data-profit-chart="" ref={wrapRef}>
-      <p data-chart-headline="">
-        <span className="vm-num">{money(latest.profit)}</span> a month
-        <Src id={MODELLED} sources={d.sources} go={go} />{" "}
-        <span data-muted="">
-          — {Math.round(net * 100)}% of the {money(latest.revenue)} the priced products on the{" "}
-          <button type="button" data-linklike="" onClick={() => go("sales")}>
-            sales tab
-          </button>{" "}
-          add up to, once the modelled costs on the{" "}
-          <button type="button" data-linklike="" onClick={() => go("sourcing")}>
-            sourcing tab
-          </button>{" "}
-          come off.
-        </span>
-      </p>
       <p data-chart-legend="">
         <span data-legend-item="" data-kind="profit">
           <span data-swatch="" data-kind="profit" aria-hidden="true" /> Profit
@@ -1213,6 +1223,26 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
         <span data-legend-item="" data-kind="ads">
           <span data-swatch="" data-kind="ads" aria-hidden="true" /> Ad spend
         </span>
+        <Info label="Where this chart's numbers come from">
+          <span data-info-para="">
+            Revenue is <strong>measured</strong>: Amazon's own "bought in past month" badge as
+            Keepa recorded it moving, read at each month end
+            <Src
+              id={d.salesHistory?.length ? "keepa-history" : "keepa"}
+              sources={d.sources}
+              go={go}
+            />{" "}
+            and priced at today's buy box. Profit and ad spend are computed from it{" "}
+            <Src id={MODELLED} sources={d.sources} go={go} /> — cost of goods, Amazon's published
+            fees and a modelled ad rate, before returns and overhead, which are set to zero. So the
+            profit line is a ceiling.
+          </span>
+          <span data-info-para="">
+            The line stops where Keepa's badge history does. Amazon only shows the badge above
+            roughly 50 sales a month, so the months before it are absent rather than zero — a gap
+            in the line is a month nobody measured, not a month of no sales.
+          </span>
+        </Info>
       </p>
       {width > 0 ? (
         <svg
@@ -1287,14 +1317,16 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
                 stroke="var(--muted-foreground)"
                 strokeOpacity={0.35}
               />
-              <circle
-                cx={x(points[hover.i].t)}
-                cy={y(points[hover.i].profit)}
-                r={4}
-                fill="var(--accent)"
-                stroke="var(--card)"
-                strokeWidth={2}
-              />
+              {points[hover.i].profit === null ? null : (
+                <circle
+                  cx={x(points[hover.i].t)}
+                  cy={y(points[hover.i].profit ?? 0)}
+                  r={4}
+                  fill="var(--accent)"
+                  stroke="var(--card)"
+                  strokeWidth={2}
+                />
+              )}
             </>
           ) : null}
           {/* One dot per timeline event. Amazon events are filled and the other
@@ -1383,18 +1415,31 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
               <p data-card-when="" className="vm-num">
                 {fmtMonth(points[hover.i].key)}
               </p>
-              <p data-card-title="" className="vm-num" data-kind="revenue">
-                {money(points[hover.i].revenue)} revenue
-                <Src id="keepa" sources={d.sources} go={go} />
-              </p>
-              <p data-card-detail="" data-kind="profit">
-                <span className="vm-num">{money(points[hover.i].profit)}</span> profit
-                <Src id={MODELLED} sources={d.sources} go={go} /> at {Math.round(net * 100)}%
-              </p>
-              <p data-card-detail="" data-kind="ads">
-                <span className="vm-num">{money(points[hover.i].ads)}</span> ad spend
-                <Src id={MODELLED} sources={d.sources} go={go} />
-              </p>
+              {points[hover.i].revenue === null ? (
+                <p data-card-detail="">
+                  No badge recorded this month — Amazon shows one only above roughly 50 sales, and
+                  Keepa can only store what Amazon showed.
+                </p>
+              ) : (
+                <>
+                  <p data-card-title="" className="vm-num" data-kind="revenue">
+                    {money(points[hover.i].revenue ?? 0)} revenue
+                    <Src
+                      id={d.salesHistory?.length ? "keepa-history" : "keepa"}
+                      sources={d.sources}
+                      go={go}
+                    />
+                  </p>
+                  <p data-card-detail="" data-kind="profit">
+                    <span className="vm-num">{money(points[hover.i].profit ?? 0)}</span> profit
+                    <Src id={MODELLED} sources={d.sources} go={go} /> at {Math.round(net * 100)}%
+                  </p>
+                  <p data-card-detail="" data-kind="ads">
+                    <span className="vm-num">{money(points[hover.i].ads ?? 0)}</span> ad spend
+                    <Src id={MODELLED} sources={d.sources} go={go} />
+                  </p>
+                </>
+              )}
             </>
           )}
         </div>

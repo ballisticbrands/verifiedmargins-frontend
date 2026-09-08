@@ -158,6 +158,24 @@ export const resilia: Dossier = {
     },
   ],
 
+  /* REAL, from Keepa's monthlySoldHistory on 2026-09-08 — Amazon's own
+     "bought in past month" badge as it moved, read at each month end and
+     priced at today's buy box. Across the 15 listed ASINs. See the note on
+     salesHistory in ../dossier.ts for why the price is today's and why the
+     months before the first badge are absent rather than zero. */
+  salesHistory: [
+    { month: "2025-12", units: 1000, revenueCents: 2999000 },
+    { month: "2026-01", units: 5599, revenueCents: 28591401 },
+    { month: "2026-02", units: 9999, revenueCents: 50987001 },
+    { month: "2026-03", units: 19999, revenueCents: 109977001 },
+    { month: "2026-04", units: 17149, revenueCents: 92504851 },
+    { month: "2026-05", units: 14349, revenueCents: 61212651 },
+    { month: "2026-06", units: 58999, revenueCents: 256730001 },
+    { month: "2026-07", units: 86298, revenueCents: 342684053 },
+    { month: "2026-08", units: 131600, revenueCents: 530097400 },
+    { month: "2026-09", units: 152900, revenueCents: 628445100 },
+  ],
+
   counts: { catalogue: 32, priced: 21, unbadged: 12 },
   firstListed: "2025-11-27",
 
@@ -743,7 +761,7 @@ export const resilia: Dossier = {
 
   copy: {
     profitChart:
-      "Hover a dot for what happened there. Two steps carry the whole line: December 2025, when the oregano line went wide, and 4 May 2026, when six aged-garlic SKUs shipped in one day.",
+      "Hover a dot for what happened there. The line dips through April and May, then quadruples in June — the month after six aged-garlic SKUs shipped in a single day — and doubles again by September. Earlier events, including the Shopify store trading in 2024, are on the timeline.",
     timelineLede:
       "The strands are kept together on one line because the web track is the one that changes the story: a Shopify store selling this product in August 2024, a trademark ten weeks before the launch, and only then the Amazon catalogue — which reaches a $68M run rate faster than the store it came from took to get a second domain.",
     salesLede:

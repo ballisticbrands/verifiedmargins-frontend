@@ -124,6 +124,20 @@ export const theLoadedTeaShop: Dossier = {
     },
   ],
 
+  /* REAL, from Keepa's monthlySoldHistory on 2026-09-08 — Amazon's own
+     "bought in past month" badge as it moved, read at each month end and
+     priced at today's buy box. Across the 15 listed ASINs. See the note on
+     salesHistory in ../dossier.ts for why the price is today's and why the
+     months before the first badge are absent rather than zero. */
+  salesHistory: [
+    { month: "2026-04", units: 1000, revenueCents: 6000000 },
+    { month: "2026-05", units: 7050, revenueCents: 27552000 },
+    { month: "2026-06", units: 18599, revenueCents: 65112200 },
+    { month: "2026-07", units: 43500, revenueCents: 143965000 },
+    { month: "2026-08", units: 46800, revenueCents: 159126000 },
+    { month: "2026-09", units: 46900, revenueCents: 161304000 },
+  ],
+
   counts: { catalogue: 52, priced: 18, unbadged: 34 },
   firstListed: "2025-05-20",
 
@@ -649,7 +663,7 @@ export const theLoadedTeaShop: Dossier = {
      ../dossier.ts. */
   copy: {
     profitChart:
-      "Hover a dot for what happened there. Almost the whole line is built in the eight weeks from 30 March 2026 — and the brand itself has traded since 2019.",
+      "Hover a dot for what happened there. $60K in April to $1.6M by September, nearly all of it added between June and August — and flat since. The brand itself has traded since 2019; the timeline has the rest.",
     timelineLede:
       "The strands are kept together on one line on purpose: four years of building an audience elsewhere, a lone Amazon listing that goes nowhere for ten months, and then the whole Amazon catalogue arriving in eight weeks — with the ~310 Meta ads going live that August, months after it.",
     salesLede:

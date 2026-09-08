@@ -319,6 +319,30 @@ export interface Dossier {
    *  rather than letting a reader add the column up and get a smaller number
    *  than the headline. */
   asins: DossierAsin[];
+  /**
+   * REAL month-by-month sales, from Keepa's `monthlySoldHistory`.
+   *
+   * 🚨 This is what replaced a flat line. The chart used to apply today's
+   * `monthlySold` to every month since each product launched, because that is
+   * all a single point-in-time pull can support — so it flattened the moment
+   * the last product went live and said nothing about the months since.
+   *
+   * Keepa records the badge over time, and it turns out the brackets move a
+   * lot: this catalogue's units doubled twice between June and September.
+   * Units here are Amazon's own badge readings, taken at each month end; the
+   * price applied to them is TODAY's buy box, because Keepa's price history is
+   * a separate series and mixing a historical unit count with a historical
+   * price is a second claim, not a free one. Months before Keepa started
+   * recording a badge are absent rather than zero — the chart breaks its line
+   * there instead of drawing a business that did not sell anything.
+   */
+  salesHistory?: Array<{
+    /** "2026-07". Month end is what the reading is taken at. */
+    month: string;
+    units: number;
+    revenueCents: number;
+  }>;
+
   /** Catalogue arithmetic, stated so the page never hardcodes it. */
   counts: {
     /** Every ASIN under the brand. */

@@ -4026,9 +4026,19 @@ h2[data-heading-badges] {
  * above the tile row says the order is load-bearing; this is why. */
 .vm-dossier {
   --series-profit: var(--accent);
-  --series-revenue: #2d5fa8;
-  --series-ads: #6b4a9e;
+  /* Saturated on purpose. The first pair (#2d5fa8, #6b4a9e) were dark enough
+     that a 1.5px line and a 1px card border both read as black — the whole
+     point of colouring them was lost. These are vivid against white and still
+     clear AA for the legend text that carries them (blue 5.2:1, purple
+     5.6:1). Neither is anywhere near the ladder's green, amber or red. */
+  --series-revenue: #1668dc;
+  --series-ads: #8b3fd6;
 }
+/* 2px, not the shared hairline: a 1px border in any colour reads as the
+   default grey from a metre away, which is where a demo is usually seen. */
+.vm-dossier [data-tiles] > *:nth-child(1),
+.vm-dossier [data-tiles] > *:nth-child(2),
+.vm-dossier [data-tiles] > *:nth-child(4) { border-width: 2px; }
 .vm-dossier [data-tiles] > *:nth-child(1) { border-color: var(--series-profit); }
 .vm-dossier [data-tiles] > *:nth-child(2) { border-color: var(--series-revenue); }
 .vm-dossier [data-tiles] > *:nth-child(4) { border-color: var(--series-ads); }
@@ -4036,19 +4046,23 @@ h2[data-heading-badges] {
 .vm-dossier [data-series-ads] {
   fill: none;
   stroke: var(--series-ads);
-  stroke-width: 1.5;
-  stroke-dasharray: 1.5 3.5;
+  stroke-width: 2.25;
+  stroke-dasharray: 1 4;
+  stroke-linecap: round;
 }
 .vm-dossier [data-series-revenue] {
   fill: none;
   stroke: var(--series-revenue);
-  stroke-width: 1.25;
-  stroke-dasharray: 5 3;
+  stroke-width: 2.25;
+  stroke-dasharray: 6 3.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 /* The legend. Small and muted — it labels the chart, it is not a finding. */
+/* The legend now carries the section's only caveat badge, so it needs to sit
+   a little away from the plot and align its badge with the text. */
+.vm-dossier [data-chart-legend] [data-info] { margin-left: 0.2rem; }
 .vm-dossier [data-chart-legend] {
   display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1.1rem;
   margin: 0.4rem 0 0.5rem; font-size: 0.78rem; color: var(--muted-foreground);
@@ -4071,11 +4085,11 @@ h2[data-heading-badges] {
    it is standing in for. */
 .vm-dossier [data-swatch][data-kind="revenue"] {
   height: 0; border-radius: 0; background: none;
-  border-top: 2px dashed var(--series-revenue);
+  border-top: 3px dashed var(--series-revenue);
 }
 .vm-dossier [data-swatch][data-kind="ads"] {
   height: 0; border-radius: 0; background: none;
-  border-top: 2px dotted var(--series-ads);
+  border-top: 3px dotted var(--series-ads);
 }
 /* The legend text takes its series colour too, so the row can be read without
    resolving a swatch against a line at a glance. */
