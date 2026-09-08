@@ -137,6 +137,15 @@ export interface AdChannel {
   source: string;
   /** Answerable for the channel being real and what is running on it. */
   linkSource?: string;
+  /**
+   * What is actually MEASURABLE on this channel — "~310 active ads", "17 paid
+   * keywords in May 2026". Spend is the figure nobody publishes; activity is
+   * the figure somebody does, and showing it beside the modelled spend is the
+   * difference between "we counted this" and "we guessed this".
+   */
+  activity?: string;
+  /** Answerable for `activity`. Real, or the field should not be there. */
+  activitySource?: string;
 }
 
 /** Where they rank for a term someone actually searches. */
@@ -145,6 +154,25 @@ export interface KeywordRow {
   engine: "Amazon" | "Google";
   rank: string;
   volume: string;
+  source: string;
+}
+
+/**
+ * A best-seller rank, read off the listing itself.
+ *
+ * The honest answer to "where do they rank on Amazon", given that Amazon
+ * publishes no search volumes and its search results are localised to the
+ * viewer. BSR is printed on every product page, is per-marketplace rather than
+ * per-viewer, and is the number a seller in this category actually watches.
+ */
+export interface BestsellerRank {
+  /** The product, as short as it can be and still be identifiable. */
+  label: string;
+  /** "#95 in Health & Household". Pre-formatted, like every figure here. */
+  rank: string;
+  /** The category rank that means more than the department one, plus stars
+   *  and rating count — all printed on the same page. */
+  note?: string;
   source: string;
 }
 
@@ -185,8 +213,14 @@ export interface BrandLink {
 export interface Economics {
   /** Cost lines as a percentage of revenue, in the order they are deducted.
    *  Profit is the remainder, so the page never needs a profit input it could
-   *  contradict — 100 − sum(lines) is the only definition of the number. */
-  lines: Array<{ label: string; pct: number; note?: string }>;
+   *  contradict — 100 − sum(lines) is the only definition of the number.
+   *
+   *  🚨 Each line names its OWN source, because they are not the same kind of
+   *  number. Amazon publishes its referral rate; a rate card publishes the FBA
+   *  fee; a supplier publishes a quote; nobody publishes what this business
+   *  spends on ads or loses to returns. One source on the block would have
+   *  flattened all four into whichever was weakest. */
+  lines: Array<{ label: string; pct: number; note?: string; source: string }>;
   /** Where the percentages came from, in words — which quotes, which rates. */
   basis: string;
   /** INVENTED, always. Typed as a string because the field is a source id like
@@ -284,8 +318,13 @@ export interface Dossier {
   economics: Economics;
   /** 🚧 Ad spend across channels. Only the Meta ad library link is real. */
   advertising: AdChannel[];
-  /** 🚧 Search presence. The site traffic is real; the ranks are not. */
+  /** Search presence off Amazon. Ranks and volumes from a keyword tool, so
+   *  they are that tool's estimate — but they are somebody's measurement
+   *  rather than ours. */
   keywords: KeywordRow[];
+  /** Amazon rank, read off the listings. See BestsellerRank for why this is
+   *  here instead of Amazon keyword positions. */
+  bestsellers: BestsellerRank[];
   /** What we do NOT know, stated on the page. A dossier that lists only what
    *  it found reads as complete, and this one is not. */
   gaps: string[];

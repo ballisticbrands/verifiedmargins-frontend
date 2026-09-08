@@ -105,6 +105,23 @@ export const theLoadedTeaShop: Dossier = {
       note: "monthly, theloadedteashop.com",
       source: "similarweb",
     },
+    /* 🚨 Two third-party estimates of the same site, 13x apart. Neither is a
+       server-side count, and the page says so rather than picking the one it
+       prefers. The direction is the same either way: this brand's own site is
+       a real channel, not a placeholder. */
+    {
+      label: "Organic search visits",
+      value: "71,512 / mo",
+      note: "Ubersuggest, Aug 2026 — 13x Similarweb's total-visits read, and the two do not reconcile",
+      source: "ubersuggest",
+      flag: true,
+    },
+    {
+      label: "Ranking keywords",
+      value: "1,707",
+      note: "#1 for \"loaded tea\" — 40,500 searches a month",
+      source: "ubersuggest",
+    },
   ],
 
   counts: { catalogue: 52, priced: 18, unbadged: 34 },
@@ -140,7 +157,8 @@ export const theLoadedTeaShop: Dossier = {
       label: "Own store",
       href: "https://www.theloadedteashop.com/",
       value: "5,324 visits/mo",
-      note: "Shopify. The channel that came first.",
+      note:
+        "Shopify, and the channel that came first. Similarweb reads 5,324 visits a month; Ubersuggest reads 71,512 from organic search alone. Two estimates of one site, 13x apart, neither of them a server-side count.",
       source: "similarweb",
     },
     {
@@ -219,11 +237,12 @@ export const theLoadedTeaShop: Dossier = {
       source: "web",
     },
     {
-      date: "2021-08-14",
+      date: "2023-05-05",
       title: "theloadedteashop.com registered",
-      detail: "Shopify store goes up. Direct-to-consumer is the only channel for the next four years.",
+      detail:
+        "Four years after the kitchen the brand dates itself to. The Wayback Machine's first capture of the store follows on 2023-07-23.",
       track: "web",
-      source: INVENTED,
+      source: "whois",
     },
     {
       date: "2025-03-03",
@@ -240,11 +259,12 @@ export const theLoadedTeaShop: Dossier = {
       source: "keepa",
     },
     {
-      date: "2025-11-02",
-      title: "First Meta ad campaign",
-      detail: "Video creative, driving to the Shopify store rather than to Amazon.",
-      track: "ads",
-      source: INVENTED,
+      date: "2026-01-31",
+      title: "Organic search takes off",
+      detail:
+        "Ubersuggest's estimate steps from ~10,600 visits in December to ~38,200 in January and ~71,400 by March, as the site takes #1 for \"loaded tea\" — 40,500 searches a month.",
+      track: "web",
+      source: "ubersuggest",
     },
     {
       date: "2026-03-30",
@@ -275,11 +295,12 @@ export const theLoadedTeaShop: Dossier = {
       source: "keepa",
     },
     {
-      date: "2026-05-01",
-      title: "Meta spend steps up",
-      detail: "Creative switches to Amazon-first landing. Impressions roughly triple month on month.",
+      date: "2026-08-17",
+      title: "~310 ads live on Meta",
+      detail:
+        "Most of them started in the same mid-August week. A second advertiser, \"Alicia N Powell with The Loaded Tea Shop\", runs its own alongside. The library shows only what is ACTIVE, so this is a floor on what they have run.",
       track: "ads",
-      source: INVENTED,
+      source: "meta-ads",
     },
     {
       date: "2026-05-12",
@@ -297,44 +318,45 @@ export const theLoadedTeaShop: Dossier = {
     },
   ],
 
-  /* 🚧 ENTIRELY INVENTED. COGS is the number this product refuses to guess
-     (see gaps, and SKILL.md section 8). These rows show the SHAPE of the
-     answer a real sourcing pass would produce, and every one is marked. */
+  /* REAL QUOTES, for a comparable product — not this brand's costs. Read off
+     Made-in-China listings on 2026-09-08: named suppliers, their published
+     price ranges and minimum orders for stick-pack drink powder and for the
+     printed sachet itself. What they price is the CATEGORY. Freight and duty
+     are in none of them. */
   sourcing: [
     {
-      supplier: "Shandong beverage powder co.",
-      region: "Shandong, CN",
-      moq: "10,000 sachets",
-      unitCost: "$0.21 / sachet",
-      leadTime: "28 days",
-      href: "https://www.alibaba.com/",
-      source: INVENTED,
+      supplier: "Guangzhou Marian Health Food Co., Ltd — powder, stick pack",
+      region: "Guangdong, CN",
+      moq: "500 pieces",
+      unitCost: "$1.00–3.00 / unit",
+      leadTime: "not quoted",
+      href: "https://www.made-in-china.com/products-search/hot-china-products/Energy_Drink_Powder_Sachet.html",
+      source: "mic",
     },
     {
-      supplier: "Contract blender, US Midwest",
-      region: "Missouri, US",
-      moq: "25,000 sachets",
-      unitCost: "$0.34 / sachet",
-      leadTime: "18 days",
-      href: "https://www.alibaba.com/",
-      source: INVENTED,
+      supplier: "Shantou Wellfa Print & Pack Co., Ltd — the sachet itself",
+      region: "Guangdong, CN",
+      moq: "5,000 pieces",
+      unitCost: "$0.02–0.30 / sachet",
+      leadTime: "not quoted",
+      href: "https://www.made-in-china.com/products-search/hot-china-products/Energy_Drink_Powder_Sachet.html",
+      source: "mic",
     },
     {
-      supplier: "Freight — Qingdao → Long Beach, FCL",
+      supplier: "Shenzhen Lifeworth Biological Technology Co., Ltd",
+      region: "Guangdong, CN",
+      moq: "500 boxes",
+      unitCost: "$3.43–4.66 / box",
+      leadTime: "not quoted",
+      href: "https://www.made-in-china.com/products-search/hot-china-products/Energy_Drink_Powder_Sachet.html",
+      source: "mic",
+    },
+    {
+      supplier: "Freight, duty and inbound",
       region: "CN → US",
-      moq: "1 x 20ft",
-      unitCost: "$0.04 / sachet landed",
-      leadTime: "34 days",
-      href: "https://www.freightos.com/",
-      source: INVENTED,
-    },
-    {
-      supplier: "Carton, label and pack-out",
-      region: "US",
-      moq: "5,000 packs",
-      unitCost: "$0.88 / retail pack",
-      leadTime: "12 days",
-      href: "https://www.alibaba.com/",
+      moq: "—",
+      unitCost: "not quoted",
+      leadTime: "—",
       source: INVENTED,
     },
   ],
@@ -347,21 +369,38 @@ export const theLoadedTeaShop: Dossier = {
     lines: [
       {
         label: "Cost of goods",
-        pct: 12,
-        note: "≈ $2.13 landed on a $19.80 five-pack, $5.88 on the $60 twenty — sachets, freight and pack-out from the quotes above.",
+        pct: 10,
+        note: "From the published quotes above — roughly $0.10–0.30 a printed sachet plus the powder, against a $35.03 average selling price. A category price, not this brand's cost sheet, and FOB China.",
+        source: "mic",
       },
-      { label: "Amazon referral fee", pct: 15, note: "Grocery rate, on the whole order." },
       {
-        label: "FBA fulfilment and storage",
-        pct: 18,
-        note: "A light box at a low price point is where FBA hurts most — the five-packs carry the worst of it.",
+        label: "Amazon referral fee",
+        pct: 15,
+        note: "Amazon's published Grocery rate above $15. Even the $19.80 five-packs clear that threshold.",
+        source: "amazon-fees",
       },
-      { label: "Advertising", pct: 14, note: "The blended figure from the advertising tab." },
-      { label: "Returns, coupons and discounts", pct: 5 },
-      { label: "Overhead", pct: 8, note: "People, software, insurance — nothing public about this business sizes it." },
+      {
+        label: "FBA fulfilment",
+        pct: 13,
+        note: "$3.45 on a small-standard 4–6 oz five-pack at $19.80 is 17%; $3.78 on a 10–12 oz twenty-pack at $60 is 6%. Blended across this catalogue's mix, from the 2026 rate card.",
+        source: "fba-rates",
+      },
+      {
+        label: "Advertising",
+        pct: 20,
+        note: "OURS. A brand pushing 15 products live in eight weeks is buying traffic; how much is not public anywhere.",
+        source: INVENTED,
+      },
+      { label: "Returns, coupons and discounts", pct: 6, source: INVENTED },
+      {
+        label: "Overhead",
+        pct: 10,
+        note: "People, software, insurance. Nothing public about this business sizes it.",
+        source: INVENTED,
+      },
     ],
     basis:
-      "Costs as a share of revenue, built off the quotes above and Amazon's published fee rates. Every line is a placeholder: the quotes are invented, the fee rates are real but applied to an average rather than to each ASIN, and nothing here has been checked against a seller's own books.",
+      "Three of these six lines are real and cited: the supplier quotes are published listings for a comparable product, and Amazon publishes both the referral rate and the FBA rate card. Three are ours — advertising, returns and overhead — and they are the three that decide the answer. So the margin below is real fee arithmetic wrapped around invented operating costs, on the Amazon channel only.",
     source: INVENTED,
   },
 
@@ -372,13 +411,17 @@ export const theLoadedTeaShop: Dossier = {
     {
       channel: "Amazon Sponsored Products",
       spend: "$214,000 / mo",
-      note: "Implied TACOS 13.6% against $1.58M revenue.",
+      note:
+        "Implied TACOS 13.6% against $1.58M revenue. Amazon publishes nothing about a competitor's spend, and it localises search results to the viewer, so even counting their sponsored placements needs a US-located run.",
       source: INVENTED,
     },
     {
       channel: "Meta (Facebook + Instagram)",
       spend: "$46,500 / mo",
-      note: "17 creatives live. The ad library shows what is running; it never shows spend.",
+      note:
+        "Their own page is running ~310 active ads, most started in mid-August 2026 — and a second advertiser, \"Alicia N Powell with The Loaded Tea Shop\", runs its own. The library shows what is running; it never shows spend.",
+      activity: "~310 active ads on their own page",
+      activitySource: "meta-ads",
       href:
         "https://www.facebook.com/ads/library/?active_status=inactive&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&sort_data[direction]=desc&sort_data[mode]=total_impressions&view_all_page_id=543395728858281",
       /* The library is real and cited on the NAME; the spend is invented and
@@ -389,7 +432,10 @@ export const theLoadedTeaShop: Dossier = {
     {
       channel: "Google Ads (search + shopping)",
       spend: "$9,200 / mo",
-      note: "Brand defence mostly — they rank organically for their own name.",
+      note:
+        "They barely buy search, and they do not need to: Ubersuggest finds ONE paid keyword against 1,707 organic ones, and they hold #1 for \"loaded tea\" outright.",
+      activity: "1 paid keyword, ~1 paid visit / mo",
+      activitySource: "ubersuggest",
       source: INVENTED,
     },
     {
@@ -400,23 +446,63 @@ export const theLoadedTeaShop: Dossier = {
     },
   ],
 
-  /* 🚧 Ranks and volumes invented. The site-traffic figure in `offAmazon` is
-     the one real number on that tab. */
+  /* REAL, from Ubersuggest on 2026-09-08 — their actual Google positions and
+     that tool's volume estimates. This is the half of the business Amazon
+     cannot see, and it is enormous: #1 for the category's head term. */
   keywords: [
-    { term: "loaded tea", engine: "Amazon", rank: "#3 organic", volume: "74,000 / mo", source: INVENTED },
-    { term: "energy drink powder packets", engine: "Amazon", rank: "#11 organic", volume: "138,000 / mo", source: INVENTED },
-    { term: "sugar free energy drink mix", engine: "Amazon", rank: "#6 organic", volume: "49,500 / mo", source: INVENTED },
-    { term: "the loaded tea shop", engine: "Amazon", rank: "#1 organic", volume: "12,100 / mo", source: INVENTED },
-    { term: "loaded tea recipes", engine: "Google", rank: "#8", volume: "33,100 / mo", source: INVENTED },
-    { term: "loaded tea near me", engine: "Google", rank: "#14", volume: "27,100 / mo", source: INVENTED },
-    { term: "the loaded tea shop", engine: "Google", rank: "#1", volume: "9,900 / mo", source: INVENTED },
+    { term: "loaded tea", engine: "Google", rank: "#1", volume: "40,500 / mo", source: "ubersuggest" },
+    { term: "loaded teas", engine: "Google", rank: "#5", volume: "40,500 / mo", source: "ubersuggest" },
+    { term: "zero sugar energy drinks", engine: "Google", rank: "#16", volume: "40,500 / mo", source: "ubersuggest" },
+    { term: "loaded tea near me", engine: "Google", rank: "#5", volume: "33,100 / mo", source: "ubersuggest" },
+    { term: "the loaded tea shop", engine: "Google", rank: "#1", volume: "22,200 / mo", source: "ubersuggest" },
+    { term: "loaded tea packets", engine: "Google", rank: "#3", volume: "3,600 / mo", source: "ubersuggest" },
+    { term: "loaded tea recipes", engine: "Google", rank: "#4", volume: "1,300 / mo", source: "ubersuggest" },
+    { term: "the loaded tea shop vs herbalife", engine: "Google", rank: "#2", volume: "90 / mo", source: "ubersuggest" },
+  ],
+
+  /* REAL, read off the listings on 2026-09-08. The three Variety packs share
+     one parent listing, which is why they share a rank and a review count. */
+  bestsellers: [
+    {
+      label: "Energy Drink Mix Sticks, Variety 20 Pack",
+      rank: "#718 in Grocery & Gourmet Food",
+      note: "#32 in Energy Drinks · 4.4★ over 1,156 ratings. The 10 and 40 packs share this parent listing.",
+      source: "bsr",
+    },
+    {
+      label: "Founder's Favorites 5 Pack",
+      rank: "#1,220 in Grocery & Gourmet Food",
+      note: "#15 in Powdered Soft Drink Mixes · 4.0★ over 1,074 ratings.",
+      source: "bsr",
+    },
+    {
+      label: "Mom Mode Collection 5 Pack",
+      rank: "#3,671 in Grocery & Gourmet Food",
+      note: "#40 in Powdered Soft Drink Mixes · 4.0★ over 280 ratings, four months after launch.",
+      source: "bsr",
+    },
+    {
+      label: "Frog Spit 5 Pack",
+      rank: "#15,852 in Grocery & Gourmet Food",
+      note: "#170 in Powdered Soft Drink Mixes · 4.0★ over 72 ratings. The single-flavour tail.",
+      source: "bsr",
+    },
+    {
+      label: "Caffeine-Free Variety",
+      rank: "#40,369 in Grocery & Gourmet Food",
+      note: "#415 in Powdered Soft Drink Mixes · 4.0★ over 183 ratings — and the listing reads CURRENTLY UNAVAILABLE, which is exactly what the sold badge with no buy box implied.",
+      source: "bsr",
+    },
   ],
 
   gaps: [
-    "COGS, and therefore margin and profit — MEASURED. The sourcing tab now carries quotes and a margin built from them, and the overview chart draws the profit that falls out; all of it is invented and starred, on instruction, so the demo can show a finished page. Nobody priced a sachet. Nothing here has seen this business's books, and the real version of the page shows none of it until a seller connects.",
-    "Ad spend. No public source reports a competitor's Amazon ad spend; anyone quoting one is modelling it. A sponsored-placement read off live search results is the honest substitute and has not been run for this brand.",
+    "This business's actual COGS. The sourcing tab now carries REAL published quotes for a comparable sachet, and Amazon's referral and FBA rates are real — but a category price is not a cost sheet, freight and duty are in none of the quotes, and the three lines that decide the margin (advertising, returns, overhead) are still ours. The real version of this page shows a margin only when a seller connects their account.",
+    "Ad spend, in money. Meta publishes the ads — ~310 active on their own page — and Ubersuggest shows they buy almost no search. The ACTIVITY is real; the dollars beside it are ours. No public source reports anyone's Amazon ad spend, and the sponsored-placement read that would substitute for it needs a US-located run.",
     "The 34 unbadged ASINs. Each sells under roughly 50/month, but Amazon publishes no figure, so they are counted as zero rather than estimated.",
     "Which legal entity is which. Amazon's seller record says Champs Tea Shop, Inc; the Facebook page says Tea Time, LLC is responsible for it. Two entities behind one brand is ordinary — an operating company and a marketing one, or a rename — but nothing public says which.",
+    "Which of the two site-traffic estimates to believe. Similarweb says 5,324 visits a month, Ubersuggest says 71,512 from search alone. Both are models; the gap is 13x and nothing public settles it.",
+    "When this brand actually started. The founder story says a 2019 kitchen; the domain was registered 2023-05-05 and first archived that July. A rebrand, an earlier domain, or a loose retelling — all ordinary, none of them established.",
+    "Amazon keyword rank and search volume. Amazon publishes no volumes and localises search results to the viewer, so the US result set is not visible from here. Best-seller rank is on the page instead.",
     "Why the feedback score is 72%. The number is public; the cause is not. It could be fulfilment, a bad batch, or a review-bombing — and the difference matters.",
   ],
 
@@ -470,6 +556,54 @@ export const theLoadedTeaShop: Dossier = {
         "Meta publishes every ad a page runs, with its creative and its run dates — genuinely public and worth reading. It does NOT publish spend or impressions for commercial ads, so the spend figure beside it here is invented.",
     },
     {
+      id: "ubersuggest",
+      label: "Ubersuggest — theloadedteashop.com",
+      href: "https://neilpatel.com/ubersuggest/",
+      read: "2026-09-08",
+      detail:
+        "Google positions, search volumes and traffic history: 1,707 ranking keywords, ~71,512 organic visits in August 2026, #1 for \"loaded tea\", and one paid keyword against all of that. Ubersuggest is a model built from rank data and clickstream, not a server-side count — and it disagrees with Similarweb about this site by 13x.",
+    },
+    {
+      id: "bsr",
+      label: "The listings themselves — best-seller rank and reviews",
+      href: "https://www.amazon.com/dp/B0GVG8YXKY",
+      read: "2026-09-08",
+      detail:
+        "Best-seller rank, subcategory rank, star rating and review count, read off each product page — including the Caffeine-Free listing reading CURRENTLY UNAVAILABLE. BSR is printed on the listing and is the same for every viewer, unlike Amazon search results, which are localised: from outside the US the US result set is not visible, so Amazon keyword positions are missing from this page rather than guessed.",
+    },
+    {
+      id: "whois",
+      label: "Domain registration record — theloadedteashop.com",
+      href: "https://lookup.icann.org/",
+      read: "2026-09-08",
+      detail:
+        "Created 2023-05-05 through Squarespace Domains. The brand's own founder story dates the business to a 2019 kitchen; the domain is four years younger, and the Wayback Machine's first capture is 2023-07-23.",
+    },
+    {
+      id: "mic",
+      label: "Made-in-China — supplier listings",
+      href: "https://www.made-in-china.com/products-search/hot-china-products/Energy_Drink_Powder_Sachet.html",
+      read: "2026-09-08",
+      detail:
+        "Published price ranges and minimum orders from named suppliers for stick-pack drink powder and printed sachets. These price the CATEGORY, not this business, and are FOB China with no freight or duty in them.",
+    },
+    {
+      id: "amazon-fees",
+      label: "Amazon — published selling fees",
+      href: "https://sell.amazon.com/pricing",
+      read: "2026-09-08",
+      detail:
+        "Amazon's own referral-fee schedule: 8% for Grocery and Gourmet items at $15 or less and 15% above it. First-party and not modelled.",
+    },
+    {
+      id: "fba-rates",
+      label: "FBA fulfilment rate card, 2026",
+      href: "https://warehousingcosts.com/guides/amazon-fba-fulfillment-fees",
+      read: "2026-09-08",
+      detail:
+        "The US FBA fee table effective 15 January 2026 with the 17 April fuel and logistics surcharge: small standard 4–6 oz in the $10–50 band is $3.45 a unit, 10–12 oz is $3.78. Amazon's own copy sits behind Seller Central, so this is a published mirror rather than the first-party page.",
+    },
+    {
       id: "facebook",
       label: "Facebook — The Loaded Tea Shop",
       href: "https://www.facebook.com/people/The-Loaded-Tea-Shop/61572174010247/",
@@ -485,7 +619,7 @@ export const theLoadedTeaShop: Dossier = {
       id: INVENTED,
       label: "Invented for this demo — nobody measured this",
       detail:
-        "Marked with * wherever it appears. Product sourcing, advertising spend and keyword ranks are placeholders, showing what the page will look like once those pipelines exist. They are not estimates, not modelled, and not to be quoted: they were made up. Everything carrying a NUMBER instead of a * came from one of the real sources above.",
+        "Marked with * wherever it appears, and the list is now short: the dollar figures on the advertising tab, three of the six cost lines behind the margin (advertising, returns, overhead), the freight and duty nobody quoted, and the month-by-month profit history on the overview chart — which applies today's run rate backwards over real listing dates. Everything else on this page carries a NUMBER instead, and came from one of the real sources above.",
     },
   ],
 
@@ -501,8 +635,8 @@ export const theLoadedTeaShop: Dossier = {
     salesLede:
       "Three packs carry the business; the long tail of single-flavour 5-packs barely registers. These are the 15 largest of 18 priced products, so the bars sum to slightly less than the headline — the remainder is worth about $4,950 a month.",
     advertisingLede:
-      "The one genuinely public thing here is Meta's ad library, which publishes every ad a page is running along with its creative and run dates. It does not publish spend, and Amazon publishes nothing at all — so a spend figure is always somebody's model, including ours.",
+      "Two things here are counted rather than modelled: Meta's ad library says ~310 ads are live on their own page, and Ubersuggest says they buy exactly one paid keyword. Neither source publishes money — Meta never does, Amazon publishes nothing at all — so the dollar column is the one part of this tab that is ours.",
     trafficLede:
-      "The brand is not new — it is new to Amazon, arriving with an audience it spent years building elsewhere, and that is the single most useful thing on this page.",
+      "The brand is not new — it is new to Amazon, arriving with an audience it built elsewhere, and that is the single most useful thing on this page. It holds #1 on Google for \"loaded tea\" against 40,500 searches a month, on 1,707 ranking keywords and one paid one. The two traffic estimates for its own site disagree by 13x, and the page shows both rather than choosing.",
   },
 };

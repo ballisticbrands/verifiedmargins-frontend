@@ -537,14 +537,16 @@ function Sourcing({ d, go }: { d: Dossier; go: Go }) {
   return (
     <section>
       <h2>Product sourcing</h2>
-      <InventedNotice
-        what="What a unit costs to make and to land is the number this product refuses to guess, so nothing here is a real quote."
-        go={go}
-      />
       <p>
         Cost of goods is the one figure that turns revenue into margin, and it is the one nobody
-        publishes. The intended pipeline prices it the way a buyer would: a manufacturing quote and
-        a freight quote, each from a named source a reader can go and check.
+        publishes about themselves. So these are <strong>real published quotes for a comparable
+        product</strong> — named suppliers, their own price ranges and their own minimum orders,
+        each one a link a reader can open.
+      </p>
+      <p>
+        What they are not is this business's cost sheet. A published range prices the CATEGORY, the
+        quotes are FOB China with no freight or duty in them, and nobody here has seen what this
+        seller actually pays. That distance is why the margin below is still marked.
       </p>
       <table data-asins="" data-sourcing="">
         <thead>
@@ -608,7 +610,7 @@ function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
           <li key={l.label}>
             <span data-econ-label="">{l.label}</span>
             <span data-econ-pct="" className="vm-num">
-              −{l.pct}%<Src id={d.economics.source} sources={d.sources} go={go} />
+              −{l.pct}%<Src id={l.source} sources={d.sources} go={go} />
             </span>
             {l.note ? <span data-econ-note="">{l.note}</span> : null}
           </li>
@@ -625,11 +627,12 @@ function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
         </li>
       </ul>
       <p data-src-line="">
-        On a site called VerifiedMargins this block would not exist. Cost of goods is the number the
-        product refuses to guess, and a margin derived from quotes nobody asked for is a guess with
-        arithmetic on top — which is why every figure in it carries a{" "}
-        <span data-invented-star="">*</span>. The real version of this page shows nothing here until
-        the seller connects their account and the costs are theirs.
+        Read the markers, not the total. The lines carrying a number are real — published supplier
+        prices, Amazon's own referral rate, Amazon's own fee card. The lines carrying a{" "}
+        <span data-invented-star="">*</span> are ours, and they are the ones that decide the answer:
+        move advertising five points and the margin moves five points. On a site called
+        VerifiedMargins the real version of this block stays empty until the seller connects their
+        account and the costs are theirs.
       </p>
     </>
   );
@@ -641,7 +644,8 @@ function Advertising({ d, go }: { d: Dossier; go: Go }) {
     <section>
       <h2>Advertising</h2>
       <InventedNotice
-        what="No public source reports a competitor's ad spend on any of these channels."
+        what="No public source reports a competitor's ad spend on any of these channels, so every dollar figure here is ours. The counted line under each one is real."
+        scope="in the spend column"
         go={go}
       />
       <p>{d.copy.advertisingLede}</p>
@@ -664,6 +668,17 @@ function Advertising({ d, go }: { d: Dossier; go: Go }) {
               {a.spend}
               <Src id={a.source} sources={d.sources} go={go} />
             </span>
+            {/* What somebody actually publishes about this channel, beside what
+                nobody does. A spend figure with a counted figure next to it is
+                much harder to misread as measured. */}
+            {a.activity ? (
+              <span data-ad-activity="">
+                Counted: <span className="vm-num">{a.activity}</span>
+                {a.activitySource ? (
+                  <Src id={a.activitySource} sources={d.sources} go={go} />
+                ) : null}
+              </span>
+            ) : null}
             {a.note ? <span data-ad-note="">{a.note}</span> : null}
           </li>
         ))}
@@ -703,8 +718,30 @@ function Traffic({ d, go }: { d: Dossier; go: Go }) {
         ))}
       </ul>
 
-      <h3>Search presence</h3>
-      <InventedNotice what="Ranks and search volumes are placeholders." go={go} />
+      <h3>Where they rank on Amazon</h3>
+      <p>
+        Amazon publishes no search volumes and localises its search results to whoever is looking,
+        so a scraped keyword position is worth less than it looks. Best-seller rank is printed on
+        the listing itself, is the same number for everyone, and is what a seller in this category
+        actually watches.
+      </p>
+      <ul data-bestsellers="">
+        {d.bestsellers.map((r) => (
+          <li key={r.label}>
+            <span data-bsr-label="">{r.label}</span>
+            <span data-bsr-rank="" className="vm-num">
+              {r.rank}
+              <Src id={r.source} sources={d.sources} go={go} />
+            </span>
+            {r.note ? <span data-bsr-note="">{r.note}</span> : null}
+          </li>
+        ))}
+      </ul>
+
+      <h3>Search presence off Amazon</h3>
+      {d.keywords.some((k) => k.source === INVENTED) ? (
+        <InventedNotice what="Ranks and search volumes are placeholders." go={go} />
+      ) : null}
       <table data-asins="">
         <thead>
           <tr>

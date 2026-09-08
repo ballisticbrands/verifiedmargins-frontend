@@ -139,6 +139,17 @@ export const resilia: Dossier = {
       note: "over three months to Aug 2026, resilia.shop, +52.9% MoM",
       source: "similarweb",
     },
+    /* 🚨 The two traffic estimates disagree by three orders of magnitude, and
+       the gap IS the finding rather than a problem with it: Similarweb counts
+       every visit however it arrived, Ubersuggest counts only what Google
+       sends. Almost none of this store's traffic comes from search. */
+    {
+      label: "of which organic search",
+      value: "2,120 / mo",
+      note: "Ubersuggest, Aug 2026 — against ~3.3M visits a month on Similarweb's read",
+      source: "ubersuggest",
+      flag: true,
+    },
     {
       label: "Trademark filed",
       value: "2025-09-19",
@@ -346,10 +357,18 @@ export const resilia: Dossier = {
       source: "whois",
     },
     {
+      date: "2026-05-31",
+      title: "A paid-search burst",
+      detail:
+        "Ubersuggest's paid series peaks at 17 Google Ads keywords and ~780 paid visits in May 2026, after nothing much before April. By August it reads zero again — a campaign that ran and stopped.",
+      track: "ads",
+      source: "ubersuggest",
+    },
+    {
       date: "2026-08-03",
       title: "Meta ads running for the garlic line",
       detail:
-        "Advertorial creative under a page called \"Everyday Wellness Review\"; 18 ads share the one video. The library publishes the creative and the start date, never the spend.",
+        "Advertorial creative under a page called \"Everyday Wellness Review\"; 15 ads share the one video. On 2026-09-08 the library returned ~6,900 active US ads mentioning Resilia, under at least six review-styled page names. It publishes the creative and the start date, never the spend.",
       track: "ads",
       source: "meta-ads",
     },
@@ -362,53 +381,56 @@ export const resilia: Dossier = {
     },
   ],
 
-  /* 🚧 ENTIRELY INVENTED. COGS is the number this product refuses to guess
-     (see gaps, and SKILL.md section 8). These rows show the SHAPE of the
-     answer a real sourcing pass would produce, and every one is marked. */
+  /* REAL QUOTES, for a comparable product — not this brand's costs.
+     Read off Made-in-China listings on 2026-09-08: supplier, region, MOQ and
+     the price range each one publishes. What they are NOT is what Resilia
+     pays; a published range for "an oregano softgel" prices the CATEGORY, and
+     the difference between that and a real cost sheet is the whole reason the
+     margin below stays marked. Freight and duty are not in any of them —
+     these are FOB China. */
   sourcing: [
     {
-      supplier: "Softgel contract manufacturer, oregano + black seed",
+      supplier: "Guangzhou Green Health Pharmaceutical Technology Co., Ltd",
       region: "Guangdong, CN",
-      moq: "50,000 softgels",
-      unitCost: "$0.038 / softgel",
-      leadTime: "35 days",
-      href: "https://www.alibaba.com/",
-      source: INVENTED,
+      moq: "3,000 bottles",
+      unitCost: "$2.80–3.10 / bottle",
+      leadTime: "not quoted",
+      href: "https://www.made-in-china.com/products-search/hot-china-products/Oregano_Oil_Softgel.html",
+      source: "mic",
     },
     {
-      supplier: "Aged garlic extract, SAC-standardised",
-      region: "Shandong, CN",
-      moq: "500 kg",
-      unitCost: "$0.061 / softgel",
-      leadTime: "48 days",
-      href: "https://www.alibaba.com/",
-      source: INVENTED,
+      supplier: "Guangzhou Shengmei Pharmaceutical Industry Co., Ltd",
+      region: "Guangdong, CN",
+      moq: "300,000 softgels",
+      unitCost: "$0.02–0.10 / softgel",
+      leadTime: "not quoted",
+      href: "https://www.made-in-china.com/products-search/hot-china-products/Oregano_Oil_Softgel.html",
+      source: "mic",
     },
     {
-      supplier: "US cGMP encapsulator, bottling and pack-out",
-      region: "Utah, US",
-      moq: "10,000 bottles",
-      unitCost: "$1.42 / bottle",
-      leadTime: "21 days",
-      href: "https://www.alibaba.com/",
-      source: INVENTED,
+      supplier: "Xi'an Tian Guangyuan Biotech Co., Ltd. — aged garlic, 300ct",
+      region: "Shaanxi, CN",
+      moq: "100 bags",
+      unitCost: "$1.70–3.00 / bottle",
+      leadTime: "not quoted",
+      href: "https://www.made-in-china.com/products-search/hot-china-products/Garlic_Softgel.html",
+      source: "mic",
     },
     {
-      supplier: "Bottle, label and safety seal",
-      region: "US",
-      moq: "25,000 units",
-      unitCost: "$0.51 / bottle",
-      leadTime: "16 days",
-      href: "https://www.alibaba.com/",
-      source: INVENTED,
+      supplier: "Hebei Songhekang Biotechnology Co., Ltd — garlic oil softgels",
+      region: "Hebei, CN",
+      moq: "100,000 capsules",
+      unitCost: "$0.02–0.07 / capsule",
+      leadTime: "not quoted",
+      href: "https://www.made-in-china.com/products-search/hot-china-products/Garlic_Softgel.html",
+      source: "mic",
     },
     {
-      supplier: "Freight — Yantian → Long Beach, LCL",
+      supplier: "Freight, duty and inbound",
       region: "CN → US",
-      moq: "8 CBM",
-      unitCost: "$0.09 / bottle landed",
-      leadTime: "31 days",
-      href: "https://www.freightos.com/",
+      moq: "—",
+      unitCost: "not quoted",
+      leadTime: "—",
       source: INVENTED,
     },
   ],
@@ -421,21 +443,38 @@ export const resilia: Dossier = {
     lines: [
       {
         label: "Cost of goods",
-        pct: 16,
-        note: "≈ $8.00 landed on a 120-count bottle against a $49.99 price — softgels, encapsulation, bottle and freight from the quotes above.",
+        pct: 8,
+        note: "≈$3.00 a bottle against a $39.57 average selling price, from the published quotes above. FOB China: freight, duty and inbound are NOT in it, and nobody quoted those for us.",
+        source: "mic",
       },
-      { label: "Amazon referral fee", pct: 15, note: "Health & Household rate." },
       {
-        label: "FBA fulfilment and storage",
-        pct: 13,
-        note: "A small dense bottle at a $39.57 average is close to the best case for FBA.",
+        label: "Amazon referral fee",
+        pct: 15,
+        note: "Amazon's published rate for Beauty, Health and Personal Care above $10. Every ASIN here is above $10.",
+        source: "amazon-fees",
       },
-      { label: "Advertising", pct: 14, note: "The Amazon figure from the advertising tab, as TACOS." },
-      { label: "Returns, coupons and subscribe-and-save", pct: 6 },
-      { label: "Overhead", pct: 7, note: "People, software, insurance — nothing public about this business sizes it." },
+      {
+        label: "FBA fulfilment",
+        pct: 9,
+        note: "≈$3.60 on a small-standard 6–10 oz unit in the $10–50 price band, from the 2026 rate card. The exact fee depends on each ASIN's measured dimensions, which we do not have.",
+        source: "fba-rates",
+      },
+      {
+        label: "Advertising",
+        pct: 20,
+        note: "OURS. A scaling brand's TACOS usually runs 15–25%; this business publishes nothing, and the advertising tab explains why no one else can either.",
+        source: INVENTED,
+      },
+      { label: "Returns, coupons and subscribe-and-save", pct: 6, source: INVENTED },
+      {
+        label: "Overhead",
+        pct: 10,
+        note: "People, software, insurance. Nothing public about this business sizes it.",
+        source: INVENTED,
+      },
     ],
     basis:
-      "Costs as a share of revenue, built off the quotes above and Amazon's published fee rates. Every line is a placeholder: the quotes are invented, the fee rates are real but applied to an average rather than to each ASIN, and none of it has been checked against a seller's own books. It also covers the AMAZON channel only — the subscription store on the traffic tab has a different cost structure entirely, starting with paid traffic instead of a referral fee.",
+      "Three of these six lines are real and cited: the supplier quotes are published listings for a comparable product, and Amazon publishes both the referral rate and the FBA rate card. Three are ours — advertising, returns and overhead — and they are the three that decide the answer. So the margin below is not a measurement; it is real fee arithmetic wrapped around invented operating costs, on the Amazon channel only.",
     source: INVENTED,
   },
 
@@ -448,14 +487,17 @@ export const resilia: Dossier = {
     {
       channel: "Amazon Sponsored Products",
       spend: "$792,000 / mo",
-      note: "Implied TACOS 14.0% against $5.66M of Amazon revenue.",
+      note:
+        "Implied TACOS 14.0% against $5.66M of Amazon revenue. Amazon publishes nothing about a competitor's spend, and its search results are localised to whoever is looking — from outside the US we cannot even count their sponsored placements, which is the one honest substitute.",
       source: INVENTED,
     },
     {
       channel: "Meta (Facebook + Instagram)",
       spend: "$1,340,000 / mo",
       note:
-        "Advertorial creative under pages named \"Everyday Wellness Review\" and \"Vascular Wellness Report\", driving the subscription store rather than Amazon. The library shows what is running; it never shows spend.",
+        "Advertorial creative under pages named \"Everyday Wellness Review\", \"Vascular Wellness Report\", \"Circulatory Health Report\", \"Natural Wellness Journal\" and \"Active Longevity Review\" — plus one page called simply Resilia. The library shows what is running; it never shows spend.",
+      activity: "~6,900 active US ads mention Resilia",
+      activitySource: "meta-ads",
       href:
         "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&q=resilia&search_type=keyword_unordered&media_type=all",
       /* The library is real and cited on the NAME; the spend is invented and
@@ -466,7 +508,10 @@ export const resilia: Dossier = {
     {
       channel: "Google Ads (search + shopping)",
       spend: "$61,000 / mo",
-      note: "Brand defence, against the several Resilia domains nobody has tied to the operator.",
+      note:
+        "They do buy search, in bursts: Ubersuggest's paid series peaks at 17 paid keywords and ~780 paid visits in May 2026 and reads zero in August. That is a real shape; the dollars beside it are not.",
+      activity: "17 paid keywords at peak (May 2026), 0 in Aug 2026",
+      activitySource: "ubersuggest",
       source: INVENTED,
     },
     {
@@ -478,24 +523,64 @@ export const resilia: Dossier = {
     },
   ],
 
-  /* 🚧 Ranks and volumes invented. The site-traffic figure in `offAmazon` is
-     the one real number on that tab. */
+  /* REAL, from Ubersuggest on 2026-09-08: their actual Google positions and
+     that tool's volume estimates. Brand terms only — they rank for their own
+     name and almost nothing else, which is the finding. "oil of oregano" runs
+     135,000 searches a month in the US and resilia.shop is nowhere on it. */
   keywords: [
-    { term: "oil of oregano", engine: "Amazon", rank: "#4 organic", volume: "246,000 / mo", source: INVENTED },
-    { term: "oregano oil softgels", engine: "Amazon", rank: "#2 organic", volume: "88,000 / mo", source: INVENTED },
-    { term: "odorless garlic supplement", engine: "Amazon", rank: "#1 organic", volume: "64,000 / mo", source: INVENTED },
-    { term: "black seed oil capsules", engine: "Amazon", rank: "#19 organic", volume: "171,000 / mo", source: INVENTED },
-    { term: "resilia", engine: "Amazon", rank: "#1 organic", volume: "33,100 / mo", source: INVENTED },
-    { term: "aged garlic extract benefits", engine: "Google", rank: "#12", volume: "40,500 / mo", source: INVENTED },
-    { term: "oil of oregano benefits", engine: "Google", rank: "#22", volume: "110,000 / mo", source: INVENTED },
-    { term: "resilia oregano reviews", engine: "Google", rank: "#1", volume: "5,400 / mo", source: INVENTED },
+    { term: "resilia oil of oregano with black seed oil", engine: "Google", rank: "#29", volume: "8,100 / mo", source: "ubersuggest" },
+    { term: "resilia aged garlic", engine: "Google", rank: "#28", volume: "2,900 / mo", source: "ubersuggest" },
+    { term: "resilia shop", engine: "Google", rank: "#3", volume: "1,300 / mo", source: "ubersuggest" },
+    { term: "resilia oregano oil", engine: "Google", rank: "#15", volume: "1,000 / mo", source: "ubersuggest" },
+    { term: "resilia supplement", engine: "Google", rank: "#4", volume: "880 / mo", source: "ubersuggest" },
+    { term: "resilia oil of oregano softgels", engine: "Google", rank: "#13", volume: "720 / mo", source: "ubersuggest" },
+    { term: "resilia cancel subscription", engine: "Google", rank: "#7", volume: "140 / mo", source: "ubersuggest" },
+    { term: "is resilia shop legit", engine: "Google", rank: "#14", volume: "110 / mo", source: "ubersuggest" },
+  ],
+
+  /* REAL, read off the listings on 2026-09-08. Two products are #1 in their
+     subcategory ten months after launch, which is the single most useful
+     Amazon number on this page — and the long tail shows what the same
+     operator's line extensions do without the same push behind them. */
+  bestsellers: [
+    {
+      label: "Oil Of Oregano Softgels with Black Seed Oil",
+      rank: "#75 in Health & Household",
+      note: "#1 in Oregano Herbal Supplements · 4.4★ over 3,154 ratings. The 120 and 180 counts share this parent listing.",
+      source: "bsr",
+    },
+    {
+      label: "Odorless Aged Garlic Extract Softgels",
+      rank: "#95 in Health & Household",
+      note: "#1 in Garlic Herbal Supplements · 4.4★ over 2,871 ratings, five months after the line launched.",
+      source: "bsr",
+    },
+    {
+      label: "Ethiopian Black Seed Softgels 1000mg",
+      rank: "#6,189 in Health & Household",
+      note: "#7 in Black Seed Oil Nutritional Supplements · 4.5★ over 208 ratings.",
+      source: "bsr",
+    },
+    {
+      label: "D3 K2 Vitamin 10000 IU",
+      rank: "#17,070 in Health & Household",
+      note: "No subcategory rank at all · 4.4★ over 85 ratings. A line extension that did not take.",
+      source: "bsr",
+    },
+    {
+      label: "Milk Thistle Silymarin 300mg",
+      rank: "#43,174 in Health & Household",
+      note: "#140 in Milk Thistle Herbal Supplements · 4.4★ over 47 ratings. The catalogue's quietest product.",
+      source: "bsr",
+    },
   ],
 
   gaps: [
-    "COGS, and therefore margin and profit — MEASURED. The sourcing tab now carries quotes and a margin built from them, and the overview chart draws the profit that falls out; all of it is invented and starred, on instruction, so the demo can show a finished page. Nobody priced a softgel. Nothing here has seen this business's books, and the real version of the page shows none of it until a seller connects.",
+    "This business's actual COGS. The sourcing tab now carries REAL published quotes for a comparable softgel, and Amazon's referral and FBA rates are real — but a category price is not a cost sheet, freight and duty are in none of the quotes, and the three lines that decide the margin (advertising, returns, overhead) are still ours. The real version of this page shows a margin only when a seller connects their account.",
     "How big the DTC side is. Similarweb counts visits, not orders, and resilia.shop sells subscriptions — so the $5.66M above is the AMAZON business only, and the whole company is larger by an amount nothing public will tell you.",
-    "Ad spend. No public source reports a competitor's Amazon ad spend, and Meta's library publishes creative and run dates but never money. Both figures on the advertising tab are ours.",
-    "Which advertiser pages this business controls. The ads for its garlic line run under \"Everyday Wellness Review\" and \"Vascular Wellness Report\", so the library cannot be totalled to the brand without someone establishing the link.",
+    "Ad spend, in money. Meta publishes the ads (~6,900 active US ads mention this brand) and Ubersuggest catches the paid-search bursts, so the ACTIVITY is real — the dollars beside it are ours. No public source reports anyone's Amazon ad spend.",
+    "Which advertiser pages this business controls. The ads for its garlic line run under \"Everyday Wellness Review\", \"Vascular Wellness Report\", \"Circulatory Health Report\" and others, so the ~6,900 figure cannot be totalled to the brand without someone establishing the link. One page is called simply Resilia.",
+    "Amazon keyword rank and search volume. Amazon publishes no volumes, and it localises search results to the viewer — this machine is on an Israeli IP, so the US result set is not visible to it. Best-seller rank is on the page instead, and a US-located run or a Helium 10 / Brand Analytics account is what would fill the gap.",
     "The 12 unbadged ASINs. Each sells under roughly 50/month, but Amazon publishes no figure, so they are counted as zero rather than estimated.",
     "Amazon also carries a near-identical \"RESILLA\" brand in the same category, and products listed under a bare \"Resilia\". A brand split across several strings is under-counted by exactly the ASINs nobody queried, and no error is raised — the number simply comes back smaller.",
     "Whether resilia.us and resiliasupps.com belong to this business. One is registered to a private individual in another state, the other through a brand-protection registrar; neither resolves. Affiliate, defensive, or unrelated — unresolved.",
@@ -578,6 +663,46 @@ export const resilia: Dossier = {
         "32K followers over 274 posts, read off the public profile: \"RESILIA | Oil of Oregano • Blackseed • Aged Garlic Supplements\". A second handle, @shopresilia, also carries the name; it would not load for us, so it is not cited here.",
     },
     {
+      id: "bsr",
+      label: "The listings themselves — best-seller rank and reviews",
+      href: "https://www.amazon.com/dp/B0G6B59FT5",
+      read: "2026-09-08",
+      detail:
+        "Best-seller rank, subcategory rank, star rating and review count, read off each product page. BSR is printed on the listing and is the same number for every viewer, unlike Amazon search results, which are localised — from outside the US we cannot see the US result set, so keyword positions on Amazon are missing from this page rather than guessed.",
+    },
+    {
+      id: "ubersuggest",
+      label: "Ubersuggest — resilia.shop",
+      href: "https://neilpatel.com/ubersuggest/",
+      read: "2026-09-08",
+      detail:
+        "Google positions, search volumes and the site's organic and paid traffic history: 518 ranking keywords, ~2,120 organic visits in August 2026, and a paid-search burst peaking at 17 keywords in May 2026. Ubersuggest is a model built from rank data and clickstream, not a server-side count — an estimate, but somebody else's, made the same way for every domain.",
+    },
+    {
+      id: "mic",
+      label: "Made-in-China — supplier listings",
+      href: "https://www.made-in-china.com/products-search/hot-china-products/Oregano_Oil_Softgel.html",
+      read: "2026-09-08",
+      detail:
+        "Published price ranges and minimum orders from named suppliers for oregano and aged-garlic softgels. These price the CATEGORY, not this business: nobody here has seen Resilia's cost sheet, and the quotes are FOB China with no freight or duty in them.",
+    },
+    {
+      id: "amazon-fees",
+      label: "Amazon — published selling fees",
+      href: "https://sell.amazon.com/pricing",
+      read: "2026-09-08",
+      detail:
+        "Amazon's own referral-fee schedule: 8% for Beauty, Health and Personal Care items at $10 or less and 15% above it, with a $0.30 minimum. First-party and not modelled.",
+    },
+    {
+      id: "fba-rates",
+      label: "FBA fulfilment rate card, 2026",
+      href: "https://warehousingcosts.com/guides/amazon-fba-fulfillment-fees",
+      read: "2026-09-08",
+      detail:
+        "The US FBA fee table effective 15 January 2026 with the 17 April fuel and logistics surcharge: small standard 6–10 oz in the $10–50 band is $3.54–3.68 a unit. Amazon's own copy of this table sits behind Seller Central, so this is a published mirror of it rather than the first-party page.",
+    },
+    {
       /* 🚨 The entry every invented figure points at, and deliberately LAST.
          It renders as "*" rather than a number, so putting it first cost the
          real sources their first index — the list began at 2 and a reader was
@@ -585,7 +710,7 @@ export const resilia: Dossier = {
       id: INVENTED,
       label: "Invented for this demo — nobody measured this",
       detail:
-        "Marked with * wherever it appears. Product sourcing, advertising spend and keyword ranks are placeholders, showing what the page will look like once those pipelines exist. They are not estimates, not modelled, and not to be quoted: they were made up. Everything carrying a NUMBER instead of a * came from one of the real sources above.",
+        "Marked with * wherever it appears, and the list is now short: the dollar figures on the advertising tab, three of the six cost lines behind the margin (advertising, returns, overhead), the freight and duty nobody quoted, and the month-by-month profit history on the overview chart — which applies today's run rate backwards over real listing dates. Everything else on this page carries a NUMBER instead, and came from one of the real sources above.",
     },
   ],
 
@@ -597,8 +722,8 @@ export const resilia: Dossier = {
     salesLede:
       "Two lines carry the business: oregano-with-black-seed, and the aged garlic that overtook it eight weeks after launching. These are the 15 largest of 21 priced products and they sum to $5.61M, so the bars fall a little short of the $5.66M headline — the remaining six are worth about $44,000 a month between them.",
     advertisingLede:
-      "Meta's ad library is genuinely public and worth opening here, because the ads for this brand's biggest line are not running under this brand's name — they run under pages called \"Everyday Wellness Review\" and \"Vascular Wellness Report\". The library publishes creative and run dates; it does not publish spend, and Amazon publishes nothing at all, so both money figures below are ours.",
+      "Two things here are counted rather than modelled: Meta's ad library returns ~6,900 active US ads mentioning Resilia, and Ubersuggest catches a Google Ads burst peaking at 17 keywords in May 2026. The library is worth opening, because the ads for the biggest line do not run under this brand's name — they run under pages called \"Everyday Wellness Review\" and \"Vascular Wellness Report\". Neither source publishes money, and Amazon publishes nothing at all, so the dollar column is ours.",
     trafficLede:
-      "For this business it is the larger half. resilia.shop is a subscription store selling the same three lines, live since at least August 2024, and Similarweb reads it at 9.9M visits over three months — so the Amazon revenue at the top of this page is one channel of a bigger company, not the company.",
+      "For this business it is the larger half. resilia.shop is a subscription store selling the same three lines, live since at least August 2024, and Similarweb reads it at 9.9M visits over three months. Ubersuggest reads 2,120 of those as organic search — so effectively none of it is earned traffic. They rank for their own name and nothing else: \"oil of oregano\" runs 135,000 US searches a month and resilia.shop is nowhere on it.",
   },
 };
