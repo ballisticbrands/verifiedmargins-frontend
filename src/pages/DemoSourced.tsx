@@ -991,6 +991,20 @@ function addMonth(key: string): string {
 function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
   const [wrapRef, width] = useMeasuredWidth();
   const [hover, setHover] = useState<{ kind: "month" | "event"; i: number } | null>(null);
+  /**
+   * 🚨 A REF, not the state, because the svg's mousemove and the dot's
+   * mouseenter fight over the same pointer.
+   *
+   * Moving onto a dot fires mouseenter (card = this event) and then more
+   * mousemove on the svg underneath. Those mousemove handlers were closed over
+   * the PREVIOUS render's `hover`, so their "is an event already showing?"
+   * guard read stale and set the card straight back to the month. The result
+   * was a chart that looked like it needed a CLICK: only a click left the
+   * pointer still long enough for the event card to survive, and focus kept it
+   * there. A ref is written and read synchronously, so the guard sees the dot
+   * the pointer is actually over.
+   */
+  const overDot = useRef(false);
 
   const { net } = modelled(d);
 
@@ -1115,9 +1129,12 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
           height={height}
           role="img"
           aria-label="Modelled monthly revenue and profit, with the events on this business's timeline"
-          onMouseLeave={() => setHover(null)}
+          onMouseLeave={() => {
+            overDot.current = false;
+            setHover(null);
+          }}
           onMouseMove={(ev) => {
-            if (hover?.kind === "event") return;
+            if (overDot.current) return;
             const rect = ev.currentTarget.getBoundingClientRect();
             const px = ev.clientX - rect.left;
             let best = 0;
@@ -1191,8 +1208,14 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
               role="button"
               aria-label={`${p.e.date}: ${p.e.title}`}
               data-event-dot={String(i)}
-              onMouseEnter={() => setHover({ kind: "event", i })}
-              onMouseLeave={() => setHover(null)}
+              onMouseEnter={() => {
+                overDot.current = true;
+                setHover({ kind: "event", i });
+              }}
+              onMouseLeave={() => {
+                overDot.current = false;
+                setHover(null);
+              }}
               onFocus={() => setHover({ kind: "event", i })}
               onBlur={() => setHover(null)}
             >
