@@ -648,7 +648,7 @@ export const theLoadedTeaShop: Dossier = {
      ../dossier.ts. */
   copy: {
     profitChart:
-      "Modelled profit against revenue, with the timeline on it — hover a dot. The steps are real listing dates and the deductions are real fee rates; what is ours is the assumption that today's run rate applied back then. Returns and overhead are set to zero, so the line is a ceiling. Almost all of it is built in the eight weeks from 30 March 2026, and the brand itself has traded since 2019.",
+      "Hover a dot for what happened there. Almost the whole line is built in the eight weeks from 30 March 2026 — and the brand itself has traded since 2019.",
     timelineLede:
       "The strands are kept together on one line on purpose: four years of building an audience elsewhere, a lone Amazon listing that goes nowhere for ten months, and then the whole Amazon catalogue arriving in eight weeks — with the ~310 Meta ads going live that August, months after it.",
     salesLede:

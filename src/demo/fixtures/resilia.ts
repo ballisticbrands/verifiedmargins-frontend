@@ -742,7 +742,7 @@ export const resilia: Dossier = {
 
   copy: {
     profitChart:
-      "Modelled profit against revenue, with the timeline on it — hover a dot. The steps are real listing dates and the deductions are real fee rates; what is ours is the assumption that today's run rate applied back then. Returns and overhead are set to zero, so the line is a ceiling. Two steps carry it — December 2025, when the oregano line went wide, and 4 May 2026, when six aged-garlic SKUs shipped in one day.",
+      "Hover a dot for what happened there. Two steps carry the whole line: December 2025, when the oregano line went wide, and 4 May 2026, when six aged-garlic SKUs shipped in one day.",
     timelineLede:
       "The strands are kept together on one line because the web track is the one that changes the story: a Shopify store selling this product in August 2024, a trademark ten weeks before the launch, and only then the Amazon catalogue — which reaches a $68M run rate faster than the store it came from took to get a second domain.",
     salesLede:

@@ -3737,6 +3737,55 @@ h2[data-heading-badges] {
 .vm-dossier [data-invented-star] {
   color: var(--foreground); font-weight: 700; border-bottom: 0;
 }
+/* ─── The "i" badge, and the caveat behind it ──────────────────────────
+ *
+ * 🚨 Six explanatory paragraphs used to sit in the page as body text. Each was
+ * defensible; together they buried the figures they were defending. The words
+ * are unchanged — they now hang off the heading the caveat belongs to, one
+ * hover (or tab, or tap) away.
+ *
+ * The popover lives INSIDE the wrapper the hover is bound to, so a pointer can
+ * travel from the badge into the text without it closing: several of these
+ * contain source markers a reader is meant to be able to click. */
+.vm-dossier [data-info] { position: relative; display: inline-block; }
+.vm-dossier [data-info-badge] {
+  appearance: none; margin-left: 0.4rem; padding: 0;
+  width: 1.05rem; height: 1.05rem; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--muted-foreground);
+  font: inherit; font-size: 0.7rem; font-weight: 700; font-style: italic;
+  line-height: 1; cursor: help; vertical-align: middle;
+}
+.vm-dossier [data-info-badge]:hover,
+.vm-dossier [data-info-badge][aria-expanded="true"] {
+  border-color: var(--foreground); color: var(--foreground);
+}
+.vm-dossier [data-info-badge]:focus-visible { outline: 2px solid var(--foreground); outline-offset: 2px; }
+.vm-dossier [data-info-pop] {
+  position: absolute; z-index: 20; top: calc(100% + 0.4rem); left: -0.5rem;
+  width: max-content; max-width: min(34rem, 86vw);
+  padding: 0.7rem 0.85rem;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.10);
+  /* Body text inside a heading's popover: reset the weight and size it
+     inherits, or the caveat shouts louder than the section it explains. */
+  font-size: 0.85rem; font-weight: 400; font-style: normal;
+  line-height: 1.5; letter-spacing: normal; text-transform: none;
+  color: var(--foreground); white-space: normal; text-align: left;
+}
+/* Every badge on this page sits at or near the left margin — headings, and the
+   note under the tile row — so the popover anchors left and the max-width does
+   the rest. A right-flip was tried for the tile row and pushed a 34rem card off
+   the left edge of the screen, which is the failure it was meant to prevent. */
+/* Paragraphs inside a popover are block-level SPANS, not <p>: most of these
+   badges live inside an <h2>, and a <p> nested in a heading is invalid HTML
+   that browsers silently reparent — which is how two <br> tags ended up
+   rendering as no break at all. */
+.vm-dossier [data-info-pop] [data-info-para] { display: block; }
+.vm-dossier [data-info-pop] [data-info-para] + [data-info-para] { margin-top: 0.6rem; }
+
+.vm-dossier [data-tiles-note] { margin: 0.6rem 0 0; color: var(--muted-foreground); }
+
 /* The modelled notice: same shape as the invented one, quieter. A computed
    figure is not a fabricated one and should not shout as loudly. */
 .vm-dossier [data-modelled-notice] {

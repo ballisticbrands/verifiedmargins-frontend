@@ -62,7 +62,9 @@ export function DemoSourced({ demo }: { demo: SourcedDemo }) {
 
   const [params, setParams] = useSearchParams();
   const raw = params.get("tab");
-  const tab: TabId = (TABS.some((t) => t.id === raw) ? raw : "overview") as TabId;
+  const tab: TabId = (
+    TABS.some((t) => t.id === raw) ? raw : "overview"
+  ) as TabId;
   const go = useCallback(
     (next: TabId) => {
       const p = new URLSearchParams(params);
@@ -81,19 +83,28 @@ export function DemoSourced({ demo }: { demo: SourcedDemo }) {
       <DemoBanner />
       <div className="vm-form vm-profile vm-dossier">
         <span data-profile-crumbs="">
-          <Breadcrumbs items={[{ label: "Demo", to: "/demo" }, { label: d.brand }]} />
+          <Breadcrumbs
+            items={[{ label: "Demo", to: "/demo" }, { label: d.brand }]}
+          />
         </span>
 
         <span data-profile-who="">
           {/* The brand's own logo, in the slot a founder's face occupies —
               served from our origin, never hotlinked. */}
           <span data-avatar="" data-business-avatar="" aria-hidden="true">
-            <img src={d.logo} alt="" data-brand-logo="" data-logo-shape={d.logoShape} />
+            <img
+              src={d.logo}
+              alt=""
+              data-brand-logo=""
+              data-logo-shape={d.logoShape}
+            />
           </span>
           <span data-profile-identity="">
             <h1>
               {d.brand}
-              <VerificationBadge verification={{ tier: "estimated", label: "Estimated" }} />
+              <VerificationBadge
+                verification={{ tier: "estimated", label: "Estimated" }}
+              />
             </h1>
             <p data-verified-count="">{d.what}</p>
             <p data-verified-count="">
@@ -151,7 +162,15 @@ type Go = (t: TabId) => void;
  * Invented figures render "*" instead of a number — one mechanism for both, so
  * a fabricated value cannot be shown without a marker.
  */
-function Src({ id, sources, go }: { id: string; sources: Dossier["sources"]; go: Go }) {
+function Src({
+  id,
+  sources,
+  go,
+}: {
+  id: string;
+  sources: Dossier["sources"];
+  go: Go;
+}) {
   const i = sources.findIndex((s) => s.id === id);
   if (i < 0) return null;
   const mark = MARK[id];
@@ -180,17 +199,74 @@ function Src({ id, sources, go }: { id: string; sources: Dossier["sources"]; go:
  *  the bibliography. */
 const MARK: Record<string, string> = { [INVENTED]: "*", [MODELLED]: "≈" };
 
+/**
+ * The caveat, folded into a badge.
+ *
+ * 🚨 Every paragraph behind one of these used to sit in the page as body text,
+ * and there were six of them. Each was defensible on its own and together they
+ * buried the thing they were defending: a reader met four paragraphs about how
+ * a number was made before meeting the number. The honesty is not in the word
+ * count — it is in the caveat being one hover away from the figure it belongs
+ * to, and in nothing being deleted to get there.
+ *
+ * Hover OR focus OR tap: the popover has to survive a keyboard and a phone,
+ * not just a mouse. It lives inside the wrapper so a pointer can travel from
+ * the badge into the text — several of these contain source markers a reader
+ * is meant to be able to click.
+ */
+function Info({
+  children,
+  label,
+}: {
+  children: React.ReactNode;
+  label: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span
+      data-info=""
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        data-info-badge=""
+        aria-label={label}
+        aria-expanded={open}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onClick={() => setOpen((o) => !o)}
+      >
+        i
+      </button>
+      {open ? (
+        <span data-info-pop="" role="tooltip">
+          {children}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 /** Shown at the top of every tab whose figures are made up.
  *
  * `scope` exists because the overview is now HALF invented: its tiles are
  * Keepa's and its chart is not. "Every figure on this tab" was true of the
  * three tabs this notice was written for and became a lie the moment it
  * appeared above a row of real numbers. */
-function InventedNotice({ what, go, scope = "on this tab" }: { what: string; go: Go; scope?: string }) {
+function InventedNotice({
+  what,
+  go,
+  scope = "on this tab",
+}: {
+  what: string;
+  go: Go;
+  scope?: string;
+}) {
   return (
     <p data-invented-notice="">
-      🚧 <strong>Demo placeholder.</strong> {what} Nobody measured any figure {scope} — every
-      one carries a <span data-invented-star="">*</span>. See{" "}
+      🚧 <strong>Demo placeholder.</strong> {what} Nobody measured any figure{" "}
+      {scope} — every one carries a <span data-invented-star="">*</span>. See{" "}
       <button type="button" data-linklike="" onClick={() => go("sources")}>
         Sources
       </button>
@@ -209,7 +285,10 @@ function InventedNotice({ what, go, scope = "on this tab" }: { what: string; go:
  */
 function modelled(d: Dossier) {
   const net = 1 - d.economics.lines.reduce((t, l) => t + l.pct, 0) / 100;
-  const revenue = d.asins.reduce((t, a) => t + a.monthlySold * (a.priceCents ?? 0), 0);
+  const revenue = d.asins.reduce(
+    (t, a) => t + a.monthlySold * (a.priceCents ?? 0),
+    0,
+  );
   return { net, revenue, profit: revenue * net };
 }
 
@@ -246,7 +325,11 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
         <p data-deep-dive-text="" data-clamped="">
           {d.deepDive}
         </p>
-        <button type="button" data-deep-dive-toggle="" onClick={() => go("deepdive")}>
+        <button
+          type="button"
+          data-deep-dive-toggle=""
+          onClick={() => go("deepdive")}
+        >
           Read the deep-dive
         </button>
       </section>
@@ -285,62 +368,80 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
             hint={`${d.counts.priced} of ${d.counts.catalogue} are priced and selling.`}
           />
         </div>
-        <p data-chart-label="">
+        <p data-tiles-note="">
           <small>
-            Revenue, units, price and catalogue from Keepa
-            <Src id="keepa" sources={d.sources} go={go} />, across the whole{" "}
-            {d.counts.catalogue}-product catalogue. Profit and margin are neither: they are
-            computed
-            <Src id={MODELLED} sources={d.sources} go={go} /> from published supplier quotes,
-            Amazon's own fee rates and a modelled ad spend — before returns and overhead, which are
-            set to zero. The{" "}
-            <button type="button" data-linklike="" onClick={() => go("sourcing")}>
-              sourcing tab
-            </button>{" "}
-            shows every line that comes off.
+            Where these come from
+            <Info label="Where the figures in this row come from">
+              <span data-info-para="">
+                Revenue, units, price and catalogue from Keepa
+                <Src id="keepa" sources={d.sources} go={go} />, across the whole{" "}
+                {d.counts.catalogue}-product catalogue. Profit and margin are
+                neither: they are computed
+                <Src id={MODELLED} sources={d.sources} go={go} /> from published
+                supplier quotes, Amazon's own fee rates and a modelled ad spend
+                — before returns and overhead, which are set to zero, so the
+                profit figure is a ceiling. The{" "}
+                <button
+                  type="button"
+                  data-linklike=""
+                  onClick={() => go("sourcing")}
+                >
+                  sourcing tab
+                </button>{" "}
+                shows every line that comes off.
+              </span>
+            </Info>
           </small>
         </p>
       </section>
 
       <section>
-        <h2>Estimated monthly profit</h2>
-        {/* 🚨 A MODELLED history, not a measured one. The steps are real listing
-            dates and the deductions are real fee rates; what is ours is the
-            assumption that today's run rate applied then, which nobody can
-            check. It leads with the notice for that reason. */}
-        <p data-modelled-notice="">
-          ≈ <strong>Modelled.</strong> Today's run rate applied backwards over each product's real
-          listing date, less cost of goods, Amazon's published fees and modelled ad spend — before
-          returns and overhead, which are set to zero, so the profit line is a ceiling. Nobody
-          measured a month of it: every figure here carries a{" "}
-          <span data-invented-star="">≈</span>. See{" "}
-          <button type="button" data-linklike="" onClick={() => go("sources")}>
-            Sources
-          </button>
-          .
-        </p>
+        {/* 🚨 A MODELLED history, not a measured one — and the caveat that says
+            so now hangs off the heading rather than standing between the
+            reader and the chart. It is the same words; it is one hover away. */}
+        <h2>
+          Estimated monthly profit
+          <Info label="How this chart was built, and why it flattens">
+            <span data-info-para="">
+              ≈ <strong>Modelled.</strong> Today's run rate applied backwards
+              over each product's real listing date, less cost of goods,
+              Amazon's published fees and modelled ad spend — before returns and
+              overhead, which are set to zero, so the profit line is a ceiling.
+              Nobody measured a month of it: every figure here carries a{" "}
+              <span data-invented-star="">≈</span>.
+            </span>
+            <span data-info-para="">
+              The line stops moving after the last product went live, and that
+              is the model rather than the business: <code>monthlySold</code> is
+              one reading taken today, so every month after{" "}
+              {[...d.asins]
+                .map((a) => a.listed)
+                .sort()
+                .at(-1)}{" "}
+              repeats it. Amazon publishes no month-by-month sales history.{" "}
+              <button
+                type="button"
+                data-linklike=""
+                onClick={() => go("sources")}
+              >
+                Sources
+              </button>
+              .
+            </span>
+          </Info>
+        </h2>
         <ProfitChart d={d} go={go} />
         <p data-chart-label="">
           <small>
             {d.copy.profitChart}{" "}
-            <button type="button" data-linklike="" onClick={() => go("timeline")}>
+            <button
+              type="button"
+              data-linklike=""
+              onClick={() => go("timeline")}
+            >
               See the full timeline
             </button>
             .
-          </small>
-        </p>
-        {/* 🚨 The flat tail is the MODEL, not a quiet quarter, and a reader who
-            works that out for themselves has caught us instead of being told.
-            monthlySold is one reading taken today: it is applied to every
-            month after the last launch, so the line cannot move again until a
-            new product does. Month-by-month sales history is the thing Amazon
-            does not publish at all. */}
-        <p data-chart-label="">
-          <small data-muted="">
-            The line stops moving after the last product went live, and that is the model rather
-            than the business: Amazon publishes no month-by-month sales history, so today's run rate
-            is the only rate there is. Every month after{" "}
-            {[...d.asins].map((a) => a.listed).sort().at(-1)} is the same figure repeated.
           </small>
         </p>
       </section>
@@ -443,7 +544,11 @@ function Operator({ d, go }: { d: Dossier; go: Go }) {
         <div>
           <dt>Seller</dt>
           <dd>
-            <a href={d.operator.storefrontUrl} rel="nofollow noopener" target="_blank">
+            <a
+              href={d.operator.storefrontUrl}
+              rel="nofollow noopener"
+              target="_blank"
+            >
               {d.operator.sellerName}
             </a>{" "}
             <span className="vm-num" data-muted="">
@@ -461,13 +566,15 @@ function Operator({ d, go }: { d: Dossier; go: Go }) {
           <dt>Seller feedback</dt>
           <dd>
             <span className="vm-num">{d.operator.feedback}</span>{" "}
-            {d.operator.feedbackNote ? <span data-muted="">— {d.operator.feedbackNote}</span> : null}
+            {d.operator.feedbackNote ? (
+              <span data-muted="">— {d.operator.feedbackNote}</span>
+            ) : null}
           </dd>
         </div>
       </dl>
       <p data-src-line="">
-        <Src id={d.operator.source} sources={d.sources} go={go} /> Resolved from the buy-box seller
-        on the brand's best-selling products.
+        <Src id={d.operator.source} sources={d.sources} go={go} /> Resolved from
+        the buy-box seller on the brand's best-selling products.
       </p>
     </section>
   );
@@ -518,8 +625,8 @@ function Sales({ d, go }: { d: Dossier; go: Go }) {
     <section>
       <h2>Where the revenue is</h2>
       <p>
-        Monthly revenue by product, from <code>monthlySold × buy box price</code>.{" "}
-        {d.copy.salesLede}
+        Monthly revenue by product, from{" "}
+        <code>monthlySold × buy box price</code>. {d.copy.salesLede}
       </p>
       <RevenueBars asins={d.asins} />
 
@@ -551,15 +658,19 @@ function Sales({ d, go }: { d: Dossier; go: Go }) {
               </td>
               <td className="vm-num">{a.listed}</td>
               <td className="vm-num">{a.monthlySold.toLocaleString()}+</td>
-              <td className="vm-num">{a.priceCents ? money(a.priceCents) : "—"}</td>
-              <td className="vm-num">{a.priceCents ? money(a.monthlySold * a.priceCents) : "—"}</td>
+              <td className="vm-num">
+                {a.priceCents ? money(a.priceCents) : "—"}
+              </td>
+              <td className="vm-num">
+                {a.priceCents ? money(a.monthlySold * a.priceCents) : "—"}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
       <p data-src-line="">
-        <Src id="keepa" sources={d.sources} go={go} /> "Sold / mo" is Amazon's own badge, which is
-        why every row reads <em>n+</em>.
+        <Src id="keepa" sources={d.sources} go={go} /> "Sold / mo" is Amazon's
+        own badge, which is why every row reads <em>n+</em>.
         {/* Only where such a row exists. Explaining a dash in a column that has
             no dashes reads as a page describing a different catalogue — which
             is the failure `copy` was extracted to stop. */}
@@ -574,18 +685,24 @@ function Sales({ d, go }: { d: Dossier; go: Go }) {
 function Sourcing({ d, go }: { d: Dossier; go: Go }) {
   return (
     <section>
-      <h2>Product sourcing</h2>
-      <p>
-        Cost of goods is the one figure that turns revenue into margin, and it is the one nobody
-        publishes about themselves. So these are <strong>real published quotes for a comparable
-        product</strong> — named suppliers, their own price ranges and their own minimum orders,
-        each one a link a reader can open.
-      </p>
-      <p>
-        What they are not is this business's cost sheet. A published range prices the CATEGORY, the
-        quotes are FOB China with no freight or duty in them, and nobody here has seen what this
-        seller actually pays. That distance is why the margin below is still marked.
-      </p>
+      <h2>
+        Product sourcing
+        <Info label="What these quotes are, and what they are not">
+          <span data-info-para="">
+            Cost of goods is the one figure that turns revenue into margin, and
+            it is the one nobody publishes about themselves. So these are{" "}
+            <strong>real published quotes for a comparable product</strong> —
+            named suppliers, their own price ranges and their own minimum
+            orders, each one a link you can open.
+          </span>
+          <span data-info-para="">
+            What they are not is this business's cost sheet. A published range
+            prices the CATEGORY, the quotes are FOB China with no freight or
+            duty in them, and nobody here has seen what this seller actually
+            pays. That distance is why the margin below is still marked.
+          </span>
+        </Info>
+      </h2>
       <table data-asins="" data-sourcing="">
         <thead>
           <tr>
@@ -641,8 +758,21 @@ function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
   const net = netFraction * 100;
   return (
     <>
-      <h3>What that makes the margin</h3>
-      <p>{d.economics.basis}</p>
+      <h3>
+        What that makes the margin
+        <Info label="What is measured here and what is computed">
+          <span data-info-para="">{d.economics.basis}</span>
+          <span data-info-para="">
+            Read the markers, not the total. A number means somebody published
+            it — a supplier's own price, Amazon's own referral rate, Amazon's
+            own fee card. A <span data-invented-star="">≈</span> means we
+            computed it from those, and the advertising line is the one that
+            moves everything: shift it five points and the margin shifts five
+            points. Returns and overhead are set to ZERO deliberately, which is
+            why this is a ceiling on profit rather than profit.
+          </span>
+        </Info>
+      </h3>
       <ul data-econ="">
         {d.economics.lines.map((l) => (
           <li key={l.label}>
@@ -659,20 +789,16 @@ function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
             {net.toFixed(0)}%<Src id={MODELLED} sources={d.sources} go={go} />
           </span>
           <span data-econ-note="">
-            ≈ {money(profit)} a month on {money(revenue)} of catalogue revenue — the tile and the
-            line on the overview. Before returns and overhead, which are set to zero here, so this
-            is a CEILING on profit rather than profit.
+            ≈ {money(profit)} a month on {money(revenue)} of catalogue revenue —
+            the tile and the line on the overview. Before returns and overhead,
+            which are set to zero here, so this is a CEILING on profit rather
+            than profit.
           </span>
         </li>
       </ul>
       <p data-src-line="">
-        Read the markers, not the total. A number means somebody published it — a supplier's own
-        price, Amazon's own referral rate, Amazon's own fee card. A{" "}
-        <span data-invented-star="">≈</span> means we computed it from those, and the advertising
-        line is the one that moves everything: shift it five points and the margin shifts five
-        points. Returns and overhead are set to ZERO deliberately, which is why this is a
-        contribution margin and a ceiling on profit. On a site called VerifiedMargins the real
-        version of this block stays empty until the seller connects their account.
+        On a site called VerifiedMargins the real version of this block stays
+        empty until the seller connects their account and the costs are theirs.
       </p>
     </>
   );
@@ -682,21 +808,28 @@ function Advertising({ d, go }: { d: Dossier; go: Go }) {
   const meta = d.advertising.find((a) => a.href);
   return (
     <section>
-      <h2>Advertising</h2>
-      {/* Not an "invented" notice any more: the dollar column is computed from
-          published CPCs and conversion rates, and the counted line under each
-          row is somebody's actual measurement. */}
-      <p data-modelled-notice="">
-        ≈ <strong>Modelled.</strong> No public source reports a competitor's ad spend, so the dollar
-        column is arithmetic — a published category cost-per-click and conversion rate against real
-        unit and visit counts. The <em>Counted</em> line under each row is the part somebody
-        actually measured. Every dollar figure carries a <span data-invented-star="">≈</span>; see{" "}
-        <button type="button" data-linklike="" onClick={() => go("sources")}>
-          Sources
-        </button>{" "}
-        for each formula.
-      </p>
-      <p>{d.copy.advertisingLede}</p>
+      <h2>
+        Advertising
+        <Info label="Why the dollar column is arithmetic">
+          <span data-info-para="">
+            ≈ <strong>Modelled.</strong> No public source reports a competitor's
+            ad spend, so the dollar column is arithmetic — a published category
+            cost-per-click and conversion rate against real unit and visit
+            counts. The <em>Counted</em> line under each row is the part
+            somebody actually measured. Every dollar figure carries a{" "}
+            <span data-invented-star="">≈</span>; each formula is in{" "}
+            <button
+              type="button"
+              data-linklike=""
+              onClick={() => go("sources")}
+            >
+              Sources
+            </button>
+            .
+          </span>
+          <span data-info-para="">{d.copy.advertisingLede}</span>
+        </Info>
+      </h2>
       <ul data-adspend="">
         {d.advertising.map((a) => (
           <li key={a.channel}>
@@ -710,7 +843,9 @@ function Advertising({ d, go }: { d: Dossier; go: Go }) {
               )}
               {/* Cites what is genuinely published about the CHANNEL. The
                   figure's own citation sits on the figure. */}
-              {a.linkSource ? <Src id={a.linkSource} sources={d.sources} go={go} /> : null}
+              {a.linkSource ? (
+                <Src id={a.linkSource} sources={d.sources} go={go} />
+              ) : null}
             </span>
             <span data-ad-spend="" className="vm-num">
               {a.spend}
@@ -766,13 +901,18 @@ function Traffic({ d, go }: { d: Dossier; go: Go }) {
         ))}
       </ul>
 
-      <h3>Where they rank on Amazon</h3>
-      <p>
-        Amazon publishes no search volumes and localises its search results to whoever is looking,
-        so a scraped keyword position is worth less than it looks. Best-seller rank is printed on
-        the listing itself, is the same number for everyone, and is what a seller in this category
-        actually watches.
-      </p>
+      <h3>
+        Where they rank on Amazon
+        <Info label="Why best-seller rank and not keyword positions">
+          <span data-info-para="">
+            Amazon publishes no search volumes and localises its search results
+            to whoever is looking, so a scraped keyword position is worth less
+            than it looks. Best-seller rank is printed on the listing itself, is
+            the same number for everyone, and is what a seller in this category
+            actually watches.
+          </span>
+        </Info>
+      </h3>
       <ul data-bestsellers="">
         {d.bestsellers.map((r) => (
           <li key={r.label}>
@@ -788,7 +928,10 @@ function Traffic({ d, go }: { d: Dossier; go: Go }) {
 
       <h3>Search presence off Amazon</h3>
       {d.keywords.some((k) => k.source === INVENTED) ? (
-        <InventedNotice what="Ranks and search volumes are placeholders." go={go} />
+        <InventedNotice
+          what="Ranks and search volumes are placeholders."
+          go={go}
+        />
       ) : null}
       <table data-asins="">
         <thead>
@@ -834,48 +977,56 @@ function DeepDiveTab({ d, go }: { d: Dossier; go: Go }) {
 
       <h3>Nobody has asserted these figures</h3>
       <p>
-        Not Amazon, not the seller — nobody at this business has spoken to us. So every number here
-        carries a marker saying where it came from, and there are three kinds. A{" "}
-        <strong>number</strong> means somebody published it and we read it: Amazon's own fee rates,
-        a supplier's own price list, a best-seller rank printed on the listing, a keyword tool's
-        volume. A <span data-invented-star="">≈</span> means we computed it from those, and the
-        formula is in{" "}
+        Not Amazon, not the seller — nobody at this business has spoken to us.
+        So every number here carries a marker saying where it came from, and
+        there are three kinds. A <strong>number</strong> means somebody
+        published it and we read it: Amazon's own fee rates, a supplier's own
+        price list, a best-seller rank printed on the listing, a keyword tool's
+        volume. A <span data-invented-star="">≈</span> means we computed it from
+        those, and the formula is in{" "}
         <button type="button" data-linklike="" onClick={() => go("sources")}>
           Sources
         </button>{" "}
         — ad spend and the margin are the two that matter. A{" "}
-        <span data-invented-star="">*</span> means we made it up, and on this page it is down to one
-        row: the freight and duty nobody quoted.
+        <span data-invented-star="">*</span> means we made it up, and on this
+        page it is down to one row: the freight and duty nobody quoted.
       </p>
       <p>
-        The distinction is the point. A figure you can reproduce from the sources listed is a figure
-        you can argue with — and being argued with is the outcome this page is built for. A figure
-        you would have to take our word for is marked so you do not.
+        The distinction is the point. A figure you can reproduce from the
+        sources listed is a figure you can argue with — and being argued with is
+        the outcome this page is built for. A figure you would have to take our
+        word for is marked so you do not.
       </p>
 
       <h3>Sales — Amazon's own "bought in past month"</h3>
       <p>
-        Amazon prints a badge on a listing that reads "10,000+ bought in the past month". It is the
-        only sales figure Amazon publishes, and{" "}
-        <a href="https://keepa.com/#!api" rel="nofollow noopener" target="_blank">
+        Amazon prints a badge on a listing that reads "10,000+ bought in the
+        past month". It is the only sales figure Amazon publishes, and{" "}
+        <a
+          href="https://keepa.com/#!api"
+          rel="nofollow noopener"
+          target="_blank"
+        >
           Keepa
         </a>{" "}
-        records it. We read it across all {d.counts.catalogue} listings and multiplied by the buy box
-        price.
+        records it. We read it across all {d.counts.catalogue} listings and
+        multiplied by the buy box price.
       </p>
       <p>
-        Two things make this a <strong>floor rather than a guess</strong>. The badge is bucketed, so
-        "10,000+" is recorded as 10,000 when the truth is somewhere under 20,000. And Amazon only
-        shows it above roughly 50 sales a month — the {d.counts.unbadged} listings below that
-        threshold show nothing and are counted here as zero. The real figure is higher than the one
-        above, not lower.
+        Two things make this a <strong>floor rather than a guess</strong>. The
+        badge is bucketed, so "10,000+" is recorded as 10,000 when the truth is
+        somewhere under 20,000. And Amazon only shows it above roughly 50 sales
+        a month — the {d.counts.unbadged} listings below that threshold show
+        nothing and are counted here as zero. The real figure is higher than the
+        one above, not lower.
       </p>
 
       <h3>The operator, and where they are</h3>
       <p>
-        A brand and the business running it are not the same record. We resolve the buy-box seller on
-        the top listings, then read that seller's own registration — legal name, address, country and
-        feedback score. Amazon publishes it; we did not model it.
+        A brand and the business running it are not the same record. We resolve
+        the buy-box seller on the top listings, then read that seller's own
+        registration — legal name, address, country and feedback score. Amazon
+        publishes it; we did not model it.
       </p>
 
       <h3>What is not here</h3>
@@ -887,8 +1038,9 @@ function DeepDiveTab({ d, go }: { d: Dossier; go: Go }) {
 
       <h3>What would replace all of this</h3>
       <p>
-        One thing: the seller connecting their Amazon account. Then revenue and fees come from Amazon
-        directly, cost of goods comes from them, and the badge at the top stops saying "Estimated".
+        One thing: the seller connecting their Amazon account. Then revenue and
+        fees come from Amazon directly, cost of goods comes from them, and the
+        badge at the top stops saying "Estimated".
       </p>
       <p data-src-line="">
         Every figure's origin is listed in{" "}
@@ -907,9 +1059,10 @@ function Sources({ d }: { d: Dossier }) {
     <section>
       <h2>Sources</h2>
       <p>
-        Every figure on this page points at one of these. A <strong>number</strong> means somebody
-        published it and we read it. A <span data-invented-star="">≈</span> means we computed it from
-        the numbered entries beside it, and the formula is in the entry. A{" "}
+        Every figure on this page points at one of these. A{" "}
+        <strong>number</strong> means somebody published it and we read it. A{" "}
+        <span data-invented-star="">≈</span> means we computed it from the
+        numbered entries beside it, and the formula is in the entry. A{" "}
         <span data-invented-star="">*</span> means we made it up for the demo.
       </p>
       <ol data-sources="">
@@ -955,7 +1108,9 @@ function useMeasuredWidth() {
     const el = ref.current;
     if (!el) return;
     setW(el.getBoundingClientRect().width);
-    const ro = new ResizeObserver((entries) => setW(entries[0].contentRect.width));
+    const ro = new ResizeObserver((entries) =>
+      setW(entries[0].contentRect.width),
+    );
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -990,7 +1145,10 @@ function addMonth(key: string): string {
  */
 function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
   const [wrapRef, width] = useMeasuredWidth();
-  const [hover, setHover] = useState<{ kind: "month" | "event"; i: number } | null>(null);
+  const [hover, setHover] = useState<{
+    kind: "month" | "event";
+    i: number;
+  } | null>(null);
   /**
    * 🚨 A REF, not the state, because the svg's mousemove and the dot's
    * mouseenter fight over the same pointer.
@@ -1019,12 +1177,22 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
      running, and this line was not. */
   const points = useMemo(() => {
     const listed = d.asins.map((a) => a.listed).sort();
-    const dated = d.timeline.map((e) => e.date).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x)).sort();
-    const first = [d.firstListed, listed[0], dated[0]].filter(Boolean).sort()[0];
+    const dated = d.timeline
+      .map((e) => e.date)
+      .filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x))
+      .sort();
+    const first = [d.firstListed, listed[0], dated[0]]
+      .filter(Boolean)
+      .sort()[0];
     const last = [listed.at(-1)!, dated.at(-1)].filter(Boolean).sort().at(-1)!;
     let key = monthKey(first);
     const stop = monthKey(last);
-    const out: Array<{ key: string; t: number; revenue: number; profit: number }> = [];
+    const out: Array<{
+      key: string;
+      t: number;
+      revenue: number;
+      profit: number;
+    }> = [];
     for (let guard = 0; guard < 240; guard++) {
       const t = monthEnd(key);
       const revenue = d.asins
@@ -1047,11 +1215,17 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
   /* Scaled to REVENUE, because both series share one axis: scaling to profit
      would push the revenue line off the top of the plot. */
   const max = Math.max(...points.map((p) => p.revenue), 1);
-  const x = (t: number) => pad.left + ((t - t0) / Math.max(1, t1 - t0)) * innerW;
+  const x = (t: number) =>
+    pad.left + ((t - t0) / Math.max(1, t1 - t0)) * innerW;
   const y = (v: number) => pad.top + innerH - (v / max) * innerH;
 
   const path = (pick: (p: (typeof points)[number]) => number) =>
-    points.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(pick(p)).toFixed(1)}`).join(" ");
+    points
+      .map(
+        (p, i) =>
+          `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(pick(p)).toFixed(1)}`,
+      )
+      .join(" ");
   const line = path((p) => p.profit);
   const revenueLine = path((p) => p.revenue);
   const area = `${line} L${x(t1).toFixed(1)},${(pad.top + innerH).toFixed(1)} L${x(t0).toFixed(1)},${(pad.top + innerH).toFixed(1)} Z`;
@@ -1068,7 +1242,11 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
     () =>
       d.timeline
         .filter((e) => /^\d{4}-\d{2}-\d{2}$/.test(e.date))
-        .map((e) => ({ e, t: Date.parse(`${e.date}T00:00:00Z`), v: profitAt(e.date) }))
+        .map((e) => ({
+          e,
+          t: Date.parse(`${e.date}T00:00:00Z`),
+          v: profitAt(e.date),
+        }))
         .filter((p) => p.t >= t0 - 86400000 && p.t <= t1),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [d.timeline, points],
@@ -1104,7 +1282,8 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
         <span className="vm-num">{money(latest.profit)}</span> a month
         <Src id={MODELLED} sources={d.sources} go={go} />{" "}
         <span data-muted="">
-          — {Math.round(net * 100)}% of the {money(latest.revenue)} the priced products on the{" "}
+          — {Math.round(net * 100)}% of the {money(latest.revenue)} the priced
+          products on the{" "}
           <button type="button" data-linklike="" onClick={() => go("sales")}>
             sales tab
           </button>{" "}
@@ -1139,14 +1318,21 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
             const px = ev.clientX - rect.left;
             let best = 0;
             points.forEach((p, i) => {
-              if (Math.abs(x(p.t) - px) < Math.abs(x(points[best].t) - px)) best = i;
+              if (Math.abs(x(p.t) - px) < Math.abs(x(points[best].t) - px))
+                best = i;
             });
             setHover({ kind: "month", i: best });
           }}
         >
           {ticks.map((t) => (
             <g key={t}>
-              <line x1={pad.left} x2={w - pad.right} y1={y(t)} y2={y(t)} stroke="var(--border)" />
+              <line
+                x1={pad.left}
+                x2={w - pad.right}
+                y1={y(t)}
+                y2={y(t)}
+                stroke="var(--border)"
+              />
               <text
                 x={pad.left - 8}
                 y={y(t)}
@@ -1237,7 +1423,12 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
               />
             </g>
           ))}
-          <text x={pad.left} y={height - 8} fontSize={11} fill="var(--muted-foreground)">
+          <text
+            x={pad.left}
+            y={height - 8}
+            fontSize={11}
+            fill="var(--muted-foreground)"
+          >
             {fmtMonth(points[0].key)}
           </text>
           <text
@@ -1257,17 +1448,23 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
           data-chart-card=""
           data-wide={hover.kind === "event" ? "" : undefined}
           style={{
-            left: Math.min(Math.max(8, card.cx + 12), Math.max(8, w - (hover.kind === "event" ? 280 : 170))),
+            left: Math.min(
+              Math.max(8, card.cx + 12),
+              Math.max(8, w - (hover.kind === "event" ? 280 : 170)),
+            ),
             top: Math.max(8, card.cy - 12),
           }}
         >
           {hover.kind === "event" ? (
             <>
               <p data-card-when="" className="vm-num">
-                {events[hover.i].e.date} · {TRACK_LABEL[events[hover.i].e.track]}
+                {events[hover.i].e.date} ·{" "}
+                {TRACK_LABEL[events[hover.i].e.track]}
               </p>
               <p data-card-title="">{events[hover.i].e.title}</p>
-              {events[hover.i].e.detail ? <p data-card-detail="">{events[hover.i].e.detail}</p> : null}
+              {events[hover.i].e.detail ? (
+                <p data-card-detail="">{events[hover.i].e.detail}</p>
+              ) : null}
               <p data-card-detail="">
                 Modelled profit that month:{" "}
                 <span className="vm-num">{money(events[hover.i].v)}</span>
@@ -1284,8 +1481,10 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
                 <Src id="keepa" sources={d.sources} go={go} />
               </p>
               <p data-card-detail="">
-                <span className="vm-num">{money(points[hover.i].profit)}</span> profit
-                <Src id={MODELLED} sources={d.sources} go={go} /> at {Math.round(net * 100)}%
+                <span className="vm-num">{money(points[hover.i].profit)}</span>{" "}
+                profit
+                <Src id={MODELLED} sources={d.sources} go={go} /> at{" "}
+                {Math.round(net * 100)}%
               </p>
             </>
           )}
@@ -1308,7 +1507,10 @@ function RevenueBars({ asins }: { asins: DossierAsin[] }) {
         <li key={r.asin}>
           <span data-bar-label="">{r.title}</span>
           <span data-bar-track="">
-            <span data-bar-fill="" style={{ width: `${(r.rev / max) * 100}%` }} />
+            <span
+              data-bar-fill=""
+              style={{ width: `${(r.rev / max) * 100}%` }}
+            />
           </span>
           <span data-bar-value="" className="vm-num">
             {money(r.rev)}
