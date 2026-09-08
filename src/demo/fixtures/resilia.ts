@@ -31,7 +31,7 @@
  * followers, 5,324 visits a month. The other BUYS one, at a scale where the
  * ads run under advertiser pages called "Everyday Wellness Review".
  */
-import { INVENTED, type Dossier } from "../dossier";
+import { INVENTED, MODELLED, type Dossier } from "../dossier";
 
 export const resilia: Dossier = {
   brand: "Resilia Oil Of Oregano",
@@ -461,21 +461,18 @@ export const resilia: Dossier = {
       },
       {
         label: "Advertising",
-        pct: 20,
-        note: "OURS. A scaling brand's TACOS usually runs 15–25%; this business publishes nothing, and the advertising tab explains why no one else can either.",
-        source: INVENTED,
+        pct: 8,
+        note: "TACOS, computed rather than guessed: a $1.10–1.40 category click at an 11–14% conversion rate costs $7.86–12.73 per ad-attributed sale, and carrying 20–40% of 143,000 units that way is 5–10% of revenue. The advertising tab shows the arithmetic.",
+        source: MODELLED,
       },
-      { label: "Returns, coupons and subscribe-and-save", pct: 6, source: INVENTED },
-      {
-        label: "Overhead",
-        pct: 10,
-        note: "People, software, insurance. Nothing public about this business sizes it.",
-        source: INVENTED,
-      },
+      /* 🚨 RETURNS AND OVERHEAD ARE DELIBERATELY ABSENT, on instruction: the
+         call was that returns are negligible here and overhead is a later
+         problem. That is why the total below is a CONTRIBUTION margin and a
+         ceiling on profit, and why the page never calls it net. */
     ],
     basis:
-      "Three of these six lines are real and cited: the supplier quotes are published listings for a comparable product, and Amazon publishes both the referral rate and the FBA rate card. Three are ours — advertising, returns and overhead — and they are the three that decide the answer. So the margin below is not a measurement; it is real fee arithmetic wrapped around invented operating costs, on the Amazon channel only.",
-    source: INVENTED,
+      "Three lines are published and cited: the supplier quotes, Amazon's referral rate and Amazon's FBA rate card. The fourth — advertising — is computed from category CPC and conversion benchmarks, so a reader can redo it. Returns and overhead are set to zero on purpose, which makes the total a contribution margin rather than a profit, and a ceiling on the real number. It also covers the AMAZON channel only: the subscription store on the traffic tab has a different cost structure entirely, starting with paid traffic instead of a referral fee.",
+    source: MODELLED,
   },
 
   /* 🚧 The Meta ad library LINK is real and anyone can open it — and for this
@@ -486,40 +483,40 @@ export const resilia: Dossier = {
   advertising: [
     {
       channel: "Amazon Sponsored Products",
-      spend: "$792,000 / mo",
+      spend: "≈ $286K–572K / mo",
       note:
-        "Implied TACOS 14.0% against $5.66M of Amazon revenue. Amazon publishes nothing about a competitor's spend, and its search results are localised to whoever is looking — from outside the US we cannot even count their sponsored placements, which is the one honest substitute.",
-      source: INVENTED,
+        "The arithmetic: a $1.10–1.40 Health & Household click at an 11–14% conversion rate is $7.86–12.73 per ad-attributed sale — 20–32% ACoS on a $39.57 order. Carry 20–40% of 143,000 units that way and the spend lands here, at 5–10% TACOS. What we cannot do is COUNT it: Amazon localises search results to the viewer, and from outside the US the sponsored slots on their head terms are not visible.",
+      source: MODELLED,
     },
     {
       channel: "Meta (Facebook + Instagram)",
-      spend: "$1,340,000 / mo",
+      spend: "≈ $1.65M–5.0M / mo",
       note:
-        "Advertorial creative under pages named \"Everyday Wellness Review\", \"Vascular Wellness Report\", \"Circulatory Health Report\", \"Natural Wellness Journal\" and \"Active Longevity Review\" — plus one page called simply Resilia. The library shows what is running; it never shows spend.",
-      activity: "~6,900 active US ads mention Resilia",
-      activitySource: "meta-ads",
+        "Similarweb puts resilia.shop at ~3.3M visits a month and Ubersuggest says 2,120 of them come from search, so almost all of it is bought. At a $0.50–1.50 health-and-wellness click — the published $20.70 CPM at a 2.70% CTR is $0.77 — that traffic costs this much. If it is right, this one channel is bigger than the entire Amazon business at the top of this page.",
       href:
         "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&q=resilia&search_type=keyword_unordered&media_type=all",
-      /* The library is real and cited on the NAME; the spend is invented and
+      /* The library is real and cited on the NAME; the spend is computed and
          cited on the FIGURE. See the note on AdChannel. */
       linkSource: "meta-ads",
-      source: INVENTED,
+      activity: "~6,900 active US ads mention Resilia",
+      activitySource: "meta-ads",
+      source: MODELLED,
     },
     {
       channel: "Google Ads (search + shopping)",
-      spend: "$61,000 / mo",
+      spend: "≈ $3K in its peak month",
       note:
-        "They do buy search, in bursts: Ubersuggest's paid series peaks at 17 paid keywords and ~780 paid visits in May 2026 and reads zero in August. That is a real shape; the dollars beside it are not.",
+        "780 paid visits in May 2026 at the $2.97–4.99 cost-per-click Ubersuggest reports for their own brand terms. By August the paid series reads zero — a campaign that ran and stopped, and a rounding error beside the other two rows.",
       activity: "17 paid keywords at peak (May 2026), 0 in Aug 2026",
       activitySource: "ubersuggest",
-      source: INVENTED,
+      source: MODELLED,
     },
     {
       channel: "Blended",
-      spend: "$2,193,000 / mo",
+      spend: "≈ $1.9M–5.6M / mo",
       note:
-        "All channels. Stated against Amazon revenue it would read as 38.8%, which is exactly why it should not be: most of this spend is buying DTC subscriptions this page cannot size.",
-      source: INVENTED,
+        "Stated against Amazon revenue this would read as 34–99%, and it should not be: most of it is buying DTC subscriptions this page cannot size. Two channels, one of them much larger, and only one of them visible in the figures at the top.",
+      source: MODELLED,
     },
   ],
 
@@ -576,9 +573,9 @@ export const resilia: Dossier = {
   ],
 
   gaps: [
-    "This business's actual COGS. The sourcing tab now carries REAL published quotes for a comparable softgel, and Amazon's referral and FBA rates are real — but a category price is not a cost sheet, freight and duty are in none of the quotes, and the three lines that decide the margin (advertising, returns, overhead) are still ours. The real version of this page shows a margin only when a seller connects their account.",
+    "This business's actual COGS, and its returns and overhead. The sourcing tab carries real published quotes for a comparable softgel, and Amazon's referral and FBA rates are its own — but a category price is not a cost sheet and freight and duty are in none of the quotes. Returns and overhead are set to ZERO on purpose, so the margin here is a contribution margin and a ceiling: the real number is lower by whatever those two cost.",
     "How big the DTC side is. Similarweb counts visits, not orders, and resilia.shop sells subscriptions — so the $5.66M above is the AMAZON business only, and the whole company is larger by an amount nothing public will tell you.",
-    "Ad spend, in money. Meta publishes the ads (~6,900 active US ads mention this brand) and Ubersuggest catches the paid-search bursts, so the ACTIVITY is real — the dollars beside it are ours. No public source reports anyone's Amazon ad spend.",
+    "Ad spend, as a measurement. It is now MODELLED from published category CPCs and conversion rates rather than invented, and the formula is on the advertising tab — but a model is not a reading. The one thing that would replace it is their own Amazon Ads and Meta invoices.",
     "Which advertiser pages this business controls. The ads for its garlic line run under \"Everyday Wellness Review\", \"Vascular Wellness Report\", \"Circulatory Health Report\" and others, so the ~6,900 figure cannot be totalled to the brand without someone establishing the link. One page is called simply Resilia.",
     "Amazon keyword rank and search volume. Amazon publishes no volumes, and it localises search results to the viewer — this machine is on an Israeli IP, so the US result set is not visible to it. Best-seller rank is on the page instead, and a US-located run or a Helium 10 / Brand Analytics account is what would fill the gap.",
     "The 12 unbadged ASINs. Each sells under roughly 50/month, but Amazon publishes no figure, so they are counted as zero rather than estimated.",
@@ -703,6 +700,31 @@ export const resilia: Dossier = {
         "The US FBA fee table effective 15 January 2026 with the 17 April fuel and logistics surcharge: small standard 6–10 oz in the $10–50 band is $3.54–3.68 a unit. Amazon's own copy of this table sits behind Seller Central, so this is a published mirror of it rather than the first-party page.",
     },
     {
+      id: "trellis",
+      label: "Trellis — Amazon advertising benchmarks by category, 2026",
+      href: "https://gotrellis.com/resources/blog/amazon-advertising-benchmarks",
+      read: "2026-09-08",
+      detail:
+        "Aggregated platform data published March 2026: Health & Household runs a $1.10–1.40 cost-per-click at a 0.40–0.55% click-through and an 11–14% conversion rate. A benchmark for the CATEGORY, not a reading of this advertiser — which is exactly what a model needs and exactly what it cannot substitute for.",
+    },
+    {
+      id: "meta-bench",
+      label: "Meta advertising benchmarks — health and wellness, 2026",
+      href: "https://adlibrary.com/posts/meta-ad-benchmarks-ecommerce-2026",
+      read: "2026-09-08",
+      detail:
+        "Health and wellness carries the highest CPM on Meta at $20.70 against a 2.70% click-through — $0.77 a click — with ecommerce CPCs published in a $0.50–1.80 band. Again a category benchmark, and the input that turns Similarweb's visit count into a spend estimate.",
+    },
+    {
+      /* 🚨 The third rung: computed by us, from the numbered entries above.
+         Renders "≈" rather than a number so it can never be read as somebody
+         else's measurement, and never as a fabrication either. */
+      id: MODELLED,
+      label: "Modelled by us — the arithmetic, and what feeds it",
+      detail:
+        "Marked with ≈. Three figures on this page are computed rather than read: (1) Amazon ad spend = units × ad share ÷ conversion rate × cost-per-click, using Keepa's unit floors and Trellis's category CPC and conversion benchmarks, with the 20–40% ad share the one assumption we supply; (2) Meta ad spend = Similarweb's visits × the published health-and-wellness cost-per-click; (3) the contribution margin and the line on the overview chart = revenue less the supplier quotes, Amazon's published referral rate, Amazon's published FBA fee and that modelled ad spend — with returns and overhead deliberately set to zero, which makes it a ceiling rather than a profit. Every input is one of the numbered sources above, so a reader who disagrees with the answer can find the number they disagree with.",
+    },
+    {
       /* 🚨 The entry every invented figure points at, and deliberately LAST.
          It renders as "*" rather than a number, so putting it first cost the
          real sources their first index — the list began at 2 and a reader was
@@ -710,13 +732,13 @@ export const resilia: Dossier = {
       id: INVENTED,
       label: "Invented for this demo — nobody measured this",
       detail:
-        "Marked with * wherever it appears, and the list is now short: the dollar figures on the advertising tab, three of the six cost lines behind the margin (advertising, returns, overhead), the freight and duty nobody quoted, and the month-by-month profit history on the overview chart — which applies today's run rate backwards over real listing dates. Everything else on this page carries a NUMBER instead, and came from one of the real sources above.",
+        "Marked with * wherever it appears, and it is down to ONE thing: the freight and duty row on the sourcing tab, which no supplier quoted and we did not model. Everything else on this page carries a number (somebody published it) or a ≈ (we computed it from those). This entry stays because the moment something else is fabricated, it needs somewhere to point.",
     },
   ],
 
   copy: {
     profitChart:
-      "Modelled profit, with the timeline on it — hover a dot. The steps are real listing dates and the heights are not: this is today's run rate applied backwards, less the costs on the sourcing tab. Two steps carry it — December 2025, when the oregano line went wide, and 4 May 2026, when six aged-garlic SKUs shipped in one day.",
+      "Modelled contribution, with the timeline on it — hover a dot. The steps are real listing dates and the deductions are real fee rates; what is ours is the assumption that today's run rate applied back then. Returns and overhead are set to zero, so the line is a ceiling. Two steps carry it — December 2025, when the oregano line went wide, and 4 May 2026, when six aged-garlic SKUs shipped in one day.",
     timelineLede:
       "The strands are kept together on one line because the web track is the one that changes the story: a Shopify store selling this product in August 2024, a trademark ten weeks before the launch, and only then the Amazon catalogue — which reaches a $68M run rate faster than the store it came from took to get a second domain.",
     salesLede:

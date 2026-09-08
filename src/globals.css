@@ -3737,6 +3737,17 @@ h2[data-heading-badges] {
 .vm-dossier [data-invented-star] {
   color: var(--foreground); font-weight: 700; border-bottom: 0;
 }
+/* The modelled notice: same shape as the invented one, quieter. A computed
+   figure is not a fabricated one and should not shout as loudly. */
+.vm-dossier [data-modelled-notice] {
+  border-left: 3px solid var(--border); background: var(--muted);
+  padding: 0.6rem 0.8rem; border-radius: 0 8px 8px 0; margin: 1rem 0 0;
+  font-size: 0.88rem; max-width: 52rem;
+}
+.vm-dossier [data-src-mark][data-modelled],
+.vm-dossier [data-sources] > li[data-modelled] [data-src-n] { font-weight: 700; }
+.vm-dossier [data-sources] > li[data-modelled] { background: var(--muted); }
+
 .vm-dossier [data-invented-notice] {
   border: 1px solid var(--border); border-left: 3px solid var(--foreground);
   background: var(--muted); border-radius: var(--radius);

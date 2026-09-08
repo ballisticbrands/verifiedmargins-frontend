@@ -38,6 +38,27 @@
  */
 export const INVENTED = "invented";
 
+/**
+ * 🚨 THE THIRD RUNG: computed by us, from figures somebody else published.
+ *
+ * A number like "$286,000 of Amazon ad spend a month" is neither measured nor
+ * made up. Nobody publishes what a competitor spends — but Amazon's own fee
+ * card, a category CPC benchmark and a conversion-rate benchmark are all
+ * published, and multiplying them is arithmetic a reader can check and
+ * disagree with.
+ *
+ * Collapsing that into either neighbour loses something. Call it measured and
+ * we are claiming a source we do not have; call it invented and we are
+ * throwing away the fact that every input is cited and the formula is on the
+ * page. So it renders as "≈" — its own marker, pointing at a bibliography
+ * entry that states the formula and names the numbered sources that feed it.
+ *
+ * The test for using it: could a reader reproduce this number from the other
+ * entries in the source list? If yes, MODELLED. If they would have to take our
+ * word for an input, that input is INVENTED and so is the result.
+ */
+export const MODELLED = "modelled";
+
 /** Where a figure came from, and when we looked. */
 export interface Source {
   /** Stable id, referenced by `Figure.source`. Short: "keepa", "similarweb". */

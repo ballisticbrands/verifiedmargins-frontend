@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DemoBanner, useDemoMeta } from "@/demo/harness";
 import {
   INVENTED,
+  MODELLED,
   type BrandLink,
   type Dossier,
   type DossierAsin,
@@ -153,19 +154,31 @@ type Go = (t: TabId) => void;
 function Src({ id, sources, go }: { id: string; sources: Dossier["sources"]; go: Go }) {
   const i = sources.findIndex((s) => s.id === id);
   if (i < 0) return null;
-  const invented = id === INVENTED;
+  const mark = MARK[id];
   return (
     <button
       type="button"
       data-src-mark=""
-      data-invented={invented ? "" : undefined}
-      title={invented ? "Invented for this demo — nobody measured it" : `Source: ${sources[i].label}`}
+      data-invented={id === INVENTED ? "" : undefined}
+      data-modelled={id === MODELLED ? "" : undefined}
+      title={
+        id === INVENTED
+          ? "Invented for this demo — nobody measured it"
+          : id === MODELLED
+            ? "Computed by us from the sources listed — the formula is in Sources"
+            : `Source: ${sources[i].label}`
+      }
       onClick={() => go("sources")}
     >
-      {invented ? "*" : i + 1}
+      {mark ?? i + 1}
     </button>
   );
 }
+
+/** The two ids that render a glyph instead of a number. Keeping them in one
+ *  map is what stops a third rung being added in one place and forgotten in
+ *  the bibliography. */
+const MARK: Record<string, string> = { [INVENTED]: "*", [MODELLED]: "≈" };
 
 /** Shown at the top of every tab whose figures are made up.
  *
@@ -206,9 +219,10 @@ function modelled(d: Dossier) {
  * this" and the shared tile paints every tag in it, so `.vm-dossier` repaints
  * this one neutral — an invented number is not a rung on the ladder, it is off
  * the ladder entirely. */
-const INVENTED_TAG = {
-  label: "Invented",
-  title: "Invented for this demo — nobody measured it. See Sources.",
+const MODELLED_TAG = {
+  label: "Modelled",
+  title:
+    "Computed by us from published fee rates, supplier quotes and category benchmarks — not measured, and not made up. The formula is in Sources.",
 };
 
 function money(cents: number): string {
@@ -246,20 +260,23 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
             hint="A floor — the deep-dive says why."
           />
           {/* 🚨 The two tiles nobody measured, in the row a reader trusts most.
-              They carry the tag AND the caption below carries the marker: a
-              made-up profit sitting unlabelled beside Keepa's revenue is the
-              single worst thing this page could render. */}
+              CONTRIBUTION, not profit: returns and overhead are deliberately
+              set to zero, so this is what is left after cost of goods, Amazon's
+              fees and advertising — and a ceiling on the real thing, never the
+              real thing. The tag says modelled and the caption carries the
+              marker; a computed margin sitting unlabelled beside Keepa's
+              revenue is the single worst thing this page could render. */}
           <StatTile
-            label="Profit (monthly)"
+            label="Contribution / mo"
             value={money(m.profit)}
-            tag={INVENTED_TAG}
-            hint="Modelled from invented costs — see the sourcing tab."
+            tag={MODELLED_TAG}
+            hint="Before returns and overhead, both set to zero. See the sourcing tab."
           />
           <StatTile
-            label="Net margin"
+            label="Margin"
             value={`${Math.round(m.net * 100)}%`}
-            tag={INVENTED_TAG}
-            hint="Revenue less the modelled cost lines on the sourcing tab."
+            tag={MODELLED_TAG}
+            hint="Revenue less cost of goods, Amazon's fees and modelled ad spend."
           />
           <StatTile label="Units (monthly)" value={d.headline.units} />
           <StatTile label="Avg selling price" value={d.headline.asp} />
@@ -273,9 +290,11 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
           <small>
             Revenue, units, price and catalogue from Keepa
             <Src id="keepa" sources={d.sources} go={go} />, across the whole{" "}
-            {d.counts.catalogue}-product catalogue. Profit and margin are neither — they are
-            modelled from costs nobody quoted
-            <Src id={d.economics.source} sources={d.sources} go={go} />, and the{" "}
+            {d.counts.catalogue}-product catalogue. Contribution and margin are neither: they are
+            computed
+            <Src id={MODELLED} sources={d.sources} go={go} /> from published supplier quotes,
+            Amazon's own fee rates and a modelled ad spend — before returns and overhead, which are
+            set to zero. The{" "}
             <button type="button" data-linklike="" onClick={() => go("sourcing")}>
               sourcing tab
             </button>{" "}
@@ -285,16 +304,21 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
       </section>
 
       <section>
-        <h2>Estimated monthly profit</h2>
-        {/* 🚨 The one INVENTED thing above the fold. The tiles are Keepa's; this
-            line is not — it applies today's run rate to each product's real
-            listing date and then deducts made-up costs, so it is a history
-            nobody measured. It leads with the notice for that reason. */}
-        <InventedNotice
-          what="The profit line applies today's run rate backwards over the real listing dates and deducts modelled costs — nobody measured a month of it."
-          scope="in this chart"
-          go={go}
-        />
+        <h2>Estimated monthly contribution</h2>
+        {/* 🚨 A MODELLED history, not a measured one. The steps are real listing
+            dates and the deductions are real fee rates; what is ours is the
+            assumption that today's run rate applied then, which nobody can
+            check. It leads with the notice for that reason. */}
+        <p data-modelled-notice="">
+          ≈ <strong>Modelled.</strong> Today's run rate applied backwards over each product's real
+          listing date, less cost of goods, Amazon's published fees and modelled ad spend. Nobody
+          measured a month of it — every figure here carries a{" "}
+          <span data-invented-star="">≈</span>. See{" "}
+          <button type="button" data-linklike="" onClick={() => go("sources")}>
+            Sources
+          </button>
+          .
+        </p>
         <ProfitChart d={d} go={go} />
         <p data-chart-label="">
           <small>
@@ -603,7 +627,7 @@ function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
   const net = netFraction * 100;
   return (
     <>
-      <h3>What that would make the margin</h3>
+      <h3>What that makes the margin</h3>
       <p>{d.economics.basis}</p>
       <ul data-econ="">
         {d.economics.lines.map((l) => (
@@ -616,23 +640,25 @@ function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
           </li>
         ))}
         <li data-econ-total="">
-          <span data-econ-label="">Net margin</span>
+          <span data-econ-label="">Contribution margin</span>
           <span data-econ-pct="" className="vm-num">
-            {net.toFixed(0)}%<Src id={d.economics.source} sources={d.sources} go={go} />
+            {net.toFixed(0)}%<Src id={MODELLED} sources={d.sources} go={go} />
           </span>
           <span data-econ-note="">
             ≈ {money(profit)} a month on {money(revenue)} of catalogue revenue — the tile and the
-            line on the overview.
+            line on the overview. Before returns and overhead, which are set to zero here, so this
+            is a CEILING on profit rather than profit.
           </span>
         </li>
       </ul>
       <p data-src-line="">
-        Read the markers, not the total. The lines carrying a number are real — published supplier
-        prices, Amazon's own referral rate, Amazon's own fee card. The lines carrying a{" "}
-        <span data-invented-star="">*</span> are ours, and they are the ones that decide the answer:
-        move advertising five points and the margin moves five points. On a site called
-        VerifiedMargins the real version of this block stays empty until the seller connects their
-        account and the costs are theirs.
+        Read the markers, not the total. A number means somebody published it — a supplier's own
+        price, Amazon's own referral rate, Amazon's own fee card. A{" "}
+        <span data-invented-star="">≈</span> means we computed it from those, and the advertising
+        line is the one that moves everything: shift it five points and the margin shifts five
+        points. Returns and overhead are set to ZERO deliberately, which is why this is a
+        contribution margin and a ceiling on profit. On a site called VerifiedMargins the real
+        version of this block stays empty until the seller connects their account.
       </p>
     </>
   );
@@ -643,11 +669,19 @@ function Advertising({ d, go }: { d: Dossier; go: Go }) {
   return (
     <section>
       <h2>Advertising</h2>
-      <InventedNotice
-        what="No public source reports a competitor's ad spend on any of these channels, so every dollar figure here is ours. The counted line under each one is real."
-        scope="in the spend column"
-        go={go}
-      />
+      {/* Not an "invented" notice any more: the dollar column is computed from
+          published CPCs and conversion rates, and the counted line under each
+          row is somebody's actual measurement. */}
+      <p data-modelled-notice="">
+        ≈ <strong>Modelled.</strong> No public source reports a competitor's ad spend, so the dollar
+        column is arithmetic — a published category cost-per-click and conversion rate against real
+        unit and visit counts. The <em>Counted</em> line under each row is the part somebody
+        actually measured. Every dollar figure carries a <span data-invented-star="">≈</span>; see{" "}
+        <button type="button" data-linklike="" onClick={() => go("sources")}>
+          Sources
+        </button>{" "}
+        for each formula.
+      </p>
       <p>{d.copy.advertisingLede}</p>
       <ul data-adspend="">
         {d.advertising.map((a) => (
@@ -847,14 +881,21 @@ function Sources({ d }: { d: Dossier }) {
     <section>
       <h2>Sources</h2>
       <p>
-        Every figure on this page points at one of these. A numbered marker means somebody published
-        it and we read it; a <span data-invented-star="">*</span> means we made it up for the demo.
+        Every figure on this page points at one of these. A <strong>number</strong> means somebody
+        published it and we read it. A <span data-invented-star="">≈</span> means we computed it from
+        the numbered entries beside it, and the formula is in the entry. A{" "}
+        <span data-invented-star="">*</span> means we made it up for the demo.
       </p>
       <ol data-sources="">
         {d.sources.map((s, i) => (
-          <li key={s.id} id={`src-${s.id}`} data-invented={s.id === INVENTED ? "" : undefined}>
+          <li
+            key={s.id}
+            id={`src-${s.id}`}
+            data-invented={s.id === INVENTED ? "" : undefined}
+            data-modelled={s.id === MODELLED ? "" : undefined}
+          >
             <span data-src-n="" className="vm-num">
-              {s.id === INVENTED ? "*" : i + 1}
+              {MARK[s.id] ?? i + 1}
             </span>
             <div>
               <p>
@@ -1016,7 +1057,7 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
     <div data-chart="" data-profit-chart="" ref={wrapRef}>
       <p data-chart-headline="">
         <span className="vm-num">{money(latest.profit)}</span> a month
-        <Src id={d.economics.source} sources={d.sources} go={go} />{" "}
+        <Src id={MODELLED} sources={d.sources} go={go} />{" "}
         <span data-muted="">
           — {Math.round(net * 100)}% of the {money(latest.revenue)} the priced products on the{" "}
           <button type="button" data-linklike="" onClick={() => go("sales")}>
@@ -1034,7 +1075,7 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
           width={w}
           height={height}
           role="img"
-          aria-label="Modelled monthly profit, with the events on this business's timeline"
+          aria-label="Modelled monthly contribution, with the events on this business's timeline"
           onMouseLeave={() => setHover(null)}
           onMouseMove={(ev) => {
             if (hover?.kind === "event") return;
@@ -1149,8 +1190,9 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
               <p data-card-title="">{events[hover.i].e.title}</p>
               {events[hover.i].e.detail ? <p data-card-detail="">{events[hover.i].e.detail}</p> : null}
               <p data-card-detail="">
-                Modelled profit that month: <span className="vm-num">{money(events[hover.i].v)}</span>
-                <Src id={INVENTED} sources={d.sources} go={go} />
+                Modelled contribution that month:{" "}
+                <span className="vm-num">{money(events[hover.i].v)}</span>
+                <Src id={MODELLED} sources={d.sources} go={go} />
               </p>
             </>
           ) : (
@@ -1159,8 +1201,8 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
                 {fmtMonth(points[hover.i].key)}
               </p>
               <p data-card-title="" className="vm-num">
-                {money(points[hover.i].profit)} profit
-                <Src id={INVENTED} sources={d.sources} go={go} />
+                {money(points[hover.i].profit)} contribution
+                <Src id={MODELLED} sources={d.sources} go={go} />
               </p>
               <p data-card-detail="">
                 on <span className="vm-num">{money(points[hover.i].revenue)}</span> of revenue, at{" "}

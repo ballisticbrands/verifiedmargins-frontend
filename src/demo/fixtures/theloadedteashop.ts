@@ -24,7 +24,7 @@
  * March 2026. Keepa cannot tell you that; a web search can. That gap is the
  * argument for the human review step the skill describes.
  */
-import { INVENTED, type Dossier } from "../dossier";
+import { INVENTED, MODELLED, type Dossier } from "../dossier";
 
 export const theLoadedTeaShop: Dossier = {
   brand: "The Loaded Tea Shop",
@@ -387,21 +387,18 @@ export const theLoadedTeaShop: Dossier = {
       },
       {
         label: "Advertising",
-        pct: 20,
-        note: "OURS. A brand pushing 15 products live in eight weeks is buying traffic; how much is not public anywhere.",
-        source: INVENTED,
+        pct: 8,
+        note: "TACOS, computed rather than guessed: a $1.20–1.50 Grocery click at a 12–18% conversion rate costs $6.67–12.50 per ad-attributed sale, and carrying 20–40% of 45,050 units that way is 5–10% of revenue. The advertising tab shows the arithmetic.",
+        source: MODELLED,
       },
-      { label: "Returns, coupons and discounts", pct: 6, source: INVENTED },
-      {
-        label: "Overhead",
-        pct: 10,
-        note: "People, software, insurance. Nothing public about this business sizes it.",
-        source: INVENTED,
-      },
+      /* 🚨 RETURNS AND OVERHEAD ARE DELIBERATELY ABSENT, on instruction: the
+         call was that returns are negligible here and overhead is a later
+         problem. That is why the total below is a CONTRIBUTION margin and a
+         ceiling on profit, and why the page never calls it net. */
     ],
     basis:
-      "Three of these six lines are real and cited: the supplier quotes are published listings for a comparable product, and Amazon publishes both the referral rate and the FBA rate card. Three are ours — advertising, returns and overhead — and they are the three that decide the answer. So the margin below is real fee arithmetic wrapped around invented operating costs, on the Amazon channel only.",
-    source: INVENTED,
+      "Three lines are published and cited: the supplier quotes, Amazon's referral rate and Amazon's FBA rate card. The fourth — advertising — is computed from category CPC and conversion benchmarks, so a reader can redo it. Returns and overhead are set to zero on purpose, which makes the total a contribution margin rather than a profit, and a ceiling on the real number.",
+    source: MODELLED,
   },
 
   /* 🚧 The Meta ad library LINK is real and anyone can open it. Every FIGURE
@@ -410,39 +407,38 @@ export const theLoadedTeaShop: Dossier = {
   advertising: [
     {
       channel: "Amazon Sponsored Products",
-      spend: "$214,000 / mo",
+      spend: "≈ $81K–162K / mo",
       note:
-        "Implied TACOS 13.6% against $1.58M revenue. Amazon publishes nothing about a competitor's spend, and it localises search results to the viewer, so even counting their sponsored placements needs a US-located run.",
-      source: INVENTED,
+        "The arithmetic: a $1.20–1.50 Grocery click at a 12–18% conversion rate is $6.67–12.50 per ad-attributed sale — 19–36% ACoS on a $35.03 order, and worse on the $19.80 five-packs. Carry 20–40% of 45,050 units that way and the spend lands here, at 5–10% TACOS. What we cannot do is COUNT it: Amazon localises search results to the viewer, so their sponsored slots are not visible from outside the US.",
+      source: MODELLED,
     },
     {
       channel: "Meta (Facebook + Instagram)",
-      spend: "$46,500 / mo",
+      spend: "not estimable",
       note:
-        "Their own page is running ~310 active ads, most started in mid-August 2026 — and a second advertiser, \"Alicia N Powell with The Loaded Tea Shop\", runs its own. The library shows what is running; it never shows spend.",
-      activity: "~310 active ads on their own page",
-      activitySource: "meta-ads",
+        "~310 ads are live on their own page and a second advertiser, \"Alicia N Powell with The Loaded Tea Shop\", runs its own — but the two traffic estimates for their site disagree by 13x, so there is no visit count to price. Meta publishes the ads and never the money, and this is one of the cases where a model would be a guess wearing arithmetic.",
       href:
         "https://www.facebook.com/ads/library/?active_status=inactive&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&sort_data[direction]=desc&sort_data[mode]=total_impressions&view_all_page_id=543395728858281",
-      /* The library is real and cited on the NAME; the spend is invented and
-         cited on the FIGURE. See the note on AdChannel. */
       linkSource: "meta-ads",
-      source: INVENTED,
+      activity: "~310 active ads on their own page",
+      activitySource: "meta-ads",
+      source: "meta-ads",
     },
     {
       channel: "Google Ads (search + shopping)",
-      spend: "$9,200 / mo",
+      spend: "≈ $0",
       note:
-        "They barely buy search, and they do not need to: Ubersuggest finds ONE paid keyword against 1,707 organic ones, and they hold #1 for \"loaded tea\" outright.",
+        "They do not buy search and do not need to: Ubersuggest finds ONE paid keyword against 1,707 organic ones, worth about one visit a month, while they hold #1 for \"loaded tea\" outright.",
       activity: "1 paid keyword, ~1 paid visit / mo",
       activitySource: "ubersuggest",
-      source: INVENTED,
+      source: MODELLED,
     },
     {
       channel: "Blended",
-      spend: "$269,700 / mo",
-      note: "17.1% of estimated revenue, all channels.",
-      source: INVENTED,
+      spend: "not totalled",
+      note:
+        "Adding these up would mean pricing the Meta row, and pricing the Meta row would mean inventing the visit count it needs. The Amazon line stands on its own; the rest of this business's spend is not knowable from here.",
+      source: MODELLED,
     },
   ],
 
@@ -496,8 +492,8 @@ export const theLoadedTeaShop: Dossier = {
   ],
 
   gaps: [
-    "This business's actual COGS. The sourcing tab now carries REAL published quotes for a comparable sachet, and Amazon's referral and FBA rates are real — but a category price is not a cost sheet, freight and duty are in none of the quotes, and the three lines that decide the margin (advertising, returns, overhead) are still ours. The real version of this page shows a margin only when a seller connects their account.",
-    "Ad spend, in money. Meta publishes the ads — ~310 active on their own page — and Ubersuggest shows they buy almost no search. The ACTIVITY is real; the dollars beside it are ours. No public source reports anyone's Amazon ad spend, and the sponsored-placement read that would substitute for it needs a US-located run.",
+    "This business's actual COGS, and its returns and overhead. The sourcing tab carries real published quotes for a comparable sachet, and Amazon's referral and FBA rates are its own — but a category price is not a cost sheet and freight and duty are in none of the quotes. Returns and overhead are set to ZERO on purpose, so the margin here is a contribution margin and a ceiling: the real number is lower by whatever those two cost.",
+    "Ad spend, as a measurement. The Amazon line is MODELLED from published category CPCs and conversion rates and the formula is on that tab; Meta is not modelled at all, because there is no visit count to price. Their own invoices are the only thing that replaces either.",
     "The 34 unbadged ASINs. Each sells under roughly 50/month, but Amazon publishes no figure, so they are counted as zero rather than estimated.",
     "Which legal entity is which. Amazon's seller record says Champs Tea Shop, Inc; the Facebook page says Tea Time, LLC is responsible for it. Two entities behind one brand is ordinary — an operating company and a marketing one, or a rename — but nothing public says which.",
     "Which of the two site-traffic estimates to believe. Similarweb says 5,324 visits a month, Ubersuggest says 71,512 from search alone. Both are models; the gap is 13x and nothing public settles it.",
@@ -612,6 +608,23 @@ export const theLoadedTeaShop: Dossier = {
         "248,967 likes and 134,256 \"talking about this\", read off the public page. It also names a SECOND legal entity — the page says \"Tea Time, LLC is responsible for this Page\", where the Amazon seller record says Champs Tea Shop, Inc. Both are public; which one holds what is not.",
     },
     {
+      id: "trellis",
+      label: "Trellis — Amazon advertising benchmarks by category, 2026",
+      href: "https://gotrellis.com/resources/blog/amazon-advertising-benchmarks",
+      read: "2026-09-08",
+      detail:
+        "Aggregated platform data published March 2026: Grocery & Gourmet Food runs a $1.20–1.50 cost-per-click at a 0.40–0.55% click-through and a 12–18% conversion rate. A benchmark for the CATEGORY, not a reading of this advertiser.",
+    },
+    {
+      /* 🚨 The third rung: computed by us, from the numbered entries above.
+         Renders "≈" rather than a number so it can never be read as somebody
+         else's measurement, and never as a fabrication either. */
+      id: MODELLED,
+      label: "Modelled by us — the arithmetic, and what feeds it",
+      detail:
+        "Marked with ≈. Two figures on this page are computed rather than read: (1) Amazon ad spend = units × ad share ÷ conversion rate × cost-per-click, using Keepa's unit floors and Trellis's category CPC and conversion benchmarks, with the 20–40% ad share the one assumption we supply; (2) the contribution margin and the line on the overview chart = revenue less the supplier quotes, Amazon's published referral rate, Amazon's published FBA fee and that modelled ad spend — with returns and overhead deliberately set to zero, which makes it a ceiling rather than a profit. Meta spend is NOT modelled: there is no visit count to price, so the row says so instead. Every input is one of the numbered sources above.",
+    },
+    {
       /* 🚨 The entry every invented figure points at, and deliberately LAST.
          It renders as "*" rather than a number, so putting it first cost the
          real sources their first index — the list began at 2 and a reader was
@@ -619,7 +632,7 @@ export const theLoadedTeaShop: Dossier = {
       id: INVENTED,
       label: "Invented for this demo — nobody measured this",
       detail:
-        "Marked with * wherever it appears, and the list is now short: the dollar figures on the advertising tab, three of the six cost lines behind the margin (advertising, returns, overhead), the freight and duty nobody quoted, and the month-by-month profit history on the overview chart — which applies today's run rate backwards over real listing dates. Everything else on this page carries a NUMBER instead, and came from one of the real sources above.",
+        "Marked with * wherever it appears, and it is down to ONE thing: the freight and duty row on the sourcing tab, which no supplier quoted and we did not model. Everything else on this page carries a number (somebody published it) or a ≈ (we computed it from those). This entry stays because the moment something else is fabricated, it needs somewhere to point.",
     },
   ],
 
@@ -629,7 +642,7 @@ export const theLoadedTeaShop: Dossier = {
      ../dossier.ts. */
   copy: {
     profitChart:
-      "Modelled profit, with the timeline on it — hover a dot. The steps are real listing dates and the heights are not: this is today's run rate applied backwards, less the costs on the sourcing tab. Almost the whole line is built in the eight weeks from 30 March 2026, and the brand itself has traded since 2019.",
+      "Modelled contribution, with the timeline on it — hover a dot. The steps are real listing dates and the deductions are real fee rates; what is ours is the assumption that today's run rate applied back then. Returns and overhead are set to zero, so the line is a ceiling. Almost all of it is built in the eight weeks from 30 March 2026, and the brand itself has traded since 2019.",
     timelineLede:
       "The strands are kept together on one line on purpose: four years of building an audience elsewhere, a lone Amazon listing that goes nowhere for ten months, and then the catalogue and the ad spend arriving in the same eight weeks.",
     salesLede:
