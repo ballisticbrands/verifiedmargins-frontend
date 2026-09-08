@@ -84,8 +84,20 @@ export function DemoSourced({
      exactly wrong for a published page — so the public mode sets only the
      title and leaves indexability to the static page's own head. */
   useDemoMeta(isDemo ? `${d.brand} — sourced dossier — demo` : undefined);
+  /* 🚨 A TIMEOUT, not a plain effect. App.tsx sets a fallback title in its own
+     effect, and a parent's effect runs AFTER its children's — so setting the
+     title here directly is immediately overwritten, and the tab reads
+     "VerifiedMargins" on every published page. Measured on the live site
+     before this line existed. Deferring by a tick puts it after the parent.
+     The static page from build-dossiers.mjs already carries the right <title>
+     for crawlers and link previews; this is the tab a human looks at. */
   useEffect(() => {
-    if (!isDemo) document.title = `${d.brand} — VerifiedMargins`;
+    if (isDemo) return;
+    const want = `${d.brand} — VerifiedMargins`;
+    const t = setTimeout(() => {
+      document.title = want;
+    }, 0);
+    return () => clearTimeout(t);
   }, [isDemo, d.brand]);
 
   const [params, setParams] = useSearchParams();
