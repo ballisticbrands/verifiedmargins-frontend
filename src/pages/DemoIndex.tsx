@@ -10,7 +10,8 @@ import { DemoBanner, useDemoMeta } from "@/demo/harness";
  *
  * Read straight off `DEMOS`, so registering a demo lists it and there is no
  * second place to forget. A demo that exists but is not linked from anywhere
- * is a demo nobody remembers to send.
+ * is a demo nobody remembers to send — which is why hiding one takes an
+ * explicit `unlisted: true` on the entry rather than an edit here.
  *
  * Carries the same banner and noindex as the demos themselves: this page
  * enumerates pages that must not be crawled, so it must not be a crawlable
@@ -20,7 +21,10 @@ export function DemoIndex() {
   const brand = useBrand();
   useDemoMeta(`Demos — ${brand.displayName}`);
 
-  const entries = Object.entries(DEMOS);
+  /* Everything registered EXCEPT the entries that opted out. The route still
+     serves them — this hides the link, not the page (see `unlisted` in
+     src/demo/registry.ts). */
+  const entries = Object.entries(DEMOS).filter(([, demo]) => !demo.unlisted);
 
   return (
     <Shell width="wide">

@@ -122,7 +122,7 @@ interface DeepDiveTeaser {
   text?: string;
 }
 
-interface BusinessPayload {
+export interface BusinessPayload {
   facts?: BusinessFacts;
   valuation?: BusinessValuation;
   deep_dive?: DeepDiveTeaser | null;

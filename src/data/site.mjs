@@ -90,6 +90,10 @@ export const DEMO_PAGES = [
      the Disallow — a crawlable index of noindex pages hands a crawler every
      URL the Disallow was meant to keep it away from. */
   '/demo',
+  /* 🚧 The business-page redesign, keyed by a REAL slug. Note the pair:
+     '/business/amazon-fba-08873' is the live page and is indexable; this one
+     is the proposal over the same figures and carries the `Disallow:`. */
+  '/demo/amazon-fba-08873',
   '/demo/afrasiab',
   '/demo/Pure_Zookeepergame_2',
   '/demo/jayeshchauhanreddit',

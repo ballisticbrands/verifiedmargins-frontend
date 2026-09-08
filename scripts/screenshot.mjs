@@ -1561,6 +1561,10 @@ const PAGES = [
      on the page. Nothing else on this site is estimated, so nothing else
      exercises any of it. */
   { route: "/business/amazon-fba-37978", auth: false, name: "business-whitemountain" },
+  /* 🚧 The unlisted redesign of that same page. Shot precisely BECAUSE it is
+     unlisted: nothing links to it, so nobody stumbles over it rendering
+     wrong — the screenshot is the only thing that looks. */
+  { route: "/demo/amazon-fba-08873", auth: false, name: "demo-business-redesign" },
   { route: "/demo/afrasiab", auth: false, name: "demo-afrasiab" },
   /* 🚧 The sourced dossier: a seller profiled from public data, every figure
      marked with its origin. Charts and a source list nothing else renders. */

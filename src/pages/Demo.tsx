@@ -5,6 +5,7 @@ import { DemoProfile } from "./DemoProfile";
 import { DemoLeaderboard } from "./DemoLeaderboard";
 import { DemoGroup } from "./DemoGroup";
 import { DemoSourced } from "./DemoSourced";
+import { DemoBusiness } from "./DemoBusiness";
 
 /**
  * /demo/<slug> — picks the page a demo renders through.
@@ -37,6 +38,10 @@ export function Demo() {
   }
 
   if (demo.kind === "leaderboard") return <DemoLeaderboard slug={slug} demo={demo} />;
+  /* 🚧 The one kind that does NOT mount a production page — it is a redesign
+     of Business.tsx, so there is no real page for it to render through. See
+     the note on BusinessDemo in src/demo/registry.ts. */
+  if (demo.kind === "business") return <DemoBusiness demo={demo} />;
   /* A group is reached at /demo/g/<slug> (DemoGroupRoute), never here —
      but the union has three members, so this arm keeps the switch total and
      stops a group registered under a bare key rendering as a profile. */

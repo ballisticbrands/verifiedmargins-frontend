@@ -1,0 +1,1009 @@
+/* ═══ 🚧 /demo/<slug> — the business-page REDESIGN (DemoBusiness.tsx) ═════
+ *
+ * Its OWN stylesheet rather than a section of globals.css, because this is a
+ * proposal and globals.css is what we ship. Kept together with the component
+ * it dresses, the two graduate or get deleted as one thing; folded into the
+ * global sheet, the CSS quietly outlives a rejected proposal and nobody dares
+ * remove it.
+ *
+ * That is an OWNERSHIP split, not a loading one — the build emits a single
+ * CSS bundle, so this ships to every visitor either way. Do not read the
+ * separate file as a promise that the bytes are route-scoped.
+ *
+ * The `.vm-bizx` scope below is belt AND braces on top of that: the redesign
+ * restyles elements the real business page also uses, and an unscoped
+ * `[data-bizx-avg]` would be one careless selector away from production.
+ * When these sections graduate into Business.tsx, the prefix comes off with
+ * them and they move back into globals.css.
+ *
+ * Everything here obeys the two rules the rest of the sheet is drawn to:
+ * 1px hairlines and never a shadow, and figures in --font-mono while words
+ * stay proportional.
+ */
+
+.vm-bizx { display: flex; flex-direction: column; gap: 1.75rem; }
+/* 🚨 The page root carries BOTH `vm-form` and `vm-bizx`, and `.vm-form
+   button { margin: 1rem }` — written for stacked form submits — therefore
+   applied to every button in this redesign. It is what pushed the period
+   pills 16px below the month picker in a row whose boxes were all exactly
+   40px tall: the heights agreed, the margin boxes did not. Same specificity
+   as that rule, declared later, scoped to this component only so real forms
+   keep the spacing they were given. */
+.vm-bizx button { margin: 0; }
+.vm-bizx h2 {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+.vm-bizx [data-bizx-head] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+/* ── Where it sells: top right of the listing ───────────────────────── */
+/* Right-aligned so it reads as a property OF the listing rather than as the
+   start of a new section, and above the valuation because "$2.3M" means a
+   different thing for a one-country business than a three-country one that
+   also runs its own storefront. */
+.vm-bizx [data-bizx-head-side] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  text-align: right;
+}
+.vm-bizx [data-bizx-platform-marks],
+.vm-bizx [data-bizx-market-flags] {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.vm-bizx [data-bizx-platform-marks] li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  font-weight: 550;
+  color: var(--foreground);
+}
+/* Country marketplaces are quieter than platforms: a smaller chip, because
+   they answer the second question, not the first. */
+.vm-bizx [data-bizx-market-flags] li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.55rem 0.22rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.vm-bizx [data-bizx-market-flags] svg { width: 18px; height: 12px; }
+.vm-bizx [data-bizx-head-note] {
+  margin: 0.15rem 0 0;
+  max-width: 30ch;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+}
+.vm-bizx [data-bizx-amazon] { flex: none; }
+/* Fallback glyph for a platform with no mark of its own. */
+.vm-bizx [data-bizx-platform-dot] {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--muted);
+  border: 1px solid var(--border);
+}
+.vm-bizx [data-bizx-head-main] { display: flex; flex-direction: column; align-items: flex-start; gap: 0.7rem; }
+.vm-bizx [data-bizx-head] h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.vm-bizx [data-bizx-chips] { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; }
+.vm-bizx [data-bizx-chip] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.22rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+}
+/* 🚨 The one green above the fold, and only on the verification tier — see
+   the note in DemoBusiness.tsx. Nothing declared may borrow this rule. */
+.vm-bizx [data-bizx-chip][data-tone="verified"] {
+  border-color: color-mix(in srgb, var(--verified) 30%, transparent);
+  background: var(--verified-tint);
+  color: var(--verified);
+  font-weight: 600;
+}
+.vm-bizx [data-bizx-chip][data-tone="neutral"] svg { display: none; }
+
+.vm-bizx [data-bizx-founder] {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.85rem 0.5rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+}
+.vm-bizx [data-bizx-founder]:hover { background: var(--muted); }
+.vm-bizx [data-bizx-founder] img,
+.vm-bizx [data-bizx-avatar-fallback] {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+}
+.vm-bizx [data-bizx-avatar-fallback] {
+  display: grid;
+  place-items: center;
+  background: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.vm-bizx [data-bizx-founder] > span { display: flex; flex-direction: column; }
+.vm-bizx [data-bizx-founder] small { font-size: 0.72rem; color: var(--muted-foreground); }
+.vm-bizx [data-bizx-founder] strong { font-size: 0.92rem; line-height: 1.3; }
+
+/* ── Headline figures ───────────────────────────────────────────────── */
+.vm-bizx [data-bizx-figures-head] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+.vm-bizx [data-bizx-figures-head] h2 { margin: 0; }
+.vm-bizx [data-bizx-figures-head] p {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+}
+/* The "not checked" flag beside a stat label.
+   --partial, the middle rung: revenue confirmed by Amazon, the cost side
+   merely stated. 🚨 It sits on the LABEL, never on the figure — an amber
+   number reads as a bad number, and an unverified 44% margin is not a worse
+   margin, it is a less certain one. And never --verified green, which on
+   this site means "we checked this against Amazon". */
+.vm-bizx [data-bizx-unverified] {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--partial) 30%, transparent);
+  border-radius: 999px;
+  background: var(--partial-tint);
+  color: var(--partial);
+  font-style: normal;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+
+/* ── The summary block ──────────────────────────────────────────────── */
+/* Sits directly under the header and owns every headline figure. Separated
+   from the Earnings card by the whole page, on purpose: these numbers are
+   fixed, that card's are interactive, and fusing them is what let one page
+   print two different "average months". */
+.vm-bizx [data-bizx-glance] {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+.vm-bizx [data-bizx-headline] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem 2.5rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.vm-bizx [data-bizx-headline-item] { display: flex; flex-direction: column; gap: 0.2rem; }
+.vm-bizx [data-bizx-headline-label] { font-size: 0.85rem; color: var(--muted-foreground); }
+.vm-bizx [data-bizx-headline-value] {
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.vm-bizx [data-bizx-headline-item][data-big] [data-bizx-headline-value] { font-size: 2rem; }
+.vm-bizx [data-bizx-headline-sub] {
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+  max-width: 30ch;
+}
+
+/* ── Additional metrics ─────────────────────────────────────────────── */
+.vm-bizx [data-bizx-metrics] {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+/* 🚨 Wide enough for "Brand Registry ⓘ User-supplied" on ONE line. At 140px
+   the label, its ⓘ and its badge wrapped to three lines while the unbadged
+   metrics beside them used one — so the values fell out of line again, the
+   same failure the dt min-height was added to fix, reintroduced by the ⓘ.
+   Reserving the height of a badge only works if the badge stays on the row. */
+.vm-bizx [data-bizx-metrics] dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
+  gap: 1.1rem 1.5rem;
+  margin: 0;
+}
+.vm-bizx [data-bizx-metric] { display: flex; flex-direction: column; gap: 0.15rem; }
+/* 🚨 min-height, not padding. Each metric is its own column in the grid, so
+   a badge on ONE label made that label taller and pushed its value down out
+   of line with every value beside it — COGS % sat a badge-height below TACoS.
+   Reserving the badge's height on every label keeps the value row flat
+   whether a badge is present or not. */
+.vm-bizx [data-bizx-metric] dt {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  gap: 0.35rem;
+  min-height: 1.45rem;
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+}
+/* The badge already reserves the row's height; its own margin would add to
+   it and reintroduce the offset it was placed to avoid. */
+.vm-bizx [data-bizx-metric] dt [data-bizx-unverified] { margin-left: 0; }
+.vm-bizx [data-bizx-metric] dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+/* Words wear the proportional face. */
+.vm-bizx [data-bizx-metric][data-text] dd {
+  font-family: var(--font-sans);
+  font-weight: 550;
+}
+
+/* ── The ⓘ beside a metric label ────────────────────────────────────── */
+.vm-bizx [data-bizx-infowrap] { display: inline-flex; }
+.vm-bizx [data-bizx-info] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0 0 0 0.15rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  opacity: 0.75;
+  cursor: help;
+}
+.vm-bizx [data-bizx-info]:hover,
+.vm-bizx [data-bizx-info]:focus-visible { opacity: 1; color: var(--foreground); }
+
+/* 🚨 position:fixed, placed from a measurement. The panel is wider than the
+   column it belongs to and the metrics wrap, so an absolute panel was clipped
+   by the rightmost columns and by the card's own edge. The button's rect is
+   measured on open and clamped to the viewport. */
+.vm-bizx [data-bizx-infotip] {
+  position: fixed;
+  z-index: 40;
+  transform: translateY(-100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(340px, calc(100vw - 24px));
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  /* Dark on light, like the reference: a tooltip is a layer above the page,
+     and inverting it says so without a shadow — which this sheet does not
+     use anywhere. */
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  text-align: left;
+  /* 🚨 The panel lives inside the <dt>, which is `white-space: nowrap` so the
+     label and its badge stay on one row. Inherited, that stopped every
+     paragraph in here from wrapping and clipped each to a single cut-off
+     line. A tooltip is prose and must set its own. */
+  white-space: normal;
+  pointer-events: none;
+}
+
+/* The jump to the chart, on the stat most likely to prompt the question. */
+.vm-bizx [data-bizx-jump] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+.vm-bizx [data-bizx-jump]:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── Avg. monthly pair ──────────────────────────────────────────────── */
+.vm-bizx [data-bizx-averages] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem 2.5rem;
+  margin: 0;
+}
+/* Three stats, one row, sitting directly above the chart they describe. */
+.vm-bizx [data-bizx-avg] { display: flex; flex-direction: column; gap: 0.25rem; }
+.vm-bizx [data-bizx-avg-label] {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+.vm-bizx [data-bizx-avg-value] {
+  font-family: var(--font-mono);
+  font-size: 1.7rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+/* Says which months are in the mean. Without it "average monthly" invites
+   the reader to assume every month on the chart is in the divisor. */
+.vm-bizx [data-bizx-avg-basis] {
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+  max-width: 34ch;
+}
+.vm-bizx [data-bizx-spark] { width: 100%; max-width: 220px; height: 34px; margin-top: 0.35rem; }
+.vm-bizx [data-bizx-spark][data-tone="revenue"] polyline { stroke: var(--series-revenue); }
+.vm-bizx [data-bizx-spark][data-tone="profit"] polyline { stroke: var(--series-profit); }
+
+/* ── Earnings: periods, chart, table ────────────────────────────────── */
+/* Two series, one axis. The pair below was chosen by running the palette
+   validator, not by eye: Empire Flippers' own navy (#12315B) FAILS both the
+   lightness band and the chroma floor — at L 0.315 with chroma 0.084 it reads
+   as grey rather than as a colour. #1E4FA3/#6FA8E8 passes every check with a
+   CVD ΔE of 27.8 (deutan) and 25.5 (tritan).
+   🚨 The lighter step WARNs at 2.49:1 against white, and the documented
+   relief for that is a table view — which is why the Table toggle is part of
+   the control row and not an extra. */
+.vm-bizx {
+  --series-revenue: #1e4fa3;
+  --series-profit: #6fa8e8;
+  /* The slice that sits OUTSIDE the categorical ramp. Deliberately a
+     considered slate rather than a muted grey — it is a real channel, not a
+     leftover — and achromatic so it separates from all three ramp hues under
+     every colour-vision simulation, which no fourth HUE managed. */
+  --bizx-neutral-slice: #4b5563;
+}
+
+.vm-bizx [data-bizx-earnings] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+.vm-bizx [data-bizx-earnings-head] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin-bottom: 1rem;
+}
+.vm-bizx [data-bizx-earnings-head] h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 650;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+
+/* Identity is never colour alone: the legend names both series, and the
+   tooltip repeats the swatch beside each figure. */
+.vm-bizx [data-bizx-series-legend] {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+}
+.vm-bizx [data-bizx-series-legend] [data-series] {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.vm-bizx [data-bizx-series-legend] [data-series]:not(:first-child) { margin-left: 0.75rem; }
+.vm-bizx [data-series="revenue"] { background: var(--series-revenue); }
+.vm-bizx [data-series="profit"] { background: var(--series-profit); }
+
+/* ── Chart ──────────────────────────────────────────────────────────── */
+.vm-bizx [data-bizx-chart] { position: relative; margin: 1.5rem 0 0; }
+/* height:auto so the viewBox scales UNIFORMLY. Pinned to 300px with a
+   stretched aspect, the axis <text> stretched with the plot. */
+.vm-bizx [data-bizx-chart] svg { width: 100%; height: auto; display: block; overflow: visible; }
+/* Recessive grid: the data is the ink. */
+.vm-bizx [data-bizx-grid] { stroke: var(--border); stroke-width: 1; }
+.vm-bizx [data-bizx-ytick] {
+  fill: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-anchor: end;
+}
+.vm-bizx [data-bizx-xtick] {
+  fill: var(--muted-foreground);
+  font-size: 11px;
+  text-anchor: middle;
+}
+.vm-bizx [data-bizx-xtick][data-tilt] { text-anchor: end; }
+.vm-bizx [data-bizx-chart] rect[data-series="revenue"] { fill: var(--series-revenue); }
+.vm-bizx [data-bizx-chart] rect[data-series="profit"] { fill: var(--series-profit); }
+/* A part month is HATCHED, not merely short: a shorter bar is a quantity
+   claim, hatching says this bucket is not the same kind of thing as the one
+   beside it. Doubles as the texture channel for forced-colors / print. */
+.vm-bizx [data-bizx-chart] [data-bizx-hatch="revenue"] { color: var(--series-revenue); }
+.vm-bizx [data-bizx-chart] [data-bizx-hatch="profit"] { color: var(--series-profit); }
+.vm-bizx [data-bizx-chart] rect[data-series] { opacity: 1; }
+.vm-bizx [data-bizx-hit] { fill: transparent; }
+.vm-bizx [data-bizx-group][data-hover] [data-bizx-hit] {
+  fill: color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+.vm-bizx [data-bizx-trendline="revenue"] {
+  stroke: var(--series-revenue);
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+  stroke-linecap: round;
+}
+.vm-bizx [data-bizx-trendline="profit"] {
+  stroke: var(--series-profit);
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+  stroke-linecap: round;
+}
+
+.vm-bizx [data-bizx-tip] {
+  position: absolute;
+  top: 0.5rem;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+.vm-bizx [data-bizx-tip] strong { font-size: 0.8rem; }
+.vm-bizx [data-bizx-tip] span { display: flex; align-items: center; gap: 0.35rem; }
+/* Figures wear text tokens; the swatch beside them carries identity. */
+.vm-bizx [data-bizx-tip] i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+}
+/* The honest note when the chosen period outruns the history. --partial,
+   the "revenue checked, the rest modelled" amber: this is a caveat about
+   COVERAGE, not an error and not a bad number, so it never wears --danger.
+   🚨 Its styling was lost once already when this block was rewritten, and it
+   silently degraded to body copy — a warning that reads as prose is a
+   warning nobody sees. */
+.vm-bizx [data-bizx-shortfall] {
+  margin: 0.9rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--partial) 30%, transparent);
+  border-radius: var(--radius);
+  background: var(--partial-tint);
+  color: var(--partial);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  max-width: 66ch;
+}
+
+.vm-bizx [data-bizx-chart-note] {
+  margin: 0.9rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  max-width: 66ch;
+}
+
+/* ── Table view ─────────────────────────────────────────────────────── */
+.vm-bizx [data-bizx-table-wrap] { margin-top: 1.25rem; overflow-x: auto; }
+.vm-bizx [data-bizx-table] { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.vm-bizx [data-bizx-table] th,
+.vm-bizx [data-bizx-table] td {
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+.vm-bizx [data-bizx-table] thead th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+.vm-bizx [data-bizx-table] th:first-child,
+.vm-bizx [data-bizx-table] tbody th { text-align: left; font-weight: 550; }
+.vm-bizx [data-bizx-table] td {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.vm-bizx [data-bizx-part-tag] { color: var(--muted-foreground); font-weight: 400; font-size: 0.78em; }
+
+/* ── Controls under the chart ───────────────────────────────────────── */
+/* TWO groups, and the split is the point. The period pills are one exclusive
+   choice; the view toggle is orthogonal to all of them. They looked alike,
+   which invited the reading that "Table" was a fifth period — so they are
+   now built from different primitives and separated by a rule. */
+.vm-bizx [data-bizx-periods] {
+  --ctl-h: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.35rem;
+}
+
+/* ── Period: the exclusive choice ───────────────────────────────────── */
+.vm-bizx [data-bizx-period-group] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* 🚨 ONE height token on every child, and box-sizing:border-box on all of
+   them. The select was a hair taller than the buttons because a <select>
+   carries its own line-height and the label wrapped it with its own padding
+   — two boxes disagreeing about the same row. Height is now declared once
+   and the select fills it. */
+.vm-bizx [data-bizx-period-group] > * {
+  box-sizing: border-box;
+  height: var(--ctl-h);
+}
+.vm-bizx [data-bizx-period-group] button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.vm-bizx [data-bizx-period-group] button:hover { color: var(--foreground); }
+/* --accent, not --verified: which period you are looking at is a view
+   setting, not a verification claim. */
+.vm-bizx [data-bizx-period-group] button[data-on] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-foreground);
+  font-weight: 600;
+}
+
+/* The month select: text, a hairline divider, then the chevron. */
+.vm-bizx [data-bizx-period-select] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  /* 🚨 The form styles give every <label> a bottom margin, which this one
+     inherited — 5.6px of it, sitting under a control in a centred row. That
+     is why the month picker rode ~11px above the buttons beside it while
+     measuring exactly the same height: the boxes agreed, the margin boxes
+     did not. Reset it here rather than widening the form rule, which every
+     real form on the site depends on. */
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.vm-bizx [data-bizx-period-select]:hover { color: var(--foreground); }
+.vm-bizx [data-bizx-period-select] select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 100%;
+  /* Right padding clears the chevron cell (34px) so a long month never runs
+     under the divider. */
+  padding: 0 calc(34px + 0.85rem) 0 1.1rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  /* Explicit: a <select> renders its value at the UA's own weight, which sat
+     visibly heavier than the inactive pills beside it and made the picker
+     look selected when it was not. */
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+}
+.vm-bizx [data-bizx-period-select] select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.vm-bizx [data-bizx-select-chevron] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  border-left: 1px solid var(--border);
+  pointer-events: none;
+}
+.vm-bizx [data-bizx-period-select][data-on] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-foreground);
+}
+.vm-bizx [data-bizx-period-select][data-on] select { font-weight: 600; }
+/* The divider has to lift off the dark fill, or the chevron looks unattached. */
+.vm-bizx [data-bizx-period-select][data-on] [data-bizx-select-chevron] {
+  border-left-color: color-mix(in srgb, var(--accent-foreground) 35%, transparent);
+}
+
+/* ── View: orthogonal, so it does not wear the pill ─────────────────── */
+/* A quiet text button with an icon, held off from the pills by a rule. It
+   never takes the solid --accent fill: that fill means "this is the period
+   in force", and one control claiming it for something else is what made
+   the two groups read as one. */
+.vm-bizx [data-bizx-view-toggle] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: var(--ctl-h);
+  padding: 0 0.7rem 0 1rem;
+  border: 0;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 0.82rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.vm-bizx [data-bizx-view-toggle]:hover { color: var(--foreground); }
+.vm-bizx [data-bizx-view-toggle][aria-pressed="true"] {
+  color: var(--foreground);
+  font-weight: 600;
+}
+.vm-bizx [data-bizx-view-toggle] svg { flex: none; }
+
+@media (max-width: 560px) {
+  /* Stacked, the left rule reads as a stray mark rather than a separator. */
+  .vm-bizx [data-bizx-view-toggle] { border-left: 0; padding-left: 0.7rem; }
+}
+
+/* ── Valuation ──────────────────────────────────────────────────────── */
+.vm-bizx [data-bizx-val] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+.vm-bizx [data-bizx-val-head] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.vm-bizx [data-bizx-val-head] p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+.vm-bizx [data-bizx-val-figure] {
+  font-family: var(--font-mono);
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.vm-bizx [data-bizx-val-adj] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem 2rem;
+  margin-top: 1rem;
+}
+.vm-bizx [data-bizx-col-title] {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted-foreground);
+}
+.vm-bizx [data-bizx-val-adj] ul { list-style: none; margin: 0; padding: 0; }
+.vm-bizx [data-bizx-val-adj] li {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.34rem 0.5rem;
+  font-size: 0.85rem;
+  border-radius: 3px;
+}
+/* The bar is a BACKGROUND wash sized to the adjustment, not a chart —
+   it makes the big movers findable without asking anyone to read a scale. */
+.vm-bizx [data-bizx-adj-bar] {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+  z-index: 0;
+}
+.vm-bizx [data-bizx-val-adj] li[data-dir="up"] [data-bizx-adj-bar] {
+  background: color-mix(in srgb, var(--verified) 11%, transparent);
+}
+/* 🚨 --unverified, not --danger: a downward adjustment is a weaker CLAIM,
+   not an error. Same hex today, different meanings — see globals :root. */
+.vm-bizx [data-bizx-val-adj] li[data-dir="down"] [data-bizx-adj-bar] {
+  background: color-mix(in srgb, var(--unverified) 11%, transparent);
+}
+.vm-bizx [data-bizx-adj-label] { position: relative; z-index: 1; flex: 1; }
+.vm-bizx [data-bizx-val-adj] li b {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+}
+.vm-bizx [data-bizx-val-adj] li[data-dir="up"] b { color: var(--verified); }
+.vm-bizx [data-bizx-val-adj] li[data-dir="down"] b { color: var(--unverified); }
+
+/* ── Revenue splits ─────────────────────────────────────────────────── */
+.vm-bizx [data-bizx-splits] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+.vm-bizx [data-bizx-splits-grid] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem 2rem;
+}
+.vm-bizx [data-bizx-split] h3 {
+  margin: 0 0 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+}
+.vm-bizx [data-bizx-split-body] {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+.vm-bizx [data-bizx-donut] { width: 140px; height: 140px; flex: none; }
+.vm-bizx [data-bizx-arc] {
+  /* The arc rotates so the first slice starts at 12 o'clock, where a reader
+     expects a share chart to begin. */
+  transform: rotate(-90deg);
+  transform-origin: 70px 70px;
+  transition: stroke-width 90ms ease-out;
+  cursor: default;
+}
+.vm-bizx [data-bizx-donut-big] {
+  text-anchor: middle;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  fill: var(--foreground);
+}
+.vm-bizx [data-bizx-donut-sub] {
+  text-anchor: middle;
+  font-size: 9.5px;
+  fill: var(--muted-foreground);
+}
+
+.vm-bizx [data-bizx-split-legend] {
+  flex: 1;
+  min-width: 150px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.vm-bizx [data-bizx-split-legend] li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: baseline;
+  gap: 0.2rem 0.5rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+.vm-bizx [data-bizx-split-legend] li[data-on] { background: var(--muted); }
+.vm-bizx [data-bizx-swatch] {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  align-self: center;
+}
+.vm-bizx [data-bizx-split-label] { display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem; }
+.vm-bizx [data-bizx-split-label] [data-bizx-unverified] { margin-left: 0; font-size: 0.6rem; }
+.vm-bizx [data-bizx-split-legend] b {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+/* The money sits under the percentage, in the value column. */
+.vm-bizx [data-bizx-split-legend] small {
+  grid-column: 3;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted-foreground);
+  text-align: right;
+}
+.vm-bizx [data-bizx-split-empty] {
+  margin: 0;
+  padding: 1.1rem 1.15rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+
+/* ── Provenance ─────────────────────────────────────────────────────── */
+.vm-bizx [data-bizx-provenance] { display: flex; flex-direction: column; gap: 1.5rem; }
+.vm-bizx [data-bizx-legend] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+}
+.vm-bizx [data-bizx-legend] strong { font-weight: 650; color: var(--foreground); }
+.vm-bizx [data-bizx-legend] em { font-style: normal; }
+.vm-bizx [data-bizx-legend-dot] {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  align-self: center;
+}
+/* Green for what Amazon told us; a hollow ring for what the seller typed.
+   🚨 The declared dot is deliberately NOT a second colour — a filled swatch
+   of any colour reads as a status, and "unverified" is the absence of one. */
+.vm-bizx [data-bizx-legend][data-tone="derived"] [data-bizx-legend-dot] {
+  background: var(--verified);
+}
+.vm-bizx [data-bizx-legend][data-tone="declared"] [data-bizx-legend-dot] {
+  border: 1.5px solid var(--muted-foreground);
+}
+
+.vm-bizx [data-bizx-block] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+}
+.vm-bizx [data-bizx-block-foot] {
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+/* ── Marketplaces ───────────────────────────────────────────────────── */
+.vm-bizx [data-bizx-markets] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.vm-bizx [data-bizx-markets] li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.9rem 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.vm-bizx [data-bizx-flag] {
+  display: flex;
+  flex: none;
+  line-height: 0;
+}
+/* The hairline is on the flag itself so a white field (CA, MX) still reads
+   as a flag rather than as a hole in the card. */
+.vm-bizx [data-bizx-flag] svg {
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+.vm-bizx [data-bizx-market-name] { font-size: 0.9rem; font-weight: 550; }
+
+/* ── Operations ─────────────────────────────────────────────────────── */
+.vm-bizx [data-bizx-dl] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.9rem 1.25rem;
+  margin: 0;
+}
+.vm-bizx [data-bizx-dl] dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+.vm-bizx [data-bizx-dl] dd {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Deep dive ──────────────────────────────────────────────────────── */
+.vm-bizx [data-bizx-deepdive] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.15rem 1.35rem 1.25rem;
+  background: var(--muted);
+}
+.vm-bizx [data-bizx-deepdive] p {
+  margin: 0 0 0.85rem;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  max-width: 68ch;
+}
+.vm-bizx [data-bizx-deepdive] p:last-of-type { margin-bottom: 0; }
+
+
+@media (max-width: 560px) {
+  .vm-bizx [data-bizx-head] { flex-direction: column; }
+  .vm-bizx [data-bizx-founder] { width: 100%; }
+  /* Stacked, a right-aligned block under a left-aligned one reads as two
+     unrelated columns. */
+  .vm-bizx [data-bizx-head-side] { align-items: flex-start; text-align: left; }
+  .vm-bizx [data-bizx-platform-marks],
+  .vm-bizx [data-bizx-market-flags] { justify-content: flex-start; }
+}

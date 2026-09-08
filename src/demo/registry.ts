@@ -16,6 +16,8 @@ import { slickyTrick } from "./fixtures/slickytrick";
 import { thickValuable4753 } from "./fixtures/thick-valuable-4753";
 import { tomNomYyz } from "./fixtures/tomnomyyz";
 import { pureZookeepergame } from "./fixtures/pure-zookeepergame";
+import type { BusinessPayload } from "@/pages/Business";
+import { amazonFba08873 } from "./fixtures/amazon-fba-08873";
 import { leaderboard } from "./fixtures/leaderboard";
 import { theLoadedTeaShop } from "./fixtures/theloadedteashop";
 import { resilia } from "./fixtures/resilia";
@@ -43,7 +45,12 @@ import {
  * button it has nowhere to put, or a profile builder from being called with a
  * leaderboard's axis. src/pages/Demo.tsx switches on it.
  */
-export type Demo = ProfileDemo | LeaderboardDemo | GroupDemo | SourcedDemo;
+export type Demo =
+  | ProfileDemo
+  | LeaderboardDemo
+  | GroupDemo
+  | SourcedDemo
+  | BusinessDemo;
 
 /** A tag beside the name.
  *
@@ -74,6 +81,19 @@ export interface DemoMeta {
   label?: string;
   /** One line: what this demo is FOR, i.e. why you would send it to someone. */
   blurb?: string;
+  /**
+   * Keeps the entry OFF /demo while leaving /demo/<slug> working — reachable
+   * only by someone who already has the URL.
+   *
+   * The default is the opposite, and deliberately so (see the note above): a
+   * demo missing from the index is a demo nobody remembers exists. This opts
+   * one out for work still being drafted, where the index would hand a
+   * prospect an unfinished page beside the finished ones. It is NOT privacy —
+   * the route is public and unauthenticated, and the only thing standing
+   * between it and a crawler is its `Disallow:` line in site.mjs, so an
+   * unlisted demo still belongs in DEMO_PAGES.
+   */
+  unlisted?: boolean;
 }
 
 /** Builds the payload GET /v1/public/profiles/:username would return. */
@@ -163,6 +183,31 @@ export interface ProfileDemo extends DemoMeta {
 export interface LeaderboardDemo extends DemoMeta {
   kind: "leaderboard";
   build: LeaderboardBuilder;
+}
+
+/**
+ * 🚧 A REDESIGNED BUSINESS PAGE — the second kind that does not mount a real
+ * page, and the only one whose figures are GENUINE.
+ *
+ * Every other demo answers a request the production component makes, which is
+ * what stops a demo drifting from what we ship. A redesign cannot: looking
+ * different from the shipped page IS the deliverable, so `DemoBusiness`
+ * reimplements the layout and takes the payload directly rather than through
+ * the fetch seam. README.md reserves this ("a further kind is a case in
+ * Demo.tsx and a component beside it"), and the cost — this page does not
+ * follow Business.tsx — is written on DemoBusiness itself.
+ *
+ * 🚨 Unlike every other fixture here, the numbers are REAL and already
+ * public: it is the operator's own business, served verbatim from
+ * /v1/public/businesses/amazon-fba-08873. The demo banner still rides above
+ * it, because the LAYOUT is the proposal even though the figures are not.
+ */
+export interface BusinessDemo extends DemoMeta {
+  kind: "business";
+  /** The payload GET /v1/public/businesses/:slug returns. Nullary because a
+   *  redesign is judged against ONE business at one window — a currency or
+   *  window argument would imply a conversion this demo does not do. */
+  build: () => BusinessPayload;
 }
 
 /**
@@ -277,6 +322,20 @@ export const DEMOS: Record<string, Demo> = {
     label: "Resilia Oil Of Oregano — sourced dossier",
     blurb:
       "$5.66M a month, ten months after the first listing. Keepa gives the catalogue; whois, the Wayback Machine and a phone number that appears on two records give the subscription business behind it that Amazon cannot see.",
+  },
+  /* 🚧 The business-page REDESIGN. Keyed by the real slug so the demo URL is
+     the production URL with /demo in front of it — /demo/amazon-fba-08873
+     against /business/amazon-fba-08873 is the comparison this exists for.
+
+     `unlisted` while it is still being drawn: it is a proposal mid-revision,
+     and /demo is the page we hand to prospects. Reach it by typing the URL. */
+  "amazon-fba-08873": {
+    kind: "business",
+    unlisted: true,
+    build: () => amazonFba08873,
+    label: "Amazon FBA 08873 — business page redesign",
+    blurb:
+      "A proposed /business/<slug>: marketplaces with flags, a Brand Registry toggle, the valuation broken into what lifts and holds it. Real figures, already public.",
   },
   afrasiab: {
     kind: "profile",
