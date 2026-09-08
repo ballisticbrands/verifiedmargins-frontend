@@ -1582,6 +1582,14 @@ const PAGES = [
   { route: "/demo/resilia?tab=traffic", auth: false, name: "demo-resilia-traffic" },
   { route: "/demo/resilia?tab=deepdive", auth: false, name: "demo-resilia-deepdive" },
   { route: "/demo/resilia?tab=sources", auth: false, name: "demo-resilia-sources" },
+  { route: "/demo/spitehouse", auth: false, name: "demo-spitehouse" },
+  { route: "/demo/spitehouse?tab=timeline", auth: false, name: "demo-shg-timeline" },
+  { route: "/demo/spitehouse?tab=sales", auth: false, name: "demo-shg-sales" },
+  { route: "/demo/spitehouse?tab=sourcing", auth: false, name: "demo-shg-sourcing" },
+  { route: "/demo/spitehouse?tab=advertising", auth: false, name: "demo-shg-advertising" },
+  { route: "/demo/spitehouse?tab=traffic", auth: false, name: "demo-shg-traffic" },
+  { route: "/demo/spitehouse?tab=deepdive", auth: false, name: "demo-shg-deepdive" },
+  { route: "/demo/spitehouse?tab=sources", auth: false, name: "demo-shg-sources" },
   /* The profit chart with a timeline dot active. That card only exists while a
      dot is hovered or focused, so the plain overview shot cannot tell you
      whether it renders. */
