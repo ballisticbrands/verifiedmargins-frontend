@@ -262,10 +262,10 @@ export const resilia: Dossier = {
     },
   ],
 
-  /* Oldest first, and ENTIRELY REAL — unusually for these dossiers, nothing
-     here is invented. The brief expected the web and ad tracks to be made up;
-     whois, the Wayback Machine and Meta's ad library turned out to publish
-     dated events for all three, so they are cited instead of fabricated. */
+  /* Oldest first, and ENTIRELY REAL — every dot cites a published record. The
+     brief expected the web and ad tracks to be made up; whois, the Wayback
+     Machine and Meta's ad library turned out to publish dated events for all
+     three, so they are cited instead of fabricated. */
   timeline: [
     {
       date: "2024-08-31",
@@ -386,8 +386,8 @@ export const resilia: Dossier = {
      the price range each one publishes. What they are NOT is what Resilia
      pays; a published range for "an oregano softgel" prices the CATEGORY, and
      the difference between that and a real cost sheet is the whole reason the
-     margin below stays marked. Freight and duty are not in any of them —
-     these are FOB China. */
+     margin below carries a "≈" rather than a number. Freight and duty are not
+     in any of them — these are FOB China. */
   sourcing: [
     {
       supplier: "Guangzhou Green Health Pharmaceutical Technology Co., Ltd",
@@ -435,10 +435,12 @@ export const resilia: Dossier = {
     },
   ],
 
-  /* 🚧 Those quotes, totalled — which this page was built not to do. See the
-     header comment on Economics: it is here on instruction, every figure it
-     produces renders a "*", and the block says in words that the real page
-     shows nothing here until a seller connects. */
+  /* 🚧 Those quotes, totalled — which this page was built not to do. It is
+     here on instruction. Three of the four lines are somebody's published
+     rate or quote and the fourth is computed from category benchmarks, so
+     every figure the block produces renders a "≈" rather than a number, and
+     the text under it says in words that the real page shows nothing here
+     until a seller connects. */
   economics: {
     lines: [
       {
@@ -475,11 +477,13 @@ export const resilia: Dossier = {
     source: MODELLED,
   },
 
-  /* 🚧 The Meta ad library LINK is real and anyone can open it — and for this
+  /* The Meta ad library LINK is real and anyone can open it — and for this
      brand it is more interesting than usual, because the ads are not running
-     under the brand's name. Every FIGURE beside it is invented: the library
-     publishes creative and run dates, never spend, and no public source
-     reports Amazon ad spend at all. */
+     under the brand's name. So is the ad COUNT beside it. What nobody
+     publishes is spend: the library carries creative and run dates and never
+     money, and no public source reports Amazon ad spend at all — so every
+     dollar figure here is computed from published category click prices and
+     conversion rates, and carries a "≈". */
   advertising: [
     {
       channel: "Amazon Sponsored Products",
@@ -575,7 +579,7 @@ export const resilia: Dossier = {
   gaps: [
     "This business's actual COGS, and its returns and overhead. The sourcing tab carries real published quotes for a comparable softgel, and Amazon's referral and FBA rates are its own — but a category price is not a cost sheet and freight and duty are in none of the quotes. Returns and overhead are set to ZERO on purpose, so the margin here is a contribution margin and a ceiling: the real number is lower by whatever those two cost.",
     "How big the DTC side is. Similarweb counts visits, not orders, and resilia.shop sells subscriptions — so the $5.66M above is the AMAZON business only, and the whole company is larger by an amount nothing public will tell you.",
-    "Ad spend, as a measurement. It is now MODELLED from published category CPCs and conversion rates rather than invented, and the formula is on the advertising tab — but a model is not a reading. The one thing that would replace it is their own Amazon Ads and Meta invoices.",
+    "Ad spend, as a measurement. Both dollar figures are MODELLED from published category CPCs and conversion rates, and the formula is on the advertising tab — but a model is not a reading. The one thing that would replace it is their own Amazon Ads and Meta invoices.",
     "Which advertiser pages this business controls. The ads for its garlic line run under \"Everyday Wellness Review\", \"Vascular Wellness Report\", \"Circulatory Health Report\" and others, so the ~6,900 figure cannot be totalled to the brand without someone establishing the link. One page is called simply Resilia.",
     "Amazon keyword rank and search volume. Amazon publishes no volumes, and it localises search results to the viewer — this machine is on an Israeli IP, so the US result set is not visible to it. Best-seller rank is on the page instead, and a US-located run or a Helium 10 / Brand Analytics account is what would fill the gap.",
     "The 12 unbadged ASINs. Each sells under roughly 50/month, but Amazon publishes no figure, so they are counted as zero rather than estimated.",
@@ -641,7 +645,7 @@ export const resilia: Dossier = {
         "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&q=resilia&search_type=keyword_unordered&media_type=all",
       read: "2026-09-07",
       detail:
-        "Meta publishes every ad a page runs, with its creative and run dates. This is a KEYWORD search, so it also returns other advertisers: what it shows is that ads for Resilia Aged Garlic Extract were live from 2026-08-03 under pages named \"Everyday Wellness Review\" and \"Vascular Wellness Report\". It does NOT publish spend, so every figure on the advertising tab is invented.",
+        "Meta publishes every ad a page runs, with its creative and run dates. This is a KEYWORD search, so it also returns other advertisers: what it shows is that ads for Resilia Aged Garlic Extract were live from 2026-08-03 under pages named \"Everyday Wellness Review\" and \"Vascular Wellness Report\". It does NOT publish spend, so the ad COUNT is what this source is answerable for; the dollar figures beside it are computed from published category click prices and conversion rates.",
     },
     {
       id: "uspto",
@@ -738,13 +742,13 @@ export const resilia: Dossier = {
 
   copy: {
     profitChart:
-      "Modelled contribution, with the timeline on it — hover a dot. The steps are real listing dates and the deductions are real fee rates; what is ours is the assumption that today's run rate applied back then. Returns and overhead are set to zero, so the line is a ceiling. Two steps carry it — December 2025, when the oregano line went wide, and 4 May 2026, when six aged-garlic SKUs shipped in one day.",
+      "Modelled profit against revenue, with the timeline on it — hover a dot. The steps are real listing dates and the deductions are real fee rates; what is ours is the assumption that today's run rate applied back then. Returns and overhead are set to zero, so the line is a ceiling. Two steps carry it — December 2025, when the oregano line went wide, and 4 May 2026, when six aged-garlic SKUs shipped in one day.",
     timelineLede:
       "The strands are kept together on one line because the web track is the one that changes the story: a Shopify store selling this product in August 2024, a trademark ten weeks before the launch, and only then the Amazon catalogue — which reaches a $68M run rate faster than the store it came from took to get a second domain.",
     salesLede:
       "Two lines carry the business: oregano-with-black-seed, and the aged garlic that overtook it eight weeks after launching. These are the 15 largest of 21 priced products and they sum to $5.61M, so the bars fall a little short of the $5.66M headline — the remaining six are worth about $44,000 a month between them.",
     advertisingLede:
-      "Two things here are counted rather than modelled: Meta's ad library returns ~6,900 active US ads mentioning Resilia, and Ubersuggest catches a Google Ads burst peaking at 17 keywords in May 2026. The library is worth opening, because the ads for the biggest line do not run under this brand's name — they run under pages called \"Everyday Wellness Review\" and \"Vascular Wellness Report\". Neither source publishes money, and Amazon publishes nothing at all, so the dollar column is ours.",
+      "Two things here are counted rather than modelled: Meta's ad library returns ~6,900 active US ads mentioning Resilia, and Ubersuggest catches a Google Ads burst peaking at 17 keywords in May 2026. The library is worth opening, because the ads for the biggest line do not run under this brand's name — they run under pages called \"Everyday Wellness Review\" and \"Vascular Wellness Report\". Neither source publishes money, and Amazon publishes nothing at all, so the dollar column is arithmetic of ours: published category click prices and conversion rates against those counts, with the formula in Sources.",
     trafficLede:
       "For this business it is the larger half. resilia.shop is a subscription store selling the same three lines, live since at least August 2024, and Similarweb reads it at 9.9M visits over three months. Ubersuggest reads 2,120 of those as organic search — so effectively none of it is earned traffic. They rank for their own name and nothing else: \"oil of oregano\" runs 135,000 US searches a month and resilia.shop is nowhere on it.",
   },

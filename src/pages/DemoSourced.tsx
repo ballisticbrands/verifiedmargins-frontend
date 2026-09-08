@@ -254,23 +254,22 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
       <section>
         <h2 className="vm-visually-hidden">Estimated figures</h2>
         <div data-tiles="">
+          {/* 🚨 PROFIT FIRST, and the two computed tiles carry the tag.
+              Returns and overhead are set to zero by decision, so this figure
+              is a ceiling — the hint says so, and the sourcing tab shows every
+              line that comes off. A computed profit sitting unlabelled beside
+              Keepa's revenue is the single worst thing this page could
+              render. */}
           <StatTile
-            label="Revenue (monthly)"
-            value={d.headline.revenue}
-            hint="A floor — the deep-dive says why."
-          />
-          {/* 🚨 The two tiles nobody measured, in the row a reader trusts most.
-              CONTRIBUTION, not profit: returns and overhead are deliberately
-              set to zero, so this is what is left after cost of goods, Amazon's
-              fees and advertising — and a ceiling on the real thing, never the
-              real thing. The tag says modelled and the caption carries the
-              marker; a computed margin sitting unlabelled beside Keepa's
-              revenue is the single worst thing this page could render. */}
-          <StatTile
-            label="Contribution / mo"
+            label="Profit / mo"
             value={money(m.profit)}
             tag={MODELLED_TAG}
-            hint="Before returns and overhead, both set to zero. See the sourcing tab."
+            hint="Before returns and overhead, both set to zero — so a ceiling. See the sourcing tab."
+          />
+          <StatTile
+            label="Revenue / mo"
+            value={d.headline.revenue}
+            hint="A floor — the deep-dive says why."
           />
           <StatTile
             label="Margin"
@@ -278,10 +277,10 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
             tag={MODELLED_TAG}
             hint="Revenue less cost of goods, Amazon's fees and modelled ad spend."
           />
-          <StatTile label="Units (monthly)" value={d.headline.units} />
+          <StatTile label="Units / mo" value={d.headline.units} />
           <StatTile label="Avg selling price" value={d.headline.asp} />
           <StatTile
-            label="Catalogue"
+            label="ASINs"
             value={d.headline.catalogue}
             hint={`${d.counts.priced} of ${d.counts.catalogue} are priced and selling.`}
           />
@@ -290,7 +289,7 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
           <small>
             Revenue, units, price and catalogue from Keepa
             <Src id="keepa" sources={d.sources} go={go} />, across the whole{" "}
-            {d.counts.catalogue}-product catalogue. Contribution and margin are neither: they are
+            {d.counts.catalogue}-product catalogue. Profit and margin are neither: they are
             computed
             <Src id={MODELLED} sources={d.sources} go={go} /> from published supplier quotes,
             Amazon's own fee rates and a modelled ad spend — before returns and overhead, which are
@@ -304,15 +303,16 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
       </section>
 
       <section>
-        <h2>Estimated monthly contribution</h2>
+        <h2>Estimated monthly profit</h2>
         {/* 🚨 A MODELLED history, not a measured one. The steps are real listing
             dates and the deductions are real fee rates; what is ours is the
             assumption that today's run rate applied then, which nobody can
             check. It leads with the notice for that reason. */}
         <p data-modelled-notice="">
           ≈ <strong>Modelled.</strong> Today's run rate applied backwards over each product's real
-          listing date, less cost of goods, Amazon's published fees and modelled ad spend. Nobody
-          measured a month of it — every figure here carries a{" "}
+          listing date, less cost of goods, Amazon's published fees and modelled ad spend — before
+          returns and overhead, which are set to zero, so the profit line is a ceiling. Nobody
+          measured a month of it: every figure here carries a{" "}
           <span data-invented-star="">≈</span>. See{" "}
           <button type="button" data-linklike="" onClick={() => go("sources")}>
             Sources
@@ -327,6 +327,20 @@ function Overview({ d, go }: { d: Dossier; go: Go }) {
               See the full timeline
             </button>
             .
+          </small>
+        </p>
+        {/* 🚨 The flat tail is the MODEL, not a quiet quarter, and a reader who
+            works that out for themselves has caught us instead of being told.
+            monthlySold is one reading taken today: it is applied to every
+            month after the last launch, so the line cannot move again until a
+            new product does. Month-by-month sales history is the thing Amazon
+            does not publish at all. */}
+        <p data-chart-label="">
+          <small data-muted="">
+            The line stops moving after the last product went live, and that is the model rather
+            than the business: Amazon publishes no month-by-month sales history, so today's run rate
+            is the only rate there is. Every month after{" "}
+            {[...d.asins].map((a) => a.listed).sort().at(-1)} is the same figure repeated.
           </small>
         </p>
       </section>
@@ -640,7 +654,7 @@ function UnitEconomics({ d, go }: { d: Dossier; go: Go }) {
           </li>
         ))}
         <li data-econ-total="">
-          <span data-econ-label="">Contribution margin</span>
+          <span data-econ-label="">Margin</span>
           <span data-econ-pct="" className="vm-num">
             {net.toFixed(0)}%<Src id={MODELLED} sources={d.sources} go={go} />
           </span>
@@ -820,11 +834,23 @@ function DeepDiveTab({ d, go }: { d: Dossier; go: Go }) {
 
       <h3>Nobody has asserted these figures</h3>
       <p>
-        Not Amazon, not the seller — nobody at this business has spoken to us. Every number on this
-        page was modelled from public data, read off somebody else's public page, or invented
-        outright and marked. Each one carries a marker to the source answerable for it — including
-        the profit line on the overview, which is invented, and the margin on the sourcing tab,
-        which is invented twice over.
+        Not Amazon, not the seller — nobody at this business has spoken to us. So every number here
+        carries a marker saying where it came from, and there are three kinds. A{" "}
+        <strong>number</strong> means somebody published it and we read it: Amazon's own fee rates,
+        a supplier's own price list, a best-seller rank printed on the listing, a keyword tool's
+        volume. A <span data-invented-star="">≈</span> means we computed it from those, and the
+        formula is in{" "}
+        <button type="button" data-linklike="" onClick={() => go("sources")}>
+          Sources
+        </button>{" "}
+        — ad spend and the margin are the two that matter. A{" "}
+        <span data-invented-star="">*</span> means we made it up, and on this page it is down to one
+        row: the freight and duty nobody quoted.
+      </p>
+      <p>
+        The distinction is the point. A figure you can reproduce from the sources listed is a figure
+        you can argue with — and being argued with is the outcome this page is built for. A figure
+        you would have to take our word for is marked so you do not.
       </p>
 
       <h3>Sales — Amazon's own "bought in past month"</h3>
@@ -1004,11 +1030,16 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
   const innerH = height - pad.top - pad.bottom;
   const t0 = points[0].t;
   const t1 = points[points.length - 1].t;
-  const max = Math.max(...points.map((p) => p.profit), 1);
+  /* Scaled to REVENUE, because both series share one axis: scaling to profit
+     would push the revenue line off the top of the plot. */
+  const max = Math.max(...points.map((p) => p.revenue), 1);
   const x = (t: number) => pad.left + ((t - t0) / Math.max(1, t1 - t0)) * innerW;
   const y = (v: number) => pad.top + innerH - (v / max) * innerH;
 
-  const line = points.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.profit).toFixed(1)}`).join(" ");
+  const path = (pick: (p: (typeof points)[number]) => number) =>
+    points.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(pick(p)).toFixed(1)}`).join(" ");
+  const line = path((p) => p.profit);
+  const revenueLine = path((p) => p.revenue);
   const area = `${line} L${x(t1).toFixed(1)},${(pad.top + innerH).toFixed(1)} L${x(t0).toFixed(1)},${(pad.top + innerH).toFixed(1)} Z`;
 
   /* Profit at any date, by walking to the month the date falls in. Events sit
@@ -1070,12 +1101,20 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
           come off.
         </span>
       </p>
+      <p data-chart-legend="">
+        <span data-legend-item="">
+          <span data-swatch="" data-kind="profit" aria-hidden="true" /> Profit
+        </span>
+        <span data-legend-item="">
+          <span data-swatch="" data-kind="revenue" aria-hidden="true" /> Revenue
+        </span>
+      </p>
       {width > 0 ? (
         <svg
           width={w}
           height={height}
           role="img"
-          aria-label="Modelled monthly contribution, with the events on this business's timeline"
+          aria-label="Modelled monthly revenue and profit, with the events on this business's timeline"
           onMouseLeave={() => setHover(null)}
           onMouseMove={(ev) => {
             if (hover?.kind === "event") return;
@@ -1103,6 +1142,16 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
               </text>
             </g>
           ))}
+          {/* Revenue behind profit, deliberately: the gap between the two IS
+              the cost stack, and drawing the smaller number on top keeps it
+              legible where they converge. */}
+          <path
+            d={revenueLine}
+            data-series-revenue=""
+            fill="none"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
           <path d={area} fill="var(--accent)" fillOpacity={0.08} />
           <path
             d={line}
@@ -1143,11 +1192,18 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
               aria-label={`${p.e.date}: ${p.e.title}`}
               data-event-dot={String(i)}
               onMouseEnter={() => setHover({ kind: "event", i })}
+              onMouseLeave={() => setHover(null)}
               onFocus={() => setHover({ kind: "event", i })}
               onBlur={() => setHover(null)}
             >
+              {/* 🚨 Releasing on mouseleave matters as much as taking on
+                  mouseenter: without it the event card outlived the pointer,
+                  and the chart felt like it needed a click to change. Focus
+                  handlers stay for keyboards and for the screenshot script. */}
               <title>{`${p.e.date} — ${p.e.title}`}</title>
-              <circle cx={x(p.t)} cy={y(p.v)} r={11} fill="transparent" />
+              {/* A 16px invisible target. The dot is 4.5px and nobody hits a
+                  4.5px dot on the first try. */}
+              <circle cx={x(p.t)} cy={y(p.v)} r={16} fill="transparent" />
               <circle
                 cx={x(p.t)}
                 cy={y(p.v)}
@@ -1190,7 +1246,7 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
               <p data-card-title="">{events[hover.i].e.title}</p>
               {events[hover.i].e.detail ? <p data-card-detail="">{events[hover.i].e.detail}</p> : null}
               <p data-card-detail="">
-                Modelled contribution that month:{" "}
+                Modelled profit that month:{" "}
                 <span className="vm-num">{money(events[hover.i].v)}</span>
                 <Src id={MODELLED} sources={d.sources} go={go} />
               </p>
@@ -1201,12 +1257,12 @@ function ProfitChart({ d, go }: { d: Dossier; go: Go }) {
                 {fmtMonth(points[hover.i].key)}
               </p>
               <p data-card-title="" className="vm-num">
-                {money(points[hover.i].profit)} contribution
-                <Src id={MODELLED} sources={d.sources} go={go} />
+                {money(points[hover.i].revenue)} revenue
+                <Src id="keepa" sources={d.sources} go={go} />
               </p>
               <p data-card-detail="">
-                on <span className="vm-num">{money(points[hover.i].revenue)}</span> of revenue, at{" "}
-                {Math.round(net * 100)}% net
+                <span className="vm-num">{money(points[hover.i].profit)}</span> profit
+                <Src id={MODELLED} sources={d.sources} go={go} /> at {Math.round(net * 100)}%
               </p>
             </>
           )}

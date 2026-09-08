@@ -224,9 +224,9 @@ export const theLoadedTeaShop: Dossier = {
     },
   ],
 
-  /* Oldest first. The real events carry a real source; the ad campaigns and
-     the domain registration are INVENTED and say so — see the note on
-     INVENTED in ../dossier.ts. */
+  /* Oldest first. Every dot cites a published record — the brand's own pages,
+     whois, Instagram, Keepa, Ubersuggest and Meta's ad library. Nothing on
+     this track is invented. */
   timeline: [
     {
       date: "2019",
@@ -295,14 +295,6 @@ export const theLoadedTeaShop: Dossier = {
       source: "keepa",
     },
     {
-      date: "2026-08-17",
-      title: "~310 ads live on Meta",
-      detail:
-        "Most of them started in the same mid-August week. A second advertiser, \"Alicia N Powell with The Loaded Tea Shop\", runs its own alongside. The library shows only what is ACTIVE, so this is a floor on what they have run.",
-      track: "ads",
-      source: "meta-ads",
-    },
-    {
       date: "2026-05-12",
       title: "Mom Mode Collection",
       detail: "5 and 10 packs. The 5 pack is a top-three earner inside a month.",
@@ -315,6 +307,14 @@ export const theLoadedTeaShop: Dossier = {
       detail: "Carries a sold badge and no live buy box — it sells and is out of stock.",
       track: "amazon",
       source: "keepa",
+    },
+    {
+      date: "2026-08-17",
+      title: "~310 ads live on Meta",
+      detail:
+        "Most of them started in the same mid-August week. A second advertiser, \"Alicia N Powell with The Loaded Tea Shop\", runs its own alongside. The library shows only what is ACTIVE, so this is a floor on what they have run.",
+      track: "ads",
+      source: "meta-ads",
     },
   ],
 
@@ -361,10 +361,12 @@ export const theLoadedTeaShop: Dossier = {
     },
   ],
 
-  /* 🚧 Those quotes, totalled — which this page was built not to do. See the
-     header comment on Economics: it is here on instruction, every figure it
-     produces renders a "*", and the block says in words that the real page
-     shows nothing here until a seller connects. */
+  /* 🚧 Those quotes, totalled — which this page was built not to do. It is
+     here on instruction. Three of the four lines are somebody's published
+     rate or quote and the fourth is computed from category benchmarks, so
+     every figure the block produces renders a "≈" rather than a number, and
+     the text under it says in words that the real page shows nothing here
+     until a seller connects. */
   economics: {
     lines: [
       {
@@ -401,9 +403,13 @@ export const theLoadedTeaShop: Dossier = {
     source: MODELLED,
   },
 
-  /* 🚧 The Meta ad library LINK is real and anyone can open it. Every FIGURE
-     beside it is invented — the library publishes creative and run dates, not
-     spend, and no public source reports Amazon ad spend at all. */
+  /* The Meta ad library LINK is real and anyone can open it, and so is the
+     ad count beside it. What nobody publishes is spend: the library carries
+     creative and run dates and never money, and no public source reports
+     Amazon ad spend at all. So the Amazon dollar figure is computed from
+     published category click prices and conversion rates and carries a "≈",
+     and the Meta row carries no dollar figure at all — there is no visit
+     count to price it with. */
   advertising: [
     {
       channel: "Amazon Sponsored Products",
@@ -549,7 +555,7 @@ export const theLoadedTeaShop: Dossier = {
         "https://www.facebook.com/ads/library/?active_status=inactive&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&sort_data[direction]=desc&sort_data[mode]=total_impressions&view_all_page_id=543395728858281",
       read: "2026-09-07",
       detail:
-        "Meta publishes every ad a page runs, with its creative and its run dates — genuinely public and worth reading. It does NOT publish spend or impressions for commercial ads, so the spend figure beside it here is invented.",
+        "Meta publishes every ad a page runs, with its creative and its run dates — genuinely public and worth reading. It does NOT publish spend or impressions for commercial ads, which is why the Meta row on the advertising tab carries an ad count and no dollar figure at all.",
     },
     {
       id: "ubersuggest",
@@ -642,13 +648,13 @@ export const theLoadedTeaShop: Dossier = {
      ../dossier.ts. */
   copy: {
     profitChart:
-      "Modelled contribution, with the timeline on it — hover a dot. The steps are real listing dates and the deductions are real fee rates; what is ours is the assumption that today's run rate applied back then. Returns and overhead are set to zero, so the line is a ceiling. Almost all of it is built in the eight weeks from 30 March 2026, and the brand itself has traded since 2019.",
+      "Modelled profit against revenue, with the timeline on it — hover a dot. The steps are real listing dates and the deductions are real fee rates; what is ours is the assumption that today's run rate applied back then. Returns and overhead are set to zero, so the line is a ceiling. Almost all of it is built in the eight weeks from 30 March 2026, and the brand itself has traded since 2019.",
     timelineLede:
-      "The strands are kept together on one line on purpose: four years of building an audience elsewhere, a lone Amazon listing that goes nowhere for ten months, and then the catalogue and the ad spend arriving in the same eight weeks.",
+      "The strands are kept together on one line on purpose: four years of building an audience elsewhere, a lone Amazon listing that goes nowhere for ten months, and then the whole Amazon catalogue arriving in eight weeks — with the ~310 Meta ads going live that August, months after it.",
     salesLede:
       "Three packs carry the business; the long tail of single-flavour 5-packs barely registers. These are the 15 largest of 18 priced products, so the bars sum to slightly less than the headline — the remainder is worth about $4,950 a month.",
     advertisingLede:
-      "Two things here are counted rather than modelled: Meta's ad library says ~310 ads are live on their own page, and Ubersuggest says they buy exactly one paid keyword. Neither source publishes money — Meta never does, Amazon publishes nothing at all — so the dollar column is the one part of this tab that is ours.",
+      "Two things here are counted rather than modelled: Meta's ad library says ~310 ads are live on their own page, and Ubersuggest says they buy exactly one paid keyword. Neither source publishes money — Meta never does, Amazon publishes nothing at all — so the only dollar figure here is the Amazon one, and it is arithmetic of ours rather than a reading: a published Grocery click price and conversion rate against Keepa's unit floors.",
     trafficLede:
       "The brand is not new — it is new to Amazon, arriving with an audience it built elsewhere, and that is the single most useful thing on this page. It holds #1 on Google for \"loaded tea\" against 40,500 searches a month, on 1,707 ranking keywords and one paid one. The two traffic estimates for its own site disagree by 13x, and the page shows both rather than choosing.",
   },
