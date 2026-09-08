@@ -63,6 +63,11 @@ export const theLoadedTeaShop: Dossier = {
     address: ["6025 S Vista Dr", "Gulfport", "MS", "39507"],
     country: "US",
     storefrontUrl: "https://www.amazon.com/sp?seller=A2FLJTREXC9RX4",
+    since: {
+      value: "2019",
+      note: "the brand's own account of itself. Its domain is 2023-05-05 and its first ASIN 2025-05-20, and nothing public reconciles the three",
+      source: "web",
+    },
     feedback: "72% over 337 ratings",
     feedbackNote: "poor, for a business this size",
     source: "keepa-seller",

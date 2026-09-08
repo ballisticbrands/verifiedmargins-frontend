@@ -21,7 +21,6 @@ import { amazonFba08873 } from "./fixtures/amazon-fba-08873";
 import { leaderboard } from "./fixtures/leaderboard";
 import { theLoadedTeaShop } from "./fixtures/theloadedteashop";
 import { resilia } from "./fixtures/resilia";
-import { spitehouse } from "./fixtures/spitehouse";
 import type { Dossier } from "./dossier";
 import { ecgGroup } from "./fixtures/ecg-group";
 import {
@@ -317,18 +316,12 @@ export const DEMOS: Record<string, Demo> = {
      same method, a business 3.6x the size, and a web check that overturned
      what the catalogue alone implied. Both brands came to Amazon late; one
      had built an audience and the other buys one. */
-  /* The third sourced dossier, and the small one — under $1.1M a year against
-     the other two's $19M and $68M. It earns its place by being a different
-     SHAPE: one $6.97 hero SKU, a Christmas peak that collapses 82% in January,
-     and a paid-search arithmetic that says this catalogue cannot buy traffic
-     at all. Which is the whole argument for the content engine behind it. */
-  spitehouse: {
-    kind: "sourced",
-    dossier: spitehouse,
-    label: "Spite House Games — sourced dossier",
-    blurb:
-      "A gag card game at $6.97 a deck: $90K a month, #26 in its category, and a December that was four times any other month. Cheap to print, expensive to fulfil — the fee card eats more of it than the printer does.",
-  },
+  /* 🎓 Spite House Games GRADUATED out of the demo set on 2026-09-09 — it is
+     published for real at /brand/spitehouse. Its fixture moved to
+     src/dossiers/, and src/dossiers/registry.ts is the list it lives in now.
+     Left as a note rather than deleted silently: a demo that disappears with
+     no trace looks like a mistake, and the pattern of promoting a dossier to
+     the public site is one somebody will want to follow. */
   resilia: {
     kind: "sourced",
     dossier: resilia,

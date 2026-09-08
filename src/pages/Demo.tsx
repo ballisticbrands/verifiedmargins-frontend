@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { Shell } from "./Shell";
 import { findDemo } from "@/demo/registry";
 import { DemoProfile } from "./DemoProfile";
@@ -19,9 +19,22 @@ import { DemoBusiness } from "./DemoBusiness";
  *
  * See src/demo/README.md.
  */
+/* 🎓 Demos that GRADUATED to the public site, and where they went.
+ *
+ * A demo URL is shared in DMs and posts; retiring one should not break the
+ * links already out there. These redirect instead of 404ing, and they live
+ * here rather than in App.tsx so the mapping sits next to the registry the
+ * slug was removed from. */
+const GRADUATED: Record<string, string> = {
+  spitehouse: "/brand/spitehouse",
+};
+
 export function Demo() {
   const { slug = "" } = useParams();
   const demo = findDemo(slug);
+
+  const moved = GRADUATED[slug.toLowerCase()];
+  if (!demo && moved) return <Navigate to={moved} replace />;
 
   if (!demo) {
     return (

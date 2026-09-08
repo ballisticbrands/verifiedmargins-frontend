@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/check-site-constants.mjs && tsc -b && vite build && node scripts/build-profiles.mjs && node scripts/build-businesses.mjs && node scripts/postbuild-spa-routes.mjs && node scripts/generate-sitemap.mjs",
+    "build": "node scripts/check-site-constants.mjs && tsc -b && vite build && node scripts/build-profiles.mjs && node scripts/build-businesses.mjs && node scripts/build-dossiers.mjs && node scripts/postbuild-spa-routes.mjs && node scripts/generate-sitemap.mjs",
     "preview": "vite preview",
     "verify:events": "node scripts/verify-events.mjs",
     "test": "node scripts/test-meta-events.mjs",
-    "screenshot": "node scripts/screenshot.mjs"
+    "screenshot": "node scripts/screenshot.mjs",
+    "build:og": "node scripts/build-og.mjs"
   },
   "dependencies": {
     "@ballisticbrands/frontend-shared": "^0.9.36",

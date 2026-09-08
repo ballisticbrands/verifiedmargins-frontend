@@ -85,7 +85,6 @@ export const DEMO_PAGES = [
      that every figure names where it came from. */
   '/demo/theloadedteashop',
   '/demo/resilia',
-  '/demo/spitehouse',
   /* The index of the list below, read off the DEMOS registry. Listed here
      like any other demo: it needs the 200-answering stub, and it must carry
      the Disallow — a crawlable index of noindex pages hands a crawler every

@@ -56,9 +56,37 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-export function DemoSourced({ demo }: { demo: SourcedDemo }) {
+/**
+ * 🚨 TWO MODES, ONE COMPONENT.
+ *
+ * `demo` is the original: a fixture behind /demo/<slug>, wearing the demo
+ * banner, noindex, and the "illustrative figures" note. `public` is the same
+ * page published at /brand/<slug> as a real, indexable page about a real
+ * business — no banner, no noindex, and the title and description come from
+ * build-dossiers.mjs rather than from the demo harness.
+ *
+ * Parameterised rather than forked because the difference is chrome, not
+ * substance: the figures, the markers and the bibliography are identical, and
+ * a forked copy would be the version that quietly stops matching. The one
+ * thing mode must never change is a marker — a public page carries the same
+ * ≈ and * as the demo did, because the same numbers are behind them.
+ */
+export function DemoSourced({
+  demo,
+  mode = "demo",
+}: {
+  demo: SourcedDemo;
+  mode?: "demo" | "public";
+}) {
   const d = demo.dossier;
-  useDemoMeta(`${d.brand} — sourced dossier — demo`);
+  const isDemo = mode === "demo";
+  /* The demo harness sets a noindex meta as well as the title, which is
+     exactly wrong for a published page — so the public mode sets only the
+     title and leaves indexability to the static page's own head. */
+  useDemoMeta(isDemo ? `${d.brand} — sourced dossier — demo` : undefined);
+  useEffect(() => {
+    if (!isDemo) document.title = `${d.brand} — VerifiedMargins`;
+  }, [isDemo, d.brand]);
 
   const [params, setParams] = useSearchParams();
   const raw = params.get("tab");
@@ -78,10 +106,17 @@ export function DemoSourced({ demo }: { demo: SourcedDemo }) {
 
   return (
     <Shell width="profile">
-      <DemoBanner />
+      {isDemo ? <DemoBanner /> : null}
       <div className="vm-form vm-profile vm-dossier">
         <span data-profile-crumbs="">
-          <Breadcrumbs items={[{ label: "Demo", to: "/demo" }, { label: d.brand }]} />
+          {/* A published page must not say "Demo" — the crumb is the reader's
+              way back to the board it is listed on, not to the demo index. */}
+          <Breadcrumbs
+            items={[
+              isDemo ? { label: "Demo", to: "/demo" } : { label: "Leaderboard", to: "/leaderboard" },
+              { label: d.brand },
+            ]}
+          />
         </span>
 
         <span data-profile-who="">
@@ -272,6 +307,20 @@ const MODELLED_TAG = {
   title:
     "Computed by us from published fee rates, supplier quotes and category benchmarks — not measured, and not made up. The formula is in Sources.",
 };
+
+/**
+ * A country's flag from its ISO code, by arithmetic rather than by an asset.
+ *
+ * Regional-indicator letters: "US" → 🇺🇸. No image, no icon font, no lookup
+ * table to fall out of date, and nothing to 404 — the two code points ARE the
+ * flag. Returns an empty string for anything that is not two letters, so a
+ * malformed code renders as no flag rather than as tofu.
+ */
+function flag(code: string): string {
+  const c = (code ?? "").trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(c)) return "";
+  return String.fromCodePoint(...[...c].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65));
+}
 
 function money(cents: number): string {
   const d = cents / 100;
@@ -477,10 +526,23 @@ function Operator({ d, go }: { d: Dossier; go: Go }) {
             </span>
           </dd>
         </div>
+        {d.operator.since ? (
+          <div>
+            <dt>Trading since</dt>
+            <dd>
+              <span className="vm-num">{d.operator.since.value}</span>
+              <Src id={d.operator.since.source} sources={d.sources} go={go} />
+              {d.operator.since.note ? (
+                <span data-muted=""> — {d.operator.since.note}</span>
+              ) : null}
+            </dd>
+          </div>
+        ) : null}
         <div>
           <dt>Registered address</dt>
           <dd>
-            {d.operator.address.join(", ")} · {d.operator.country}
+            {d.operator.address.join(", ")} · <span data-flag="">{flag(d.operator.country)}</span>{" "}
+            {d.operator.country}
           </dd>
         </div>
         <div>

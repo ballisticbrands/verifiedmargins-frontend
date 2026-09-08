@@ -292,6 +292,12 @@ export interface Dossier {
      *  poor score is the interesting case, so it sits with the operator rather
      *  than in a tile where it would read as a performance metric. */
     feedback: string;
+    /** When this operator started, and by what evidence. Rendered in the
+     *  operator block because "who is this" and "how long have they been at
+     *  it" are the same question — and because the answer is often older than
+     *  the Amazon catalogue: one of these businesses has a 2021 domain behind
+     *  an 18-month-old ASIN list. `note` carries what dates it. */
+    since?: { value: string; note?: string; source: string };
     /** What that score MEANS, in words — "poor, for a business this size".
      *  In words on purpose: red on a figure means unverified on this site and
      *  never "bad" (BRANDING.md section 11), so the judgement cannot be

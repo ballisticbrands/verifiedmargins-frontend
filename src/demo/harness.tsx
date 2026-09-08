@@ -107,8 +107,19 @@ export function DemoBanner() {
  * other half of this, and neither is redundant: robots.txt stops the crawl,
  * the meta stops an already-known URL from being indexed.
  */
-export function useDemoMeta(title: string) {
+/**
+ * Title + noindex for a demo page.
+ *
+ * 🚨 Pass `undefined` to do NOTHING. One of these pages is now published for
+ * real at /brand/<slug> through the same component, and a noindex tag appended
+ * by a hook would quietly overrule the static page's head — the page would
+ * render perfectly and never be indexed, which is the failure this whole file
+ * exists to cause deliberately for demos and must never cause by accident for
+ * a real page. The early return keeps that decision at the call site.
+ */
+export function useDemoMeta(title: string | undefined) {
   useEffect(() => {
+    if (!title) return;
     document.title = title;
     const meta = document.createElement("meta");
     meta.name = "robots";

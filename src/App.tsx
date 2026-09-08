@@ -17,6 +17,7 @@ import { Valuation } from "@/pages/Valuation";
 import { Demo } from "./pages/Demo";
 import { DemoIndex } from "./pages/DemoIndex";
 import { DemoGroupRoute } from "./pages/DemoGroupRoute";
+import { BrandDossier } from "@/pages/BrandDossier";
 import { ProfileRedirect } from "@/pages/ProfileRedirect";
 import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
@@ -137,7 +138,10 @@ export default function App() {
           declared BEFORE /:username so the stub never gets mistaken for a
           seller whose handle happens to be "feed". */}
       <Route path="/feed" element={<ComingSoon title="Feed" />} />
-      <Route path="/leaderboard" element={<Leaderboard />} />
+      {/* 🚧 withDossiers: the real board appends the hard-coded published-dossier
+          rows. Demo and group boards must not — see HARD_CODED_ROWS in
+          src/pages/Leaderboard.tsx. */}
+      <Route path="/leaderboard" element={<Leaderboard withDossiers />} />
       {/* Public + indexable, like /about and /tos above — this is the page a
           stranger reads before deciding whether any figure on this site means
           anything, so it is in PUBLIC_PAGES (site.mjs) rather than APP_ROUTES,
@@ -170,6 +174,20 @@ export default function App() {
           cannot stub them — scripts/build-businesses.mjs emits a real
           index.html per published business instead, exactly as
           build-profiles.mjs does for profiles. */}
+      {/* A PUBLISHED SOURCED DOSSIER — a business profiled entirely from
+          public data, which has never spoken to us. Real and indexable, unlike
+          its /demo/<slug> ancestor: see src/dossiers/registry.ts for what
+          publishing one commits us to.
+
+          Two segments, so /:username cannot shadow it — but "brand" should go
+          into the backend's RESERVED_USERNAMES alongside "business" so nobody
+          can register the handle and sit one segment away from every dossier.
+
+          Like business pages, these slugs are not in postbuild-spa-routes.mjs:
+          scripts/build-dossiers.mjs writes a real index.html per dossier with
+          its own title, description and og:image, and that script would be
+          clobbered by the generic shell if the route were stubbed as well. */}
+      <Route path="/brand/:slug" element={<BrandDossier />} />
       <Route path="/business/:slug" element={<Business />} />
       {/* The valuation wizard. Two segments, so it cannot be shadowed by the
           /:username catch-all — but declared before it anyway, in keeping

@@ -5,6 +5,16 @@
  * (Dragon-marketing/skills/VM-amazon-store-scraping) on 2026-09-09. Nobody at
  * this business has spoken to us.
  *
+ * 🚨 PUBLISHED FOR REAL, at /brand/spitehouse — not a demo. It is indexable,
+ * it carries no demo banner, and a stranger can find it in search. Everything
+ * that made it defensible as a demo now has to hold in public: the Estimated
+ * badge, a marker on every figure, and a bibliography that names each source.
+ * The one INVENTED row on it (freight, on the sourcing tab) is the only thing
+ * here that a reader cannot check, and it is the thing to remove first if this
+ * page ever has to stand entirely on its own.
+ *
+ * The type still lives in src/demo/dossier.ts because two demos also use it.
+ *
  * ── Why this one is worth a page at a tenth of the size ──────────────────
  * $90K a month against the other two dossiers' $1.58M and $5.66M. It earns its
  * place by being a different SHAPE, and by testing a claim that sounds
@@ -31,7 +41,7 @@
  * instead. The organic-content strategy is not a preference here; it is the
  * only strategy the unit economics allow.
  */
-import { INVENTED, MODELLED, type Dossier } from "../dossier";
+import { INVENTED, MODELLED, type Dossier } from "@/demo/dossier";
 
 export const spitehouse: Dossier = {
   brand: "Spite House Games",
@@ -93,6 +103,12 @@ export const spitehouse: Dossier = {
     address: ["117 Lexington At. Ste 100", "Harrisonville", "MO", "64701-2444"],
     country: "US",
     storefrontUrl: "https://www.amazon.com/sp?seller=A1JV6NB17MZ485",
+    since: {
+      value: "2021",
+      note:
+        "not this catalogue — wouldyoukillhitler.com, an earlier venture whose address still answers this store's support mail. The first ASIN here is 2025-01-20",
+      source: "whois",
+    },
     feedback: "86% over 66 ratings",
     feedbackNote:
       "a young account — 66 seller ratings against 2,958 product reviews on one listing, 14 of them in the last 30 days",

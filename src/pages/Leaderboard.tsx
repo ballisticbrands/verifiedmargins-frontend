@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AMAZON_MARK_SRC, ApiError, apiFetch, useBrand,
   verificationBadgeState,
@@ -67,6 +67,10 @@ interface Entry {
   /** Positions gained (+) or lost (−) since the previous 30 days. Null for an
    *  entry that did not place then — a newcomer has not moved. */
   rank_delta: number | null;
+  /** 🚧 FRONTEND-ONLY, never returned by the API: a published sourced dossier
+   *  at /brand/<slug>. Present only on the hard-coded rows below, and the only
+   *  reason the row's name links somewhere other than /business/<slug>. */
+  dossier_slug?: string | null;
 }
 
 interface Board {
@@ -158,8 +162,68 @@ function Change({ pct }: { pct: number | null }) {
   );
 }
 
+/**
+ * 🚧 HARD-CODED BOARD ROWS — a GTM trial, not a data model.
+ *
+ * ── Why these are not in the database ────────────────────────────────────
+ * They cannot be. The backend excludes estimated figures from the board on
+ * purpose: `RANKABLE_TIERS` in src/services/profiles/leaderboard.ts is
+ * `["verified_revenue", "verified_margin"]`, and the orphan loop `continue`s
+ * past anything else — so a Keepa-modelled business is dropped before it
+ * becomes an entry, however it is published. The argument for that rule is
+ * good (an unaudited estimate should not sit in the same rank order as figures
+ * somebody checked) and reversing it is a product decision, not a patch.
+ *
+ * So this is deliberately the cheap version: a published dossier appears on the
+ * board to find out whether the page earns traffic at all. If it does, the
+ * clean fix is a backend change — either a tier that ranks estimates
+ * separately or an explicit "sourced" section in the API response — and these
+ * rows come straight back out.
+ *
+ * ── What keeps it honest in the meantime ─────────────────────────────────
+ *   • `rank: null`. It renders as "—" and carries `data-unranked`, which is
+ *     the component's existing meaning: listed, not placed. It never takes a
+ *     number off a verified business, and it never competes for one.
+ *   • The badge says `estimated`, the same as the page it links to.
+ *   • It appends AFTER the API's entries, so it cannot reorder them.
+ *   • Business mode only. There is no founder behind a sourced dossier, so a
+ *     founder board has nothing to show for it.
+ *
+ * ⚠️ The figures are copied from src/dossiers/spitehouse.ts and will go stale
+ * if that fixture changes. They are USD; the row renders its own currency, so
+ * it stays labelled correctly when a reader switches the top bar.
+ */
+const HARD_CODED_ROWS: Entry[] = [
+  {
+    rank: null,
+    username: null,
+    display_name: null,
+    avatar_url: null,
+    business: {
+      name: "Spite House Games",
+      label: "Amazon FBA",
+      markets: ["US"],
+      seller_type: null,
+      slug: null,
+    },
+    business_count: null,
+    /* From the dossier's modelled economics: 28% of $89,988 of measured
+       monthly revenue, before returns and overhead. The page says so with a
+       ≈ on every one of them. */
+    margin_pct: 28,
+    revenue: 89988,
+    currency: "USD",
+    verification: { tier: "estimated", label: "Estimated" },
+    profit: 25197,
+    profit_change_pct: null,
+    rank_delta: null,
+    dossier_slug: "spitehouse",
+  },
+];
+
 export function Leaderboard({
   banner,
+  withDossiers = false,
   variant = "profit",
   profileHref = (username) => `/${username}`,
 }: {
@@ -171,6 +235,11 @@ export function Leaderboard({
    * because a forked demo drifts from the real one the first time either
    * changes. Undefined everywhere else, which renders nothing. */
   banner?: React.ReactNode;
+  /** 🚧 Append the hard-coded dossier rows above. TRUE ONLY on the real
+   *  /leaderboard route — a demo board patches fetch and would otherwise
+   *  inherit them, and a GROUP board is a named subset of members that a
+   *  stranger's business does not belong in. See HARD_CODED_ROWS. */
+  withDossiers?: boolean;
   /**
    * `profit` — THE BOARD. Ranks by 30-day profit, shows the change and the
    * movement, and keeps revenue as context. The default since 2026-08-30.
@@ -231,6 +300,21 @@ export function Leaderboard({
   );
   const [board, setBoard] = useState<Board | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  /* 🚧 The API's entries, then the hard-coded dossier rows AFTER them — see
+     HARD_CODED_ROWS. Appending rather than merging is what guarantees they
+     cannot reorder a ranked board: every one of them carries `rank: null`, so
+     there is no position for them to take.
+
+     BOTH modes, deliberately. The default URL is the founder board, and a row
+     that only appeared under ?by=business would be a row almost nobody saw —
+     which defeats the point of the trial. It renders as an orphan either way:
+     no founder, no byline, the platform mark instead of a face, exactly as the
+     API's own unclaimed businesses do. */
+  const rows = useMemo(
+    () => [...(board?.entries ?? []), ...(withDossiers ? HARD_CODED_ROWS : [])],
+    [board, withDossiers],
+  );
 
   useEffect(() => {
     document.title = `Leaderboard — ${brand.displayName}`;
@@ -304,16 +388,16 @@ export function Leaderboard({
         {error ? <p role="alert">Could not load the leaderboard: {error}</p> : null}
         {!board && !error ? <p>Loading…</p> : null}
 
-        {board && board.entries.length === 0 ? (
+        {board && rows.length === 0 ? (
           <p>
             Nothing to rank yet. <Link to="/verify">Verify your business</Link> to be
             the first.
           </p>
         ) : null}
 
-        {board && board.entries.length > 0 ? (
+        {board && rows.length > 0 ? (
           <ol data-board="" data-variant={variant}>
-            {board.entries.map((e) => (
+            {rows.map((e) => (
               <li
                 key={`${e.username ?? "orphan"}-${e.business?.slug ?? e.business?.label ?? ""}`}
                 data-unranked={e.rank === null ? "" : undefined}
@@ -359,7 +443,13 @@ export function Leaderboard({
                       // The founder is named on the line below — putting the
                       // person's name here made four rows of one seller's
                       // estate read as four entries for the same seller.
-                      e.business.slug ? (
+                      // 🚧 A hard-coded dossier row has no /business/<slug> to
+                      // point at; it links to its published page instead.
+                      e.dossier_slug ? (
+                        <Link to={`/brand/${e.dossier_slug}`} data-board-name="">
+                          {e.business.name ?? e.business.label}
+                        </Link>
+                      ) : e.business.slug ? (
                         <Link to={`/business/${e.business.slug}`} data-board-name="">
                           {e.business.name ?? e.business.label}
                         </Link>

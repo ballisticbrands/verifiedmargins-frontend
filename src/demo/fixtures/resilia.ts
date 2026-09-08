@@ -82,6 +82,11 @@ export const resilia: Dossier = {
     address: ["53 Silver Saddle Lane", "Palos Verdes Peninsula", "CA", "90274"],
     country: "US",
     storefrontUrl: "https://www.amazon.com/sp?seller=A2SU6X7KL307SD",
+    since: {
+      value: "2024-08",
+      note: "resilia.shop was already selling this product, per the Wayback Machine — the first ASIN came fifteen months later",
+      source: "wayback",
+    },
     feedback: "82% over 4,572 ratings",
     feedbackNote: "poor, for a business this size",
     source: "keepa-seller",
