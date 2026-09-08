@@ -411,6 +411,11 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.15rem 1.25rem 1.25rem;
+  /* Arriving at #earnings, the card would otherwise sit flush against the top
+     of the viewport, reading as a page that begins mid-section. Nothing is
+     sticky at the top of this shell, so this is breathing room, not clearance
+     for a bar. */
+  scroll-margin-top: 1.25rem;
 }
 .vm-bizx [data-bizx-earnings-head] {
   display: flex;

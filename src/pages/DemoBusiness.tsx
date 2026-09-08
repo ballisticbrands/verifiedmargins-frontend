@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactElement } from "react";
 import { Shell } from "./Shell";
 import { DemoBanner, useDemoMeta } from "@/demo/harness";
@@ -23,6 +23,34 @@ import {
    thing. Ownership, not load cost: the build emits one CSS bundle. See the
    header in DemoBusiness.css. */
 import "./DemoBusiness.css";
+
+/**
+ * Honours a `#…` in the URL on FIRST LOAD, which the browser cannot do here.
+ *
+ * Nothing is server-rendered: at the moment the browser reads the fragment,
+ * `#earnings` does not exist yet, so it finds no target, gives up, and never
+ * looks again once React mounts it. The section was there the whole time —
+ * the page simply sat at the top, which reads as the link being broken.
+ *
+ * 🚨 This is ONLY about arriving with a hash already in the URL. Clicking
+ * "View earnings" on the page works natively and always did, which is what
+ * makes the bug easy to miss: the link you test is not the link you send.
+ *
+ * Scoped to this page rather than the router because it is the only page in
+ * the app with an in-page anchor (DemoSourced deliberately uses buttons — see
+ * the note on `Src` there). Making it app-wide would be a change to every
+ * production route to fix a demo.
+ */
+function useHashScroll() {
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+    /* After paint, so the section is laid out and its offset is final. Every
+       image above it is explicitly sized and the flags are inline SVG, so
+       nothing below loads late and shifts the target out from under us. */
+    document.getElementById(id)?.scrollIntoView();
+  }, []);
+}
 
 /**
  * 🚧 A REDESIGN of /business/<slug>, shown at /demo/<slug>.
@@ -54,6 +82,7 @@ import "./DemoBusiness.css";
  */
 export function DemoBusiness({ demo }: { demo: BusinessDemo }) {
   const b = demo.build();
+  useHashScroll();
   useDemoMeta(`${b.name} — VerifiedMargins`);
 
   const d = b.facts?.declared ?? {};
