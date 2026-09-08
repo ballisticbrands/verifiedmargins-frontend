@@ -463,6 +463,7 @@ export const resilia: Dossier = {
       },
       {
         label: "Advertising",
+        key: "ads",
         pct: 8,
         note: "TACOS, computed rather than guessed: a $1.10–1.40 category click at an 11–14% conversion rate costs $7.86–12.73 per ad-attributed sale, and carrying 20–40% of 143,000 units that way is 5–10% of revenue. The advertising tab shows the arithmetic.",
         source: MODELLED,

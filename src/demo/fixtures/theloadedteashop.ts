@@ -389,6 +389,7 @@ export const theLoadedTeaShop: Dossier = {
       },
       {
         label: "Advertising",
+        key: "ads",
         pct: 8,
         note: "TACOS, computed rather than guessed: a $1.20–1.50 Grocery click at a 12–18% conversion rate costs $6.67–12.50 per ad-attributed sale, and carrying 20–40% of 45,050 units that way is 5–10% of revenue. The advertising tab shows the arithmetic.",
         source: MODELLED,

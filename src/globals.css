@@ -3949,11 +3949,15 @@ h2[data-heading-badges] {
   display: flex; flex-wrap: wrap; gap: 0.45rem 1.6rem;
 }
 
-/* Six tiles, not four: profit and margin joined the row. The shared 9.5rem
-   track fits five across at this page width, which left "Catalogue" alone on a
-   second row looking like an afterthought. A slightly narrower track fits all
-   six on one line and still wraps to two and then one on a phone. */
-.vm-dossier [data-tiles] { grid-template-columns: repeat(auto-fill, minmax(8.75rem, 1fr)); }
+/* FOUR tiles, and auto-FIT rather than the shared auto-fill: units, average
+   price and the ASIN count left the row, and auto-fill kept laying out the six
+   tracks that used to hold them — four tiles bunched at the left with two
+   empty columns after them. auto-fit collapses the empty tracks so the four
+   stretch the full width, and still wraps to two and then one on a phone.
+   (The shared rule stays auto-fill for the reason its own comment gives: a
+   margin-only profile has ONE tile, and auto-fit would stretch it edge to
+   edge. This row is never shorter than four.) */
+.vm-dossier [data-tiles] { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
 
 /* 🚨 The invented tiles' tag, repainted.
    The shared StatTile paints every `tag` in --partial, which on this site
@@ -4005,9 +4009,39 @@ h2[data-heading-badges] {
 
    These win over the `stroke=` presentation attributes on the path, because
    any CSS declaration outranks a presentation attribute. */
+/* ─── The three series, and the cards that name them ──────────────────────
+ *
+ * 🚨 A palette chosen around the verification ladder, not for looks. Green is
+ * "we checked this" (BRANDING section 3.1), amber is "we checked half", red is
+ * "unverified" — so none of the three may name a chart series here, and a
+ * fourth hue invented for decoration would read as a fourth rung. Ink for
+ * profit (the figure the page is about), and two hues the ladder does not use
+ * for the other two.
+ *
+ * Colour is never the only difference: profit is solid, revenue dashed, ad
+ * spend dotted, so the chart survives greyscale and colour blindness — the
+ * same rule section 5 applies to the badges.
+ *
+ * The tile borders use these same three tokens by :nth-child. The JSX comment
+ * above the tile row says the order is load-bearing; this is why. */
+.vm-dossier {
+  --series-profit: var(--accent);
+  --series-revenue: #2d5fa8;
+  --series-ads: #6b4a9e;
+}
+.vm-dossier [data-tiles] > *:nth-child(1) { border-color: var(--series-profit); }
+.vm-dossier [data-tiles] > *:nth-child(2) { border-color: var(--series-revenue); }
+.vm-dossier [data-tiles] > *:nth-child(4) { border-color: var(--series-ads); }
+
+.vm-dossier [data-series-ads] {
+  fill: none;
+  stroke: var(--series-ads);
+  stroke-width: 1.5;
+  stroke-dasharray: 1.5 3.5;
+}
 .vm-dossier [data-series-revenue] {
   fill: none;
-  stroke: var(--muted-foreground);
+  stroke: var(--series-revenue);
   stroke-width: 1.25;
   stroke-dasharray: 5 3;
   stroke-linecap: round;
@@ -4037,8 +4071,21 @@ h2[data-heading-badges] {
    it is standing in for. */
 .vm-dossier [data-swatch][data-kind="revenue"] {
   height: 0; border-radius: 0; background: none;
-  border-top: 2px dashed var(--muted-foreground);
+  border-top: 2px dashed var(--series-revenue);
 }
+.vm-dossier [data-swatch][data-kind="ads"] {
+  height: 0; border-radius: 0; background: none;
+  border-top: 2px dotted var(--series-ads);
+}
+/* The legend text takes its series colour too, so the row can be read without
+   resolving a swatch against a line at a glance. */
+.vm-dossier [data-legend-item][data-kind="profit"] { color: var(--series-profit); }
+.vm-dossier [data-legend-item][data-kind="revenue"] { color: var(--series-revenue); }
+.vm-dossier [data-legend-item][data-kind="ads"] { color: var(--series-ads); }
+/* Same in the hover card: three numbers, colour-keyed to the three lines. */
+.vm-dossier [data-chart-card] [data-kind="revenue"] { color: var(--series-revenue); }
+.vm-dossier [data-chart-card] [data-kind="ads"] { color: var(--series-ads); }
+.vm-dossier [data-chart-card] [data-kind="profit"] { color: var(--series-profit); }
 .vm-dossier [data-event-dot] { cursor: pointer; outline: none; }
 .vm-dossier [data-event-dot]:focus-visible circle:last-of-type {
   stroke: var(--foreground); stroke-width: 3;

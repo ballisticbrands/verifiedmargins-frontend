@@ -241,7 +241,17 @@ export interface Economics {
    *  fee; a supplier publishes a quote; nobody publishes what this business
    *  spends on ads or loses to returns. One source on the block would have
    *  flattened all four into whichever was weakest. */
-  lines: Array<{ label: string; pct: number; note?: string; source: string }>;
+  lines: Array<{
+    label: string;
+    pct: number;
+    note?: string;
+    source: string;
+    /** Marks the line the page needs to find by hand. Only "ads" so far: the
+     *  overview charts ad spend as its own series and tiles it beside profit,
+     *  and matching on the LABEL to do that would break the first time a
+     *  fixture wrote "Advertising and promotion". */
+    key?: "ads";
+  }>;
   /** Where the percentages came from, in words — which quotes, which rates. */
   basis: string;
   /** INVENTED, always. Typed as a string because the field is a source id like
