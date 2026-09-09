@@ -3891,6 +3891,23 @@ h2[data-heading-badges] {
 .vm-dossier [data-off-value] { font-weight: 600; }
 .vm-dossier [data-off-note] { color: var(--muted-foreground); font-size: 0.85rem; flex: 1 1 16rem; }
 
+/* The public record: regulators, courts, ratings. Same shape as the
+   best-seller list, and deliberately NOT coloured — a Class I recall does not
+   need a red box to be read as serious, and red on this site means unverified.
+   A flagged row gets weight and a rule, which is all the emphasis the ladder's
+   colour discipline leaves available. */
+.vm-dossier [data-record] { list-style: none; padding: 0; margin: 0.75rem 0 0; }
+.vm-dossier [data-record] li {
+  display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.75rem;
+  padding: 0.6rem 0; border-top: 1px solid var(--border); margin: 0;
+}
+.vm-dossier [data-record] li[data-flag] { border-top-width: 2px; }
+.vm-dossier [data-record] li[data-flag] [data-record-label] { font-weight: 600; }
+.vm-dossier [data-record-value] { text-align: right; font-weight: 600; }
+.vm-dossier [data-record-note] {
+  grid-column: 1 / -1; color: var(--muted-foreground); font-size: 0.85rem; max-width: 72ch;
+}
+
 /* Best-seller ranks — the real answer to "where do they rank on Amazon". */
 .vm-dossier [data-bestsellers] { list-style: none; padding: 0; margin: 0.75rem 0 0; }
 .vm-dossier [data-bestsellers] li {

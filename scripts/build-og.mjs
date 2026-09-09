@@ -49,6 +49,17 @@ function chromePath() {
 /* ⚠️ Keep in sync with scripts/build-dossiers.mjs and the fixture. */
 const CARDS = [
   {
+    slug: 'maryruth',
+    brand: "MaryRuth's",
+    what: 'Amazon FBA · liquid vitamins, gummies and liposomals',
+    logo: join(root, 'public', 'demo', 'maryruth-logo.png'),
+    figures: [
+      { label: 'Profit / mo', value: '$7.70M', kind: 'profit' },
+      { label: 'Revenue / mo', value: '$16.4M', kind: 'revenue' },
+      { label: 'Margin', value: '47%', kind: 'plain' },
+    ],
+  },
+  {
     slug: 'spitehouse',
     brand: 'Spite House Games',
     what: 'Amazon FBA · grown-up gag card games',

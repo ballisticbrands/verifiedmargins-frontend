@@ -56,6 +56,15 @@ const esc = (s) =>
  * cross-check belongs if this list ever grows past a couple of entries. */
 const DOSSIERS = [
   {
+    slug: 'maryruth',
+    brand: "MaryRuth's",
+    what: 'liquid vitamins, gummies and liposomals',
+    profit: '$7.70M / mo',
+    revenue: '$16.4M / mo',
+    margin: '47%',
+    logo: '/demo/maryruth-logo.png',
+  },
+  {
     slug: 'spitehouse',
     brand: 'Spite House Games',
     what: 'grown-up gag card games',

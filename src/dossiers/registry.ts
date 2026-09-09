@@ -25,9 +25,11 @@
  * shell over the per-page head that script just wrote.
  */
 import type { Dossier } from "@/demo/dossier";
+import { maryruth } from "./maryruth";
 import { spitehouse } from "./spitehouse";
 
 export const DOSSIERS: Record<string, Dossier> = {
+  maryruth,
   spitehouse,
 };
 

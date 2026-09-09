@@ -349,6 +349,22 @@ export interface Dossier {
     revenueCents: number;
   }>;
 
+  /**
+   * The WHOLE catalogue's monthly revenue in cents, when `asins` is only a
+   * subset of it.
+   *
+   * 🚨 Added because the profit tile disagreed with the revenue tile beside
+   * it. `modelled()` derived revenue by summing `asins`, which is fine while
+   * that array is every priced listing — and wrong the moment a catalogue is
+   * too big to list. MaryRuth's has 253 priced ASINs of which the page shows
+   * 15; summing them gave 43% of the real figure, so the page rendered a
+   * $16.4M revenue beside a profit computed off $7.1M.
+   *
+   * Set it whenever `asins` is a subset. Leave it out when the array is the
+   * whole priced catalogue and the sum is the truth.
+   */
+  revenueCents?: number;
+
   /** Catalogue arithmetic, stated so the page never hardcodes it. */
   counts: {
     /** Every ASIN under the brand. */
@@ -386,6 +402,32 @@ export interface Dossier {
   /** Amazon rank, read off the listings. See BestsellerRank for why this is
    *  here instead of Amazon keyword positions. */
   bestsellers: BestsellerRank[];
+  /**
+   * THE PUBLIC RECORD — regulators, courts, and reviews at scale.
+   *
+   * 🚨 Added for the first brand profiled here big enough to have one, and it
+   * changes what a dossier owes its subject. A recall, a lawsuit or a rating
+   * agency's grade is public, dated, and far more consequential than anything
+   * else on the page — so the rules are stricter than for a revenue estimate:
+   *
+   *   • Cite the REGULATOR'S OWN CLASSIFICATION, never the company's framing
+   *     of it. One firm's recall notice is headed "out of an abundance of
+   *     caution"; the FDA classified the same recall as Class I. Both belong
+   *     on the page, and the regulator's word is the one that leads.
+   *   • State what was CHECKED AND CAME BACK CLEAN. A page that lists only
+   *     the hits reads as an indictment. "No warning letter across nine years
+   *     of the FDA's own published set" is a finding, and omitting it would
+   *     be the dishonest half of the same research.
+   *   • A plaintiffs' firm advertising for claimants is NOT a filed case, and
+   *     a filed case is not a finding of liability. Label each precisely.
+   *   • Terminated means terminated. A closed recall from four years ago is
+   *     reported with its termination date in the same breath.
+   *
+   * If this section cannot be written to that standard for a given brand, it
+   * belongs empty rather than approximate.
+   */
+  record?: Figure[];
+
   /** What we do NOT know, stated on the page. A dossier that lists only what
    *  it found reads as complete, and this one is not. */
   gaps: string[];

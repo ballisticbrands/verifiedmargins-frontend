@@ -304,7 +304,17 @@ function InventedNotice({
 function modelled(d: Dossier) {
   const net = 1 - d.economics.lines.reduce((t, l) => t + l.pct, 0) / 100;
   const adsPct = (d.economics.lines.find((l) => l.key === "ads")?.pct ?? 0) / 100;
-  const revenue = d.asins.reduce((t, a) => t + a.monthlySold * (a.priceCents ?? 0), 0);
+  /* 🚨 The revenue base, in order of authority:
+       1. `revenueCents` — the whole catalogue, stated by the fixture. Needed
+          when `asins` is a subset, which on a 253-listing catalogue it must be.
+       2. the last measured month of Keepa history.
+       3. the sum of the listed ASINs.
+     Getting this order wrong is how the profit tile ended up computed off 43%
+     of the revenue printed next to it. */
+  const revenue =
+    d.revenueCents ??
+    d.salesHistory?.at(-1)?.revenueCents ??
+    d.asins.reduce((t, a) => t + a.monthlySold * (a.priceCents ?? 0), 0);
   return { net, adsPct, revenue, profit: revenue * net, ads: revenue * adsPct };
 }
 
@@ -996,6 +1006,40 @@ function DeepDiveTab({ d, go }: { d: Dossier; go: Go }) {
         on the top listings, then read that seller's own registration — legal name, address, country
         and feedback score. Amazon publishes it; we did not model it.
       </p>
+
+      {d.record?.length ? (
+        <>
+          <h3>
+            The public record
+            <Info label="How this section is written">
+              <span data-info-para="">
+                Regulators, courts and rating agencies, cited to the body that published them. Where
+                a company's own account of an event differs from the regulator's classification of
+                it, the regulator leads and the company's framing is quoted beside it.
+              </span>
+              <span data-info-para="">
+                Checks that came back CLEAN are listed too. A section that reported only the hits
+                would read as an indictment, and leaving out the half of the research that found
+                nothing is the same failure as leaving out the half that found something. A
+                plaintiffs' firm advertising for claimants is not a filed case, and a filed case is
+                not a finding of liability — each is labelled as what it is.
+              </span>
+            </Info>
+          </h3>
+          <ul data-record="">
+            {d.record.map((r) => (
+              <li key={r.label} data-flag={r.flag ? "" : undefined}>
+                <span data-record-label="">{r.label}</span>
+                <span data-record-value="" className="vm-num">
+                  {r.value}
+                  <Src id={r.source} sources={d.sources} go={go} />
+                </span>
+                {r.note ? <span data-record-note="">{r.note}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
 
       <h3>What is not here</h3>
       <ul data-gaps="">

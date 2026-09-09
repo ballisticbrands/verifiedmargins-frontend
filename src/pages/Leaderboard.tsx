@@ -200,6 +200,33 @@ const HARD_CODED_ROWS: Entry[] = [
     display_name: null,
     avatar_url: null,
     business: {
+      name: "MaryRuth's",
+      label: "Amazon FBA",
+      markets: ["US"],
+      seller_type: null,
+      slug: null,
+    },
+    business_count: null,
+    /* 47% of $16,387,969 of modelled monthly revenue, before returns and
+       overhead. ⚠️ And this figure is a CHANNEL: Forbes puts the company at
+       ~$600M a year against our $196.7M of Amazon run rate, so the board is
+       showing about a third of the business. The page says so; a leaderboard
+       row has no room to. */
+    margin_pct: 47,
+    revenue: 16387969,
+    currency: "USD",
+    verification: { tier: "estimated", label: "Estimated" },
+    profit: 7702345,
+    profit_change_pct: null,
+    rank_delta: null,
+    dossier_slug: "maryruth",
+  },
+  {
+    rank: null,
+    username: null,
+    display_name: null,
+    avatar_url: null,
+    business: {
       name: "Spite House Games",
       label: "Amazon FBA",
       markets: ["US"],
