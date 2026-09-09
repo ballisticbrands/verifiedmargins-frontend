@@ -72,6 +72,11 @@ export const PUBLIC_PAGES = [
    * Graduated out of APP_ROUTES (where it carried a Disallow) when it stopped
    * being a "coming soon" stub. Already in the backend's RESERVED_USERNAMES. */
   '/how-verification-works',
+  /* Linked from the ⓘ on Sourcing, Catalogue and Differentiation on every
+     business page. Indexable on purpose: it is the definition a buyer needs
+     to compare two listings, and it is the same wording a seller reads when
+     answering and an operator applies when setting a level. */
+  '/business-attributes',
 ];
 
 /* 🎭 Demo pages (/demo/<slug>) — real components, fixture data, and often
@@ -94,6 +99,10 @@ export const DEMO_PAGES = [
      '/business/amazon-fba-08873' is the live page and is indexable; this one
      is the proposal over the same figures and carries the `Disallow:`. */
   '/demo/amazon-fba-08873',
+  /* The same business WITHOUT a Seller Central connection. The pair is the
+     argument: open them side by side and the difference is what connecting
+     buys. */
+  '/demo/amazon-fba-08873-B',
   '/demo/afrasiab',
   '/demo/Pure_Zookeepergame_2',
   '/demo/jayeshchauhanreddit',

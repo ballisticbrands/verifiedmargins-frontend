@@ -204,6 +204,19 @@ export interface LeaderboardDemo extends DemoMeta {
  */
 export interface BusinessDemo extends DemoMeta {
   kind: "business";
+  /**
+   * Which half of the pair this is.
+   *
+   * `connected` — figures read from a linked Seller Central account.
+   * `estimated` — the same page for a business profiled without one.
+   *
+   * 🚨 The two pages are otherwise IDENTICAL, deliberately. Only the header
+   * badge changes, from the verification tier to "Estimated". One component
+   * renders both, so the pair can be opened side by side and the one thing
+   * that differs is the one thing being compared — two components would drift
+   * and turn the comparison into a comparison of designs.
+   */
+  variant?: "connected" | "estimated";
   /** The payload GET /v1/public/businesses/:slug returns. Nullary because a
    *  redesign is judged against ONE business at one window — a currency or
    *  window argument would imply a conversion this demo does not do. */
@@ -335,8 +348,18 @@ export const DEMOS: Record<string, Demo> = {
 
      `unlisted` while it is still being drawn: it is a proposal mid-revision,
      and /demo is the page we hand to prospects. Reach it by typing the URL. */
+  "amazon-fba-08873-B": {
+    kind: "business",
+    variant: "estimated",
+    unlisted: true,
+    build: () => amazonFba08873,
+    label: "Amazon FBA 08873 — estimated",
+    blurb:
+      "The same page, for a business whose figures were not read from a connected Seller Central account. Identical layout; the header says Estimated instead of Verified revenue.",
+  },
   "amazon-fba-08873": {
     kind: "business",
+    variant: "connected",
     unlisted: true,
     build: () => amazonFba08873,
     label: "Amazon FBA 08873 — business page redesign",

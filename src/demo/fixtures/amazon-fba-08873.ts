@@ -220,6 +220,180 @@ export const amazonFba08873CogsPct = 13.7;
  */
 export const amazonFba08873ImpliedOtherCostPct = 41.82;
 
+/* ─── The ESTIMATED view (/demo/amazon-fba-08873-B) ───────────────────
+ *
+ * The same business, same page, profiled WITHOUT a Seller Central connection
+ * or a questionnaire. What changes is not the design — it is which facts
+ * exist.
+ *
+ * 🚨 The rule applied throughout: if the only way to know it is for the
+ * seller to say so, it is not here. Hours worked, supplier count and terms,
+ * whether anyone else runs the business, whether the catalogue is still
+ * growing, and any off-Amazon channel are all invisible from outside. They
+ * are REMOVED rather than guessed, because a plausible guess on this page is
+ * worse than a gap: the gap is the argument for connecting an account.
+ */
+
+/** B's adjustments — the model run with the questionnaire answers absent.
+ *  Seven factors survive, all from Keepa, the public listings or the brand
+ *  registry record. Eight drop out, worth 2.05 of the multiple between them:
+ *  under 5 hours a week (0.40), four or more suppliers (0.20), contracted
+ *  supply (0.20), private label sourcing (0.30), broad catalogue (0.10),
+ *  differentiation level 3 (0.45), contractors or team in place (0.20) and
+ *  still launching new products (0.20).
+ *
+ *  🚨 Sourcing, catalogue and differentiation are questionnaire answers, not
+ *  reads. B's metrics row prints "?" for all three, so B's VALUATION must not
+ *  score them either — it previously credited "Private label" beside a
+ *  Sourcing cell that said it did not know. */
+export const amazonFba08873AdjustmentsEstimated: Array<{
+  label: string;
+  delta: number;
+  why: string;
+}> = [
+  { label: "Trading 5+ years", delta: 0.5, why: "Most businesses that fail do so early. Years of continuous trading is the cheapest evidence there is that demand, supply and the Amazon account all hold up." },
+  { label: "Brand Registry", delta: 0.3, why: "Enrolment gives the owner control of their own listing copy and a fast route to removing counterfeits — protection a buyer would otherwise have to build from scratch." },
+  { label: "Registered trademark", delta: 0.2, why: "A registered mark is a legal asset that conveys in the sale, and it is what keeps Brand Registry in place after the account changes hands." },
+  { label: "4.7+★ average product rating", delta: 0.3, why: "Averaged across the business's products and weighted by revenue — comfortably above the level at which buyers hesitate. Scored in bands: 5.0, 4.7+, 4.5+, 4.2+, 4.0+, 3.5+, 3.0+ and under 3.0, running from +0.35 to −0.75 on the multiple. A rating protects conversion and advertising cost at once, and it is the hardest thing on this list to repair quickly once it slips." },
+  { label: "5,000+ reviews across the catalogue", delta: 0.3, why: "Counted across every product in the account, not on any single listing — deep enough that a rival would need years, not a quarter, to match it. Scored in bands that widen as the count grows: under 250, then 250+, 1,000+, 2,500+, 5,000+, 10,000+ and 25,000+, running from −0.3 to +0.4 on the multiple. Accumulated reviews are the one asset a competitor cannot buy or copy: they take years to build and they carry the listings' ranking with them." },
+  { label: "3+ marketplaces", delta: 0.2, why: "Selling in several countries spreads exposure across separate Amazon accounts, currencies and demand cycles." },
+  { label: "84% of revenue in one marketplace", delta: -0.15, why: "The largest single marketplace takes 75–84% of revenue — meaningfully concentrated, though a second market is carrying enough to matter. Scored in bands: under 40%, 40–59%, 60–74%, 75–84%, 85–94% and 95%+, running from +0.35 to −0.45 on the multiple. This is a different question from how many marketplaces are open: three countries on paper and one in practice is not diversification." },
+];
+
+/** 2.6 + 1.65. The connected page reaches 6.30 on the same business — the
+ *  2.05 difference is the price of not knowing, and it is the clearest thing
+ *  on either page. */
+export const amazonFba08873ValuationEstimated = {
+  multiple: 4.25,
+  value: 1929436,
+  netProfitTtm: 453985.032605042,
+  version: 2,
+};
+
+/** B's channel split: Amazon only, re-normalised to 100%.
+ *
+ *  🚨 Shopify is gone, not zeroed. There is no Shopify connection, so nobody
+ *  outside the business knows the store exists, let alone what it takes. A
+ *  slice at 0% would assert we had looked and found nothing. */
+export const amazonFba08873ChannelSplitEstimated: RevenueSlice[] = [
+  { key: "amazon-us", label: "Amazon United States", short: "Amazon US", currency: "USD", native: 73362.35999999997, usd: 80357.21930915308, share: 84.23073 },
+  { key: "amazon-ca", label: "Amazon Canada", short: "Amazon CA", currency: "CAD", native: 16717.200000000004, usd: 13464.070409438158, share: 14.11309 },
+  { key: "amazon-mx", label: "Amazon Mexico", short: "Amazon MX", currency: "MXN", native: 25243.510000000002, usd: 1580.0193814089013, share: 1.65618 },
+];
+
+/**
+ * How the business is built — the questionnaire answers that describe its
+ * MODEL rather than its numbers. Verbatim from this connection's stored
+ * `questionnaire.answers`.
+ *
+ * 🚨 These live outside `BusinessPayload` because the public endpoint does
+ * not send them today. They are seller-declared, so the page renders them
+ * under the "Stated by the seller" legend with everything else that is.
+ *
+ * Definitions are the ones in the Attributes-per-business spec, shortened for
+ * a tooltip. They are the SAME words the seller read when answering, which is
+ * the point: a buyer should be able to see the question that produced the
+ * answer, not a rewrite of it.
+ */
+export const amazonFba08873Model = {
+  primaryMethod: "private_label",
+  /** The seller picked "none" — no meaningful second sourcing method. */
+  secondaryMethods: [] as string[],
+  catalogStructure: "broad",
+  /** From the four-question diagnostic: `diffTooling: "some"` rules out
+   *  level 4, `diffCustom: "yes"` places it at 3. */
+  differentiationLevel: 3,
+};
+
+export const METHOD_LABELS: Record<string, { label: string; why: string }> = {
+  private_label: {
+    label: "Private label",
+    why: "The seller puts their own brand on the product and controls its spec — packaging, design, sometimes formulation. Nobody else sells the identical listing.",
+  },
+  wholesale: {
+    label: "Wholesale",
+    why: "Buys an existing branded product in bulk from the brand or an authorised distributor and resells it. Other sellers can list the same product.",
+  },
+  dropship: {
+    label: "Dropship",
+    why: "Lists products it never holds; a third party ships directly to the customer when an order comes in.",
+  },
+  arbitrage: {
+    label: "Arbitrage",
+    why: "Buys already-branded products from shops or other websites at a discount and resells at a markup. No ongoing supplier relationship.",
+  },
+  handmade: {
+    label: "Handmade",
+    why: "The seller or a small team physically makes the product; it is not mass-manufactured by a factory.",
+  },
+  pod: {
+    label: "Print on demand",
+    why: "A third-party print service fulfils a listing the seller owns and controls — price, branding and reviews stay with them.",
+  },
+  merch: {
+    label: "Merch on Demand",
+    why: "Amazon's closed royalty programme. The seller uploads designs; Amazon sets the price and fulfils, and pays a fixed royalty.",
+  },
+  kdp: {
+    label: "KDP",
+    why: "Amazon's publishing royalty programme for books, journals and similar.",
+  },
+};
+
+export const CATALOG_LABELS: Record<string, { label: string; why: string }> = {
+  broad: {
+    label: "Broad catalogue, low volume each",
+    why: "Many SKUs, each aimed at a small slice of search demand and differentiated mainly by design or variation. Individually modest, together a real business.",
+  },
+  flagship: {
+    label: "Flagship + complementary",
+    why: "One dominant product drives most revenue, with adjacent products sold alongside it to the same customers.",
+  },
+  concentrated: {
+    label: "Concentrated bets, few SKUs",
+    why: "A handful of independently significant products with no filler around them — each would still be a real business on its own.",
+  },
+  dominance: {
+    label: "Category dominance",
+    why: "Owns most or all major variations within one narrow category — every size, colour and pack count of essentially one product type.",
+  },
+  churn: {
+    label: "Trend / seasonal churn",
+    why: "Deliberately high turnover: launch against a trend or season, ride it, retire it, launch the next one.",
+  },
+  generalist: {
+    label: "Generalist portfolio",
+    why: "Products spread across unrelated categories with no single anchor or shared customer base.",
+  },
+  not_sure: { label: "Not stated", why: "The seller did not place their catalogue." },
+};
+
+/** The four-level differentiation ladder, in the spec's own terms.
+ *
+ *  🚨 DISPLAYED, NOT SCORED — levels 2 and 3 currently contribute nothing to
+ *  the multiple, pending the differentiation rework. Showing the level while
+ *  the valuation ignores it is deliberate: it is a real fact about the
+ *  product, and hiding it until the scoring is settled would lose the reader
+ *  the most useful thing the diagnostic produces. */
+export const DIFFERENTIATION_LEVELS: Record<number, { label: string; why: string }> = {
+  1: {
+    label: "Level 1 — standard product",
+    why: "An off-the-shelf product carrying the seller's logo, with any change invisible to the customer. A competitor can order the same base unit from the same factory within days.",
+  },
+  2: {
+    label: "Level 2 — cosmetic variation",
+    why: "An off-the-shelf product with visible changes to form — colour, pattern — and perhaps a small feature change. Copyable by requesting a variant from the same manufacturer.",
+  },
+  3: {
+    label: "Level 3 — functional customisation",
+    why: "Custom-made with several real changes to form, features, functionality, performance or materials. Copying it means re-sourcing components and re-engineering, not requesting a colourway.",
+  },
+  4: {
+    label: "Level 4 — hard to copy",
+    why: "Fully custom and hard to imitate, through manufacturing complexity or IP protection — typically a mould, tooling or a patent. A competitor would have to commission their own from scratch.",
+  },
+};
+
 export const amazonFba08873AdSpend = 337.09949579831937;
 
 /** The FIRST day this business has any data for. Periods longer than this are
@@ -323,12 +497,25 @@ export const amazonFba08873: BusinessPayload = {
  * 🚨 Not the figures the API served on 2026-09-06. Those were version 1,
  * whose multiple was CLAMPED: 2.6 base + 2.53 of adjustments = 5.13, printed
  * as 5.0 because the ceiling was 5.0. Version 2 raises the ceiling to 8.0, so
- * the deltas below sum to the multiple exactly — 2.6 + 2.48 = 5.08 — and a
+ * the deltas below sum to the multiple exactly — 2.6 + 3.70 = 6.30 — and a
  * reader can check the arithmetic, which they could not before.
  *
  * Each carries its own `why`: the explanation is snapshotted with the delta
  * rather than looked up by label in the client, so a reworded label cannot
  * silently orphan its tooltip.
+ */
+/**
+ * 🚨 TWO DEMO-ONLY DEPARTURES from this business's stored answers, and they
+ * are the first figures on this page that are not simply what the API served:
+ *
+ *   • `issues` is scored as "none". The stored answer is "open", which fires
+ *     "Unresolved account or IP issue" at -0.8 — removed from the demo at the
+ *     operator's request. The RULE is untouched in valuation.ts; only this
+ *     business's demo answer differs, and it is worth 0.8 of the multiple.
+ *   • `topMarketplaceSharePct` is 82.34, the figure the channel donut on this
+ *     page actually shows, rather than the 85.4 computed from all-time
+ *     Amazon-only revenue. The page was printing "85% of revenue in one
+ *     marketplace" directly above a chart that said 82.3%.
  */
 export const amazonFba08873Adjustments: Array<{
   label: string;
@@ -339,29 +526,25 @@ export const amazonFba08873Adjustments: Array<{
   { label: "Under 5 hours a week", delta: 0.4, why: "A buyer is purchasing income, not employment. The fewer hours the business needs, the more of what it earns is genuinely profit rather than unpaid wages." },
   { label: "Four or more suppliers", delta: 0.2, why: "Several suppliers means no single one can hold the business to ransom, and a lost relationship costs a product line rather than the company." },
   { label: "Contracted supply", delta: 0.2, why: "Written terms mean pricing and availability survive the handover instead of depending on the outgoing owner's relationship." },
-  { label: "Private label", delta: 0.3, why: "The seller owns the brand and the listings, so the business is a thing that can actually be handed over rather than a way of working that has to be relearned." },
+  { label: "Private label sourcing", delta: 0.3, why: "The seller owns the brand and the listings, so the business is a thing that can actually be handed over rather than a way of working that has to be relearned." },
+  { label: "Broad catalogue, long tail", delta: 0.1, why: "Many SKUs each taking a small slice of demand. No single listing going quiet does real damage, which is genuine resilience — set against that, running hundreds of variations is the work a buyer inherits, and each one is thin on its own." },
+  { label: "Differentiation level 3 — functional customisation", delta: 0.45, why: "Custom-made with several real changes to form, features, functionality or materials. Copying it means re-sourcing components and re-engineering, not asking the same factory for a colourway — so a rival cannot simply order the identical item and undercut the listing." },
   { label: "Brand Registry", delta: 0.3, why: "Enrolment gives the owner control of their own listing copy and a fast route to removing counterfeits — protection a buyer would otherwise have to build from scratch." },
   { label: "Registered trademark", delta: 0.2, why: "A registered mark is a legal asset that conveys in the sale, and it is what keeps Brand Registry in place after the account changes hands." },
-  { label: "4.7★ average", delta: 0.3, why: "Three bands: 4.6★ and above adds 0.3 to the multiple, 4.0 to 4.6 scores nothing either way, and below 4.0 subtracts 0.4. A high rating protects conversion and advertising cost at once, and it is the hardest thing on this list to repair quickly if it slips." },
-  { label: "1,000+ reviews across the catalogue", delta: 0.2, why: "Counted across every product in the account, not on any single listing. One threshold, no middle band: 1,000 or more adds 0.2 to the multiple, fewer subtracts 0.2. Accumulated reviews are the one asset a competitor cannot buy or copy — they take years to build and they carry the listings' ranking with them." },
+  { label: "4.7+★ average product rating", delta: 0.3, why: "Averaged across the business's products and weighted by revenue — comfortably above the level at which buyers hesitate. Scored in bands: 5.0, 4.7+, 4.5+, 4.2+, 4.0+, 3.5+, 3.0+ and under 3.0, running from +0.35 to −0.75 on the multiple. A rating protects conversion and advertising cost at once, and it is the hardest thing on this list to repair quickly once it slips." },
+  { label: "5,000+ reviews across the catalogue", delta: 0.3, why: "Counted across every product in the account, not on any single listing — deep enough that a rival would need years, not a quarter, to match it. Scored in bands that widen as the count grows: under 250, then 250+, 1,000+, 2,500+, 5,000+, 10,000+ and 25,000+, running from −0.3 to +0.4 on the multiple. Accumulated reviews are the one asset a competitor cannot buy or copy: they take years to build and they carry the listings' ranking with them." },
   { label: "3+ marketplaces", delta: 0.2, why: "Selling in several countries spreads exposure across separate Amazon accounts, currencies and demand cycles." },
-  { label: "85% of revenue in one marketplace", delta: -0.25, why: "The other marketplaces are open but barely trading, so in practice this is a single-country business. One suspension or policy change reaches almost all of the revenue." },
-  { label: "Unresolved account or IP issue", delta: -0.8, why: "An open complaint or claim can suspend listings or the whole account at any time. Until it is closed, everything else on this page is contingent on it." },
+  { label: "82% of revenue in one marketplace", delta: -0.15, why: "The largest single marketplace takes 75–84% of revenue — meaningfully concentrated, though a second market is carrying enough to matter. Scored in bands: under 40%, 40–59%, 60–74%, 75–84%, 85–94% and 95%+, running from +0.35 to −0.45 on the multiple. This is a different question from how many marketplaces are open: three countries on paper and one in practice is not diversification." },
   { label: "Contractors or team in place", delta: 0.2, why: "The day-to-day work is already being done by someone other than the owner — VAs, an agency or staff — so the business is turnkey rather than a job. Against that, the buyer inherits the cost, and whoever holds the knowledge can leave." },
   { label: "Still launching new products", delta: 0.2, why: "The catalogue is still growing rather than being harvested, so a buyer inherits a business with momentum instead of a fixed set of listings to defend." },
 ];
 
-/** What the current model produces for this business: base 2.6 + 2.15.
- *
- *  🚨 Three factors are UNSCORED here, and that is real rather than a gap in
- *  the demo: `supplierRole`, `accountHealth` and `peakMonthSharePct` are
- *  questions this seller was never asked — the first two only exist from
- *  questionnaire v3, and the third needs monthly history the model is not yet
- *  handed. The model reports all three in `missingSignals`; they are absent,
- *  not neutral, and the multiple will move once they are answered. */
+/** What the current model produces: base 2.6 + 3.70. See the departures
+ *  noted above the adjustments — the stored answers would give a lower
+ *  multiple. */
 export const amazonFba08873Valuation = {
-  multiple: 4.75,
-  value: 2156429,
+  multiple: 6.3,
+  value: 2860106,
   netProfitTtm: 453985.032605042,
   version: 2,
 };

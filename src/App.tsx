@@ -18,6 +18,7 @@ import { Demo } from "./pages/Demo";
 import { DemoIndex } from "./pages/DemoIndex";
 import { DemoGroupRoute } from "./pages/DemoGroupRoute";
 import { BrandDossier } from "@/pages/BrandDossier";
+import { BusinessAttributes } from "./pages/BusinessAttributes";
 import { ProfileRedirect } from "@/pages/ProfileRedirect";
 import { About } from "@/pages/About";
 import { Privacy } from "@/pages/Privacy";
@@ -148,6 +149,10 @@ export default function App() {
           and "how-verification-works" is already in the backend's
           RESERVED_USERNAMES so the catch-all cannot shadow it. */}
       <Route path="/how-verification-works" element={<HowVerificationWorks />} />
+      {/* Reference for the three "how it is built" attributes on a business
+          page. Public and indexable: it is the definition a buyer needs to
+          compare two listings, and the wording a seller reads when answering. */}
+      <Route path="/business-attributes" element={<BusinessAttributes />} />
       {/* The old "Verify your business" destination. The nav item is a button
           now (it opens the flow in place), but this path is in the sitemap,
           the reserved-username list and any link already shared — so it keeps

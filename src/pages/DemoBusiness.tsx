@@ -6,6 +6,13 @@ import type { BusinessDemo } from "@/demo/registry";
 import type { BusinessPayload } from "./Business";
 import {
   amazonFba08873AdSpend,
+  amazonFba08873AdjustmentsEstimated,
+  amazonFba08873ChannelSplitEstimated,
+  amazonFba08873Model,
+  amazonFba08873ValuationEstimated,
+  CATALOG_LABELS,
+  DIFFERENTIATION_LEVELS,
+  METHOD_LABELS,
   amazonFba08873CogsPct,
   amazonFba08873ImpliedOtherCostPct,
   amazonFba08873ChannelSplit,
@@ -83,7 +90,11 @@ function useHashScroll() {
 export function DemoBusiness({ demo }: { demo: BusinessDemo }) {
   const b = demo.build();
   useHashScroll();
-  useDemoMeta(`${b.name} — VerifiedMargins`);
+  /* The pair: `connected` is the seller-linked page, `estimated` is the same
+     business without one. Defaults to connected so an entry predating the
+     split keeps its behaviour. */
+  const estimated = demo.variant === "estimated";
+  useDemoMeta(`${b.name}${estimated ? " (estimated)" : ""} — VerifiedMargins`);
 
   const d = b.facts?.declared ?? {};
   const dv = b.facts?.derived ?? {};
@@ -95,7 +106,7 @@ export function DemoBusiness({ demo }: { demo: BusinessDemo }) {
       <div className="vm-form vm-bizx">
         <DemoBanner />
 
-        <BizHeader b={b} derived={dv} platforms={d.otherPlatforms ?? []} />
+        <BizHeader b={b} derived={dv} platforms={d.otherPlatforms ?? []} estimated={estimated} />
 
         {/* ── THE SUMMARY, and only the summary ───────────────────────────
             The headline indicators a buyer scans first: what it is worth,
@@ -107,16 +118,16 @@ export function DemoBusiness({ demo }: { demo: BusinessDemo }) {
             the state of a widget below it. Split, the summary is one fixed
             set of facts and the chart is one interactive exhibit, and
             neither can quietly restate the other. */}
-        <AtAGlance b={b} currency={cur} derived={dv} declared={d} />
+        <AtAGlance b={b} currency={cur} derived={dv} declared={d} estimated={estimated} />
 
-        <ValuationPanel b={b} currency={cur} />
+        <ValuationPanel b={b} currency={cur} estimated={estimated} />
 
         {/* Concentration — who and where the money depends on. Deliberately
             NOT inside the valuation: the valuation says how much diversity is
             worth in multiple terms, this says what the diversity actually IS,
             and a reader should be able to disagree with the first by looking
             at the second. */}
-        <RevenueSplits currency={cur} />
+        <RevenueSplits currency={cur} estimated={estimated} />
 
         {/* ── STATED BY THE SELLER ────────────────────────────────────── */}
         <div data-bizx-provenance="declared">
@@ -126,7 +137,7 @@ export function DemoBusiness({ demo }: { demo: BusinessDemo }) {
             when={d.updatedAt}
             note="Not verified. Rendered as stated."
           />
-          <DeclaredGrid declared={d} />
+          <DeclaredGrid declared={d} estimated={estimated} />
         </div>
 
         {/* Its own section, far enough down that the summary is read first —
@@ -145,12 +156,14 @@ function BizHeader({
   b,
   derived,
   platforms,
+  estimated,
 }: {
   b: BusinessPayload;
   derived: NonNullable<BusinessPayload["facts"]>["derived"];
   platforms: string[];
+  estimated?: boolean;
 }) {
-  const verified = b.verification.tier.startsWith("verified");
+  const verified = !estimated && b.verification.tier.startsWith("verified");
   const markets = [...b.markets].sort();
   return (
     <header data-bizx-head="">
@@ -160,9 +173,13 @@ function BizHeader({
           {/* 🚨 The ONLY green on this page above the fold. The tier really is
               verified_revenue, and the badge is the one claim the site makes
               in its own voice. */}
-          <span data-bizx-chip="" data-tone={verified ? "verified" : "neutral"}>
-            <CheckMark />
-            {b.verification.label}
+          {/* 🚨 On the estimated page this is the ONE claim that changes
+              meaning, so it changes shape too: amber, no tick, and the word is
+              "Estimated". A green tick on a page whose figures were never read
+              from a connected account would be the site vouching for them. */}
+          <span data-bizx-chip="" data-tone={verified ? "verified" : estimated ? "estimated" : "neutral"}>
+            {verified ? <CheckMark /> : null}
+            {estimated ? "Estimated" : b.verification.label}
           </span>
           {b.seller_type ? (
             <span data-bizx-chip="" data-tone="neutral">
@@ -750,11 +767,13 @@ function AtAGlance({
   currency,
   derived,
   declared,
+  estimated,
 }: {
   b: BusinessPayload;
   currency: string;
   derived: NonNullable<BusinessPayload["facts"]>["derived"];
   declared: NonNullable<BusinessPayload["facts"]>["declared"];
+  estimated?: boolean;
 }) {
   const whole = ALL_MONTHS.filter((m) => !m.partial);
   const avg = (pick: (m: EarningsMonth) => number) =>
@@ -782,7 +801,7 @@ function AtAGlance({
      here would print a headline multiple that the factor list further down
      no longer sums to, which is precisely the disagreement the version bump
      exists to prevent. */
-  const v = { ...b.valuation, ...amazonFba08873Valuation };
+  const v = { ...b.valuation, ...(estimated ? amazonFba08873ValuationEstimated : amazonFba08873Valuation) };
   const k = derived.keepa;
   const { category, sellingSince } = amazonFba08873Keepa;
 
@@ -827,7 +846,6 @@ function AtAGlance({
         <AverageStat
           label="Profit Margin"
           value={pct(margin)}
-          badge="User-supplied"
           basis={`After ${COGS_PCT}% product cost and ${OTHER_COST_PCT}% other costs`}
           link={{ href: "#earnings", label: "View earnings" }}
         />
@@ -866,6 +884,56 @@ function AtAGlance({
               info={INFO.listedSince}
             />
           ) : null}
+          {/* ── How the business is BUILT ────────────────────────────
+              Three attributes from the questionnaire, with the other metrics
+              because a buyer reads them in the same pass. Each shows a SHORT
+              value, the spec's own wording in the ⓘ, and a link to the full
+              reference: "Broad catalogue, low volume each" does not fit a
+              metric cell, and truncating it in place leaves a phrase that
+              reads like a different answer.
+
+              🚨 NO BADGES, though all three ARE seller-answered. Only cost of
+              goods carries the flag on this page — see the note there. */}
+          <Metric
+            label="Sourcing"
+            value={estimated ? "?" : METHOD_LABELS[amazonFba08873Model.primaryMethod]?.label ?? "—"}
+            text
+            learnMore="/business-attributes"
+            info={
+              estimated
+                ? INFO.needsConnection
+                : [METHOD_LABELS[amazonFba08873Model.primaryMethod]?.why ?? "", ...INFO.sourcing]
+            }
+          />
+          <Metric
+            label="Catalogue"
+            value={estimated ? "?" : CATALOG_LABELS[amazonFba08873Model.catalogStructure]?.label ?? "—"}
+            text
+            learnMore="/business-attributes"
+            info={
+              estimated
+                ? INFO.needsConnection
+                : [CATALOG_LABELS[amazonFba08873Model.catalogStructure]?.why ?? "", ...INFO.catalogue]
+            }
+          />
+          <Metric
+            label="Differentiation"
+            value={
+              estimated
+                ? "?"
+                : DIFFERENTIATION_LEVELS[amazonFba08873Model.differentiationLevel]?.label ?? "—"
+            }
+            text
+            learnMore="/business-attributes"
+            info={
+              estimated
+                ? INFO.needsConnection
+                : [
+                    DIFFERENTIATION_LEVELS[amazonFba08873Model.differentiationLevel]?.why ?? "",
+                    ...INFO.differentiation,
+                  ]
+            }
+          />
           {/* Brand Registry reads as a plain fact here, which is what it is.
               🚨 It was briefly a Yes/No toggle. On a page where a visitor can
               change nothing, a control-shaped thing is a promise the page
@@ -876,7 +944,6 @@ function AtAGlance({
               label="Brand Registry"
               value={declared.brandRegistry ? "Yes" : "No"}
               text
-              badge="User-supplied"
               info={INFO.brandRegistry}
             />
           ) : null}
@@ -886,6 +953,11 @@ function AtAGlance({
           {/* The DECLARED figures in a row of read ones carry the flag rather
               than relying on a reader to remember which is which. */}
           <Metric
+            /* 🚨 THE ONE BADGE LEFT ON THIS PAGE. It was on five things,
+                which made it wallpaper — a flag every reader learns to skip.
+                Cost of goods is the figure that most needs it: the margin,
+                the profit and the whole valuation are computed from it, and
+                it is the one number here that nothing has ever checked. */
             label="COGS %"
             value={`${COGS_PCT}%`}
             badge="User-supplied"
@@ -900,9 +972,8 @@ function AtAGlance({
               the seller's own blended cost figure once the real product cost
               is taken out, and the badge says so. */}
           <Metric
-            label="Other costs, implied"
+            label="Other costs"
             value={`${OTHER_COST_PCT}%`}
-            badge="Seller's estimate"
             info={INFO.otherCosts}
           />
         </dl>
@@ -910,9 +981,10 @@ function AtAGlance({
             each label, so this says only the thing that is true of the row as
             a whole. */}
         <p data-bizx-block-foot="">
-          Read from Amazon and Keepa except where flagged. Catalogue size,
-          rating and review counts are published as bands rather than exact
-          figures — see the note on each.
+          Read from Amazon and Keepa, except sourcing, catalogue,
+          differentiation and COGS, which the seller answers themselves.
+          Catalogue size, rating and review counts are published as bands
+          rather than exact figures — see the note on each.
         </p>
       </div>
     </section>
@@ -945,6 +1017,7 @@ function Metric({
   badge,
   text,
   info,
+  learnMore,
 }: {
   label: string;
   value: string;
@@ -955,12 +1028,14 @@ function Metric({
   text?: boolean;
   /** Paragraphs for the ⓘ beside the label. */
   info?: string[];
+  /** Path to the page explaining this attribute in full. */
+  learnMore?: string;
 }) {
   return (
     <div data-bizx-metric="" data-text={text ? "" : undefined}>
       <dt>
         {label}
-        {info ? <InfoTip label={label} paragraphs={info} /> : null}
+        {info ? <InfoTip label={label} paragraphs={info} learnMore={learnMore} /> : null}
         {badge ? <em data-bizx-unverified="">{badge}</em> : null}
       </dt>
       <dd>{value}</dd>
@@ -982,11 +1057,46 @@ function Metric({
  * opens on hover for a mouse AND on focus and click for everyone else, and it
  * is a real <button> so it lands in the tab order and announces itself.
  */
-function InfoTip({ label, paragraphs }: { label: string; paragraphs: string[] }) {
+function InfoTip({
+  label,
+  paragraphs,
+  learnMore,
+}: {
+  label: string;
+  paragraphs: string[];
+  /** Path to the page that explains this attribute in full. */
+  learnMore?: string;
+}) {
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  /* Pinned by a click: survives everything until Escape or a click elsewhere.
+     Hovering is the lighter mode, and it now survives the trip onto the panel
+     too — see the grace period below. */
+  const [pinned, setPinned] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
+  const wrap = useRef<HTMLSpanElement>(null);
+  const timer = useRef<number | null>(null);
+
+  const cancelClose = () => {
+    if (timer.current !== null) {
+      window.clearTimeout(timer.current);
+      timer.current = null;
+    }
+  };
+  /* 🚨 A GRACE PERIOD, not an immediate close. The panel is `position: fixed`
+     and sits above the icon with a gap, so a pointer travelling from one to
+     the other passes over neither — and closing on the first mouseleave made
+     the panel impossible to reach, which is what put the Learn more link out
+     of the mouse's reach entirely. 140ms is long enough to cross the gap and
+     short enough that a panel never lingers over something a reader has moved
+     on from. */
+  const scheduleClose = () => {
+    if (pinned) return;
+    cancelClose();
+    timer.current = window.setTimeout(() => setPos(null), 140);
+  };
 
   const open = () => {
+    cancelClose();
     const r = ref.current?.getBoundingClientRect();
     if (!r) return;
     const w = Math.min(340, window.innerWidth - 24);
@@ -995,41 +1105,115 @@ function InfoTip({ label, paragraphs }: { label: string; paragraphs: string[] })
       top: r.top - 10,
     });
   };
+  const close = () => {
+    cancelClose();
+    setPinned(false);
+    setPos(null);
+  };
+
+  useEffect(() => () => cancelClose(), []);
+
+  useEffect(() => {
+    if (!pinned) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      close();
+      /* Focus returns to the control the reader opened, or Escape silently
+         drops them at the top of the document. */
+      ref.current?.focus();
+    };
+    /* Capture, so a click on something that stops propagation still dismisses
+       this — a tooltip outliving its subject is one the reader cannot get rid
+       of. The panel is excluded by the contains() check, or clicking the link
+       inside would close the thing before the navigation fired. */
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (!wrap.current?.contains(t) && !panelHas(t)) close();
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onDown, true);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onDown, true);
+    };
+  }, [pinned]);
+
+  const panelRef = useRef<HTMLSpanElement>(null);
+  const panelHas = (t: Node) => !!panelRef.current?.contains(t);
 
   return (
-    <span data-bizx-infowrap="">
+    <span ref={wrap} data-bizx-infowrap="" onMouseLeave={scheduleClose}>
       <button
         ref={ref}
         type="button"
         data-bizx-info=""
+        data-pinned={pinned ? "" : undefined}
         aria-label={`What is ${label}?`}
         aria-expanded={pos !== null}
         onMouseEnter={open}
-        onMouseLeave={() => setPos(null)}
         onFocus={open}
-        onBlur={() => setPos(null)}
-        onClick={() => (pos ? setPos(null) : open())}
+        onBlur={(e) => {
+          if (pinned) return;
+          const to = e.relatedTarget as Node | null;
+          if (!to || (!wrap.current?.contains(to) && !panelHas(to))) setPos(null);
+        }}
+        onClick={() => {
+          if (pinned) close();
+          else {
+            open();
+            setPinned(true);
+          }
+        }}
       >
         <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
           <circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" strokeWidth="1.3" />
           <circle cx="8" cy="5.1" r="0.85" fill="currentColor" />
-          <path
-            d="M8 7.4v4"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
+          <path d="M8 7.4v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </button>
       {pos ? (
         <span
+          ref={panelRef}
           role="tooltip"
           data-bizx-infotip=""
+          /* Entering the panel cancels the pending close, so a reader can move
+             onto it and read at their own pace — or reach the link. */
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
           style={{ left: pos.left, top: pos.top }}
         >
           {paragraphs.map((t) => (
             <span key={t}>{t}</span>
           ))}
+          {learnMore ? (
+            /* 🚨 New tab, and therefore `rel="noopener noreferrer"`. Without
+               noopener the opened page gets a handle on this one through
+               window.opener and can navigate it somewhere else. */
+            <a
+              data-bizx-learnmore=""
+              href={learnMore}
+              target="_blank"
+              rel="noopener noreferrer"
+              onFocus={cancelClose}
+              onBlur={() => {
+                if (!pinned) setPos(null);
+              }}
+            >
+              Learn more
+              <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
+                <path
+                  d="M6.5 3.5h6v6M12.5 3.5L7 9M11 10.5v2h-7.5V5h2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="vm-visually-hidden"> (opens in a new tab)</span>
+            </a>
+          ) : null}
+          {pinned ? <span data-bizx-tip-hint="">Esc to close</span> : null}
         </span>
       ) : null}
     </span>
@@ -1126,18 +1310,21 @@ function compact(n: number, currency: string): string {
 function ValuationPanel({
   b,
   currency,
+  estimated,
 }: {
   b: BusinessPayload;
   currency: string;
+  estimated?: boolean;
 }) {
   /* 🚨 The recomputed v2 figures, not `b.valuation` — that payload is a
      version-1 snapshot whose multiple was clamped at 5.0, and it would print
      a headline the adjustments below no longer add up to. */
-  const v = { ...b.valuation, ...amazonFba08873Valuation };
+  const v = { ...b.valuation, ...(estimated ? amazonFba08873ValuationEstimated : amazonFba08873Valuation) };
   if (!v.value) return null;
-  const ups = amazonFba08873Adjustments.filter((a) => a.delta > 0);
-  const downs = amazonFba08873Adjustments.filter((a) => a.delta < 0);
-  const widest = Math.max(...amazonFba08873Adjustments.map((a) => Math.abs(a.delta)));
+  const factors = estimated ? amazonFba08873AdjustmentsEstimated : amazonFba08873Adjustments;
+  const ups = factors.filter((a) => a.delta > 0);
+  const downs = factors.filter((a) => a.delta < 0);
+  const widest = Math.max(...factors.map((a) => Math.abs(a.delta)));
 
   return (
     <section data-bizx-val="">
@@ -1211,20 +1398,26 @@ function Column({
  * tried failed one of them outright. Anything past the third folds into a
  * neutral "Other" rather than being seated in a hue nobody can distinguish.
  */
-function RevenueSplits({ currency }: { currency: string }) {
+function RevenueSplits({
+  currency,
+  estimated,
+}: {
+  currency: string;
+  estimated?: boolean;
+}) {
   return (
     <section data-bizx-splits="">
       <h2>Where the revenue comes from</h2>
       <div data-bizx-splits-grid="">
         <SplitDonut
           title="By sales channel"
-          slices={amazonFba08873ChannelSplit}
+          slices={estimated ? amazonFba08873ChannelSplitEstimated : amazonFba08873ChannelSplit}
           currency={currency}
           note="August 2026, the one whole month of data — the same basis as the average monthly figures above. Amazon revenue is converted from each marketplace's own currency; Shopify comes from the connected store."
         />
         <SplitDonut
           title="By product line"
-          slices={amazonFba08873ProductSplit}
+          slices={estimated ? [] : amazonFba08873ProductSplit}
           currency={currency}
           note="Three core products, with each product's variations rolled into its line. August 2026."
         />
@@ -1536,24 +1729,40 @@ function FlagMX() {
 
 function DeclaredGrid({
   declared,
+  estimated,
 }: {
   declared: NonNullable<BusinessPayload["facts"]>["declared"];
+  estimated?: boolean;
 }) {
   const rows: Array<[string, string]> = [];
   if (declared.foundedYear) {
     const n = new Date().getUTCFullYear() - declared.foundedYear;
     rows.push(["Founded", `${declared.foundedYear} · ${n} ${n === 1 ? "year" : "years"}`]);
   }
-  if (declared.teamSize != null) rows.push(["Team size", String(declared.teamSize)]);
-  if (declared.supplierCount != null) rows.push(["Suppliers", String(declared.supplierCount)]);
-  if (declared.supplierCountries?.length) {
-    rows.push(["Supplier countries", declared.supplierCountries.join(" · ")]);
+  /* 🚨 On the estimated page these are UNKNOWN, not absent. Dropping the rows
+     would shorten the section and let a reader conclude the business has no
+     team and no suppliers; a question mark says the honest thing. Founded
+     stays either way — the catalogue's first listing date is public. */
+  if (estimated) {
+    rows.push(["Team size", "?"], ["Suppliers", "?"], ["Supplier countries", "?"]);
+  } else {
+    if (declared.teamSize != null) rows.push(["Team size", String(declared.teamSize)]);
+    if (declared.supplierCount != null) rows.push(["Suppliers", String(declared.supplierCount)]);
+    if (declared.supplierCountries?.length) {
+      rows.push(["Supplier countries", declared.supplierCountries.join(" · ")]);
+    }
   }
   if (rows.length === 0) return null;
 
   return (
     <section data-bizx-block="">
       <h2>Operations</h2>
+      {estimated ? (
+        <p data-bizx-block-foot="" data-lead="">
+          None of this is visible from outside the business. A question mark
+          means nobody has told us — not that the answer is none.
+        </p>
+      ) : null}
       <dl data-bizx-dl="">
         {rows.map(([k, v]) => (
           <div key={k}>
@@ -1726,7 +1935,23 @@ const INFO: Record<string, string[]> = {
     "Unlike ACoS, the denominator is ALL revenue — organic sales as well as ad-driven ones — so it measures what advertising costs the business overall rather than how efficiently one campaign converts. A low TACoS means most sales arrive without being paid for.",
     "Calculated across every month of available history.",
   ],
-  cogs: [
+sourcing: [
+    "How the business gets its product — the single method most of its revenue comes from. It is the strongest signal of what actually transfers in a sale: a brand you own conveys to a buyer, a knack for finding discounted stock does not.",
+    "Answered by the seller when they set up their profile.",
+  ],
+  catalogue: [
+    "The shape of the catalogue: whether revenue rests on one product, a handful, a long tail of variations, or a portfolio with no anchor. It tells a buyer what running the business involves day to day, and where it breaks if one listing stalls.",
+    "Answered by the seller when they set up their profile.",
+  ],
+  differentiation: [
+    "How hard the product is for a competitor to copy, from a four-question diagnostic rather than a self-rating. Level 1 is an off-the-shelf product with a logo; level 4 needs tooling, a mould or IP a rival cannot legally reproduce.",
+    "Shown but not currently scored in the valuation: the levels are being reworked, and a factor that moves the price should not do so while its definition is in flux.",
+  ],
+  needsConnection: [
+    "This comes from the seller's own answers, and there is no way to establish it from outside the business — a sourcing model, a catalogue strategy and a product's defensibility are not visible on a listing.",
+    "A question mark means nobody has told us, not that the answer is none.",
+  ],
+    cogs: [
     "Cost of goods sold: what the business pays to have its products made and delivered into Amazon, as a percentage of what it sells them for. Manufacturing and inbound freight only — it does not include Amazon's own fees, which are shown separately.",
     "Blended across the three product lines and weighted by how much revenue each earns: 10% on the largest line, 20% on the second and about 17.5% on the third.",
     "Supplied by the seller and not checked against invoices.",

@@ -137,6 +137,18 @@
   color: var(--verified);
   font-weight: 600;
 }
+/* 🚨 AMBER, never green, and no tick. --partial is the token this design
+   system already reserves for "some of this was checked and some was not",
+   which is what an estimated page is. A green tick here would be the site
+   vouching for figures never read from a connected account — and since the
+   badge is the ONLY thing distinguishing the two pages, it has to carry that
+   difference on its own. */
+.vm-bizx [data-bizx-chip][data-tone="estimated"] {
+  border-color: color-mix(in srgb, var(--partial) 30%, transparent);
+  background: var(--partial-tint);
+  color: var(--partial);
+  font-weight: 600;
+}
 .vm-bizx [data-bizx-chip][data-tone="neutral"] svg { display: none; }
 
 .vm-bizx [data-bizx-founder] {
@@ -337,7 +349,34 @@
      paragraph in here from wrapping and clipped each to a single cut-off
      line. A tooltip is prose and must set its own. */
   white-space: normal;
-  pointer-events: none;
+  /* 🚨 The panel TAKES the pointer, and must. It was `none`, which meant a
+     hovered panel could not receive the mouseenter that keeps it open — the
+     cursor passed straight through it and the tooltip closed underneath the
+     reader, putting the Learn more link out of reach of the mouse entirely.
+     The panel exists only while open, so the window in which it can intercept
+     a stray click is the window in which a reader is looking at it. */
+  pointer-events: auto;
+}
+.vm-bizx [data-bizx-learnmore] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  align-self: flex-start;
+  margin-top: 0.15rem;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.vm-bizx [data-bizx-learnmore]:hover { text-decoration-thickness: 2px; }
+/* A pinned panel is a thing the reader opened and has to dismiss, so it says
+   how — and the icon stays lit meanwhile, or nothing on screen connects the
+   open panel to the control that opened it. */
+.vm-bizx [data-bizx-info][data-pinned] { opacity: 1; color: var(--foreground); }
+.vm-bizx [data-bizx-tip-hint] {
+  margin-top: 0.15rem;
+  font-size: 0.68rem;
+  opacity: 0.6;
 }
 
 /* The jump to the chart, on the stat most likely to prompt the question. */
@@ -968,6 +1007,9 @@
 .vm-bizx [data-bizx-market-name] { font-size: 0.9rem; font-weight: 550; }
 
 /* ── Operations ─────────────────────────────────────────────────────── */
+/* The unknown-fields note sits ABOVE the list it qualifies: after it, a
+   reader has already read the question marks as absences. */
+.vm-bizx [data-bizx-block-foot][data-lead] { margin: 0 0 0.9rem; }
 .vm-bizx [data-bizx-dl] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

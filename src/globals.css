@@ -4156,3 +4156,407 @@ h2[data-heading-badges] {
   .vm-dossier [data-operator] > div { grid-template-columns: 1fr; gap: 0.15rem; }
   .vm-dossier [data-asins] { display: block; overflow-x: auto; }
 }
+
+/* ─── /business-attributes — the figures ──────────────────────────────
+ *
+ * The reference page for sourcing, catalogue structure and differentiation.
+ * It was six screens of definitions, which is the right CONTENT and the wrong
+ * form: a buyer reading it is comparing two businesses, and comparison is what
+ * prose is worst at. Each section now leads with a picture of the thing it
+ * defines — a matrix of what transfers, six revenue shapes, a ladder with two
+ * axes — and the definitions sit underneath, unchanged.
+ *
+ * 🚨 INK AND GREY, NO EXCEPTIONS (BRANDING.md §3.1). Green means verified, and
+ * not one of these figures is about verification: a catalogue shape is a fact
+ * about a business, not a claim we checked. Spending green on a chart here
+ * would spend it everywhere, and the badge is the only thing on this site that
+ * has to survive being seen in a screenshot.
+ *
+ * 🚨 SHAPE CARRIES THE MEANING, not fill (§5, the same rule the badges are
+ * held to). The sourcing matrix steps ● / ○, the catalogue charts differ in
+ * height and grouping, and every chart names itself in an aria-label. All
+ * three survive greyscale and a screen reader.
+ *
+ * ⚠️ No motion (§8). Nothing on this page moves, hovers into view, or draws
+ * itself in — these are diagrams in a reference document.
+ */
+.vm-attrs figure { margin: 0; }
+
+/* The one-line answer to "where does this come from?", under each h2 —
+   pulled out of the paragraph because it is the first thing a sceptical
+   reader wants and it was the fourth sentence. Dashed for the hand-set one:
+   the two are told apart by the border style as well as the word. */
+.vm-attrs [data-derivation] {
+  display: inline-block;
+  margin: 0.4rem 0 0;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 550;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-derivation][data-by-hand] { border-style: dashed; }
+
+.vm-attrs figcaption,
+.vm-attrs [data-figure-note] {
+  margin: 0.6rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-figure-title] {
+  margin: 0 0 0.6rem;
+  font-size: 0.875rem;
+  font-weight: 550;
+  color: var(--foreground);
+}
+
+/* ── "Same numbers, different asset" ── */
+.vm-attrs [data-same] { margin-top: 1.25rem; }
+.vm-attrs [data-same-panels] { display: grid; gap: 0.75rem; }
+@media (min-width: 640px) {
+  .vm-attrs [data-same-panels] { grid-template-columns: 1fr 1fr; }
+}
+.vm-attrs [data-same-panel] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem;
+}
+.vm-attrs [data-same-label] {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-same-figure] {
+  margin: 0.1rem 0 0.4rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.vm-attrs [data-same-panel] svg { display: block; width: 100%; height: auto; }
+.vm-attrs [data-axis] { stroke: var(--border); stroke-width: 1; }
+.vm-attrs [data-series] {
+  fill: none;
+  stroke: var(--foreground);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* The divider is where the two panels stop being identical. */
+.vm-attrs [data-same-attrs] {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0.6rem 0 0;
+  border-top: 1px solid var(--border);
+}
+.vm-attrs [data-same-attrs] li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.2rem 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+.vm-attrs [data-attr-label] { color: var(--muted-foreground); flex: none; }
+.vm-attrs [data-attr-value] { font-weight: 550; text-align: right; }
+
+/* ── What transfers with the sale ── */
+.vm-attrs [data-matrix] { margin-top: 1.5rem; }
+.vm-attrs [data-scroll] { overflow-x: auto; }
+.vm-attrs [data-matrix] table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+.vm-attrs [data-matrix] th,
+.vm-attrs [data-matrix] td {
+  border-top: 1px solid var(--border);
+  padding: 0.45rem 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+}
+.vm-attrs [data-matrix] thead th {
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+  font-weight: 550;
+  color: var(--muted-foreground);
+  line-height: 1.25;
+}
+.vm-attrs [data-matrix] tbody th {
+  text-align: left;
+  font-weight: 550;
+  white-space: nowrap;
+  padding-left: 0;
+}
+.vm-attrs [data-matrix] thead th:first-child { text-align: left; padding-left: 0; }
+/* ○ is an answer, not an absence — it stays legible rather than fading to the
+   hairline grey, because "this does not transfer" is the half of the table a
+   buyer is reading for. */
+.vm-attrs [data-matrix] td { color: var(--muted-foreground); font-size: 0.9rem; }
+.vm-attrs [data-matrix] td[data-yes] { color: var(--foreground); }
+
+/* ── The six catalogue shapes ── */
+.vm-attrs [data-catalogue] > div {
+  display: grid;
+  grid-template-columns: 13rem 1fr;
+  gap: 0 1.25rem;
+  align-items: start;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--border);
+}
+.vm-attrs [data-catalogue] > div:last-child { border-bottom: 1px solid var(--border); }
+@media (max-width: 700px) {
+  .vm-attrs [data-catalogue] > div { grid-template-columns: 1fr; gap: 0.6rem; }
+}
+.vm-attrs [data-shape] svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--muted);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.4rem 0;
+}
+.vm-attrs [data-shape-axis] {
+  margin: 0.3rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-bar] { fill: var(--foreground); opacity: 0.72; }
+/* A season is a volume of revenue that arrives and leaves, so it is filled —
+   but faintly, so four overlapping ones stay four. */
+.vm-attrs [data-hump] {
+  fill: var(--foreground);
+  fill-opacity: 0.12;
+  stroke: var(--foreground);
+  stroke-width: 1.4;
+  stroke-opacity: 0.65;
+}
+/* Brackets sit under the axis and say "these bars are one category" — the
+   only thing separating category dominance from a generalist portfolio. */
+.vm-attrs [data-bracket] { fill: none; stroke: var(--muted-foreground); stroke-width: 1; }
+
+/* ── The differentiation ladder ── */
+.vm-attrs [data-ladder] { margin: 1.25rem 0 0; }
+.vm-attrs [data-ladder] svg { display: block; width: 100%; height: auto; }
+.vm-attrs [data-step] rect { fill: var(--foreground); }
+.vm-attrs [data-step][data-level="1"] rect { opacity: 0.14; }
+.vm-attrs [data-step][data-level="2"] rect { opacity: 0.28; }
+.vm-attrs [data-step][data-level="3"] rect { opacity: 0.46; }
+.vm-attrs [data-step][data-level="4"] rect { opacity: 0.68; }
+.vm-attrs [data-step-level] {
+  fill: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+.vm-attrs [data-step-name] {
+  fill: var(--muted-foreground);
+  font-size: 9.5px;
+  text-anchor: middle;
+}
+.vm-attrs [data-axis-label] { fill: var(--muted-foreground); font-size: 9.5px; }
+
+/* ── The checklist, as a flow ── */
+.vm-attrs [data-flow] { list-style: none; margin: 0.75rem 0 0; padding: 0; }
+.vm-attrs [data-flow] li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.35rem 1rem;
+  align-items: center;
+  margin: 0 0 0.85rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+/* The spine: a "no" falls through to the next question, which is what the
+   sentence "answered in order" means and what a numbered list did not show. */
+.vm-attrs [data-flow] li + li::before {
+  content: "";
+  position: absolute;
+  left: 1.5rem;
+  top: -0.85rem;
+  height: 0.85rem;
+  border-left: 1px solid var(--border);
+}
+.vm-attrs [data-flow] li:last-child { margin-bottom: 0; }
+.vm-attrs [data-flow] [data-flow-q] { margin: 0; max-width: none; }
+.vm-attrs [data-flow] [data-flow-yes] {
+  margin: 0;
+  justify-self: end;
+  white-space: nowrap;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--muted);
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-flow] [data-flow-yes] b { color: var(--foreground); font-weight: 600; }
+.vm-attrs [data-flow] [data-flow-end] { border-style: dashed; }
+@media (max-width: 560px) {
+  .vm-attrs [data-flow] li { grid-template-columns: 1fr; }
+  .vm-attrs [data-flow] [data-flow-yes] { justify-self: start; }
+}
+
+/* ── Where these appear: the row, both ways ── */
+.vm-attrs [data-appear] { display: grid; gap: 0.75rem; margin-top: 1.25rem; }
+@media (min-width: 640px) {
+  .vm-attrs [data-appear] { grid-template-columns: 1fr 1fr; }
+}
+.vm-attrs [data-appear-col] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem;
+}
+/* The unconnected column is dashed, never dimmer: a missing attribute is a
+   stated fact about the business, not a rendering that failed. */
+.vm-attrs [data-appear-col][data-empty] { border-style: dashed; }
+.vm-attrs [data-appear-title] {
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0.03em;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-appear-col] dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+.vm-attrs [data-appear-col] dt { color: var(--muted-foreground); flex: none; }
+.vm-attrs [data-appear-col] dd { margin: 0; font-weight: 550; text-align: right; }
+.vm-attrs [data-appear-badge] {
+  display: inline-block;
+  margin: 0.6rem 0 0;
+  padding: 0.15rem 0.55rem;
+  border: 1px dashed var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+/* Links: the contents list at the top, and level 4's worked example, which
+   is a real product you can go and look at. Ink and underlined: a link is not
+   somewhere to spend a colour, least of all the one that means verified. */
+.vm-attrs a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── The contents list ────────────────────────────────────────────────
+   Four sections, three of which a reader arrives wanting one of. The score
+   range rides along in the row: it is the question people actually have
+   ("what is this worth?") and it costs nothing to answer up front. */
+.vm-attrs [data-toc] {
+  margin-top: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.vm-attrs [data-toc-title] {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-toc] ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: toc;
+}
+.vm-attrs [data-toc] li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  counter-increment: toc;
+}
+.vm-attrs [data-toc] li + li { border-top: 1px solid var(--border); }
+.vm-attrs [data-toc] li::before {
+  content: counter(toc);
+  flex: none;
+  width: 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-toc] a { font-weight: 550; text-decoration: none; }
+.vm-attrs [data-toc] a:hover { text-decoration: underline; }
+.vm-attrs [data-toc-note] {
+  margin-left: auto;
+  padding-left: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+/* Anchored headings must clear the sticky site header when jumped to. */
+.vm-attrs h2[id] { scroll-margin-top: 5rem; }
+
+/* The range line: the whole ladder in one sentence, for the reader who is
+   not going to read six definitions. */
+.vm-attrs [data-range] {
+  margin: 0.55rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-range] b {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+/* ── The per-answer score ─────────────────────────────────────────────
+   🚨 NEUTRAL INK, both directions. --verified green on this page would say
+   "checked against Amazon", and every value here is attached to an answer the
+   seller typed. The sign carries the direction; the weight carries emphasis.
+   Mono, because it is a figure. */
+.vm-attrs [data-term] {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.vm-attrs [data-score] {
+  flex: none;
+  margin-left: auto;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+}
+.vm-attrs [data-score][data-dir="up"] {
+  color: var(--foreground);
+  border-color: var(--foreground);
+}
+
+/* On a phone the matrix scrolls inside [data-scroll] rather than widening the
+   page: `min-width` keeps the four columns readable instead of crushing them
+   to two characters, and the row headers stop being nowrap so the table's
+   min-content stays small enough that nothing outside it has to grow. */
+@media (max-width: 560px) {
+  .vm-attrs [data-matrix] table { min-width: 27rem; }
+  .vm-attrs [data-matrix] tbody th { white-space: normal; }
+}
